@@ -1,2 +1,2 @@
 ### MIASA framework
-Metric-based Identification of Similarity and Association patterns in multivariate datasets
+**M**etric-based **I**dentification of **S**imilarity and **A**ssociation patterns in multivariate datasets
