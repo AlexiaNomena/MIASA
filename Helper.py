@@ -48,7 +48,6 @@ else:
     Emb_Cols = Coords[M:, :]
     Origin = np.zeros(Emb_Rows.shape[1])
 
-
 """Clustering of Similarity and Association patterns"""
 from Methods.Core.Lower_dim import get_clusters
 palette = "tab20" ## seaborn color palette
