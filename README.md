@@ -12,7 +12,7 @@ pakages: [scikit-learn](https://scikit-learn.org/stable/), [umap](https://umap-l
 ### Description
 `Helper.py`: python code to guide through the framework.
 
-`Helper.ipynb`: jupyter notenook to guide through the framework.
+`Helper.ipynb`: jupyter notebook to guide through the framework.
 
 ### License
 The following modules are under [GNU GPLv3](https://www.gnu.org/licenses/gpl-3.0.html): `Methods/Core/CosLM.py` ([source](https://github.com/AlexiaNomena/PSD_cosine_law_matrix)), `Methods/Core/qEmbedding.py`
