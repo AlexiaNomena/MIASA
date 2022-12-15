@@ -64,7 +64,7 @@ low_meth = "umap" # or sklearn.manifols methods: MDS, Isomap,
 Coords_manifold = low_dim_coords(Centred_Coords, dim=2, method  = low_meth, n_neighbors = nb) 
 """
 Kmeans and UMAP are already parameterized for reproducibility (random_state = 0 for both).
-However, slight changes could still happend due to the optimization procedure of these packages.
+However, slight changes could still happen due to the optimization procedure and versions of these packages.
 """
 
 
