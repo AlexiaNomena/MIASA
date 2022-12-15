@@ -7,9 +7,10 @@ Created on Wed Dec 14 09:32:55 2022
 """
 import numpy as np
 
+""" Loading data: e.g. here, data is cleaned and coordinates are computed in module load_text_data"""
 from load_text_data import Coords_Rows, Coords_Cols, ContDataFrame, columns_labels, rows_labels, D, Dr, Dc, row_val, col_val, dtp, ColName, RowName
 
-""" Compute similarity metrics """
+""" Compute similarity and association metrics: e.g. here using modules bellow """
 from Methods.Core.Generate_Distances import Similarity_Metric, Association_Metric
 
 D_row_var = Similarity_Metric(Coords_Rows, method = "Euclidean")
@@ -23,7 +24,7 @@ Orow = np.linalg.norm(Coords_Rows, axis = 1)
 Ocols = np.linalg.norm(Coords_Cols, axis = 1)
 
 """joint Euclidean embedding of row and column variables"""
-from Methods.Core.Embedding import Euclidean_Embedding
+from Methods.Core.qEmbedding import Euclidean_Embedding
 M = D_row_var.shape[0]
 N = D_col_var.shape[0]
 
