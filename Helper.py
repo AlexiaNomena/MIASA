@@ -20,7 +20,7 @@ func = lambda Coords: np.exp(-Dr.dot(D.dot(Dc))) ### Pearson ratio - 1  #### her
 D_assoc = Association_Metric(Coords_Rows, Coords_Cols, func)
 
 
-"""Distane to origin Optional"""
+"""Distane to origin Optional but must be set to None if not used"""
 Orow = np.linalg.norm(Coords_Rows, axis = 1)
 Ocols = np.linalg.norm(Coords_Cols, axis = 1)
 """If Distance to origina set to None, then distance to Origin is not interpretable"""
