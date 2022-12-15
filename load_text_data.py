@@ -51,7 +51,7 @@ subset_rows = False
 #### datatype (row, col) ###
 dtp = ("int", "str") 
 
-from .Read_Data import * # module for reading and cleaning the text dataset, Cleaned_Data is included in there
+from Methods.Read_Data import * # module for reading and cleaning the text dataset, Cleaned_Data is included in there
 
 
 Data = Cleaned_Data(RawData, sheet_name_list, columns_list, form = row_val, form_labels = rows_labels) 
@@ -68,10 +68,11 @@ Data = Cleaned_Data(RawData, sheet_name_list, columns_list, form = row_val, form
 
 @Returns Returns the table of texts on the column and selected grammar on the row code (i.e. row_val)
 '''
-AllRows = Row_Vals(Data) # take all row elements of the dataset, remove the rows with nans
+AllRows = Row_Vals(Data, nans_indices = "Remove Nans") # take all row elements of the dataset, remove the rows with nans
 rows_labels = {row:row for row in AllRows}
 
 # Extract Model_infos corresponding to the underlying question
+from Methods.CA_Models import Model_infos_2D
 variables = variables = [Row_Vals(Data, nans_indices = "Remove Nans"), columns_list]
 A, Num_Obs, ContDataFrame, degree_freedom, D, row_centroid, col_centroid, Dr, Dc, S_0, T_0  = Model_infos_2D(Data, variables, model={"model":"stand"}, isCont = False)
 
@@ -81,11 +82,11 @@ if not Filter:
     Coords_Rows = (Dr).dot(D)
     Coords_Cols = (D.dot(Dc)).T ### bring coordinates on rows
 else:
-    from Core.Tensor_Factors import choose_Factors
+    from Methods.Core.Tensor_Factors import choose_Factors
     target_cos_thres = 100 # taget a particular cosine threshold for each representations
     Coords_infos = choose_Factors(D, Dr, Dc, model={"model":"stand"}, csq_thres = target_cos_thres)
-    Coords_Rows = Coords_infos["Factor_rows"].copy()
-    Coords_Cols = Coords_infos["Factor_columns"].copy()
+    Coords_Rows = Coords_infos["Sp_Fact"].copy()
+    Coords_Cols = Coords_infos["Sp_Twin_Fact"].copy()
     Coords_Cols = Coords_Cols.T ### bring coordinates on rows
     
        

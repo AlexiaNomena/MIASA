@@ -4,8 +4,8 @@ import numpy as np
 import scipy as scp
 import pdb
 import seaborn as sns
-from .TensorCA_Tools.Tensor_Laws import convert_spherical
-from .TensorCA_Tools.Lower_dim import sklearn_embedding
+from .Core.Tensor_Laws import convert_spherical
+#from Core.Lower_dim import sklearn_embedding
 from copy import copy
 
 #### Visualisation ###  
@@ -178,43 +178,6 @@ def Annotate(ax, rows_to_Annot, cols_to_Annot, Label_rows, Label_cols, xy_rows, 
     return ax
             
 
-def Display_Nonlinear(Coords_rows, Coords_cols, Inertia, Data, rows_to_Annot, cols_to_Annot, Label_rows, Label_cols, 
-            markers, col, figtitle, outliers, dtp, chosenAxes = np.array([0, 1]), keep_dim = 0, show_inertia = True, reverse_axis = False, 
-            separate = False, center = None, model = None, ColName = None, RowName = None, lims = True, plotRows = True, plotCols = True,
-            fig = None, ax = None, give_ax = False, with_ref = None, cut_dist = {"shift_orig":(False, False), "cut_all":False}):  
-    
-    """
-    @brief: display results
-    @Non-linear projection in "dims" dimensions
-    @Params keep_dim = index of dimension to keep in chosenAxes, all the others will be combined in the non_linear dimension projection
-    """
-    
-    if len(chosenAxes) == 2:
-        dims = np.arange(0, Coords_rows.shape[1], 1, dtype = int) != chosenAxes[keep_dim]
-        Coords0 = np.concatenate((Coords_rows, center[np.newaxis, :], Coords_cols), axis = 0)
-        Coords_dims = sklearn_embedding(Coords0[:, dims], dim = 5, method = "MDS")
-        
-        Coords_rows = np.zeros((Coords_rows.shape[0], 2))
-        Coords_cols = np.zeros((Coords_cols.shape[0], 2))
-        center = np.zeros(2)
-        
-        Coords_rows[:, 0] = Coords0[:Coords_rows.shape[0], chosenAxes[keep_dim]]
-        Coords_rows[:, 1] = Coords_dims[:Coords_rows.shape[0], 0] 
-        
-        center[0] = Coords0[Coords_rows.shape[0], chosenAxes[keep_dim]]
-        center[1] = Coords_dims[Coords_rows.shape[0], 0]
-        
-        Coords_cols[:, 0] = Coords0[Coords_rows.shape[0]+1: , chosenAxes[keep_dim]]
-        Coords_cols[:, 1] = Coords_dims[Coords_rows.shape[0]+1:, 0]
-        
-        
-        chosenAxes = np.array([0, 1])
-        
-    
-    return Display(Coords_rows, Coords_cols, Inertia, Data, rows_to_Annot, cols_to_Annot, Label_rows, Label_cols, 
-                    markers, col, figtitle, outliers, dtp, chosenAxes, show_inertia, reverse_axis, separate, center, model, ColName, RowName, lims, plotRows, plotCols,
-                     fig, ax, give_ax, with_ref, cut_dist)
-        
 
 def Display(Coords_rows, Coords_cols, Inertia, Data, rows_to_Annot, cols_to_Annot, Label_rows, Label_cols, 
             markers, col, figtitle, outliers, dtp, chosenAxes = np.array([0, 1]), show_inertia = True, reverse_axis = False, 
@@ -266,8 +229,7 @@ def Display(Coords_rows, Coords_cols, Inertia, Data, rows_to_Annot, cols_to_Anno
             xy_rows = sph_coords[:xy_rows.shape[0], :] + origin
             xy_cols = sph_coords[xy_rows.shape[0]:xy_rows.shape[0]+xy_cols.shape[0], :] + origin
             if with_ref is not None:
-                with_ref_c[not_orig, :] = sph_coords[xy_rows.shape[0]+xy_cols.shape[0]:,] + origin 
-                
+                with_ref_c[not_orig, :] = sph_coords[xy_rows.shape[0]+xy_cols.shape[0]:,] + origin           
     
     # annotate points
     Rows_Labels = np.array([Label_rows[c] for c in Data.index], dtype = dtp[0])

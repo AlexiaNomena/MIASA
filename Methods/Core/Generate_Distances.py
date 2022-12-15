@@ -5,13 +5,13 @@ Created on Wed Dec 14 10:28:45 2022
 
 @author: araharin
 """
-import scipy as sp
+import scipy.spatial as scSp
 import sys
 
 def Similarity_Metric(Coords, method = "Euclidean"):
     if method == "Euclidean":
-        D = sp.spatial.distance.pdist(Coords)
-        D = sp.spatial.distance.squareform(D)
+        D = scSp.distance.pdist(Coords)
+        D = scSp.distance.squareform(D)
     else:
         sys.exit("method is not implemented. Available: Euclidean")   
     return D

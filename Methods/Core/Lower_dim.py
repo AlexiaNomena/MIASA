@@ -48,11 +48,12 @@ def umap_reducer(Coords, dim, np):
     Emb_coords = reducer.fit_transform(scaled_coords)
     return Emb_coords
 
-def get_clusters(Coords, num_clust, palette, method = "Kmeans"):
+
+def get_clusters(Coords, num_clust, palette, method = "Kmeans", init = "k-means++"):
     if method == "Kmeans":
-        embedding = sklc.KMeans(n_clusters = num_clust, random_state = 0).fit(Coords)
+        embedding = sklc.KMeans(n_clusters = num_clust, init = init, random_state = 0).fit(Coords)
     else:
-        embedding = sklc.KMeans(n_clusters = num_clust, random_state = 0).fit(Coords)
+        embedding = sklc.KMeans(n_clusters = num_clust, init = init, random_state = 0).fit(Coords)
     
     labels = embedding.labels_
     unique_labs = np.unique(labels)

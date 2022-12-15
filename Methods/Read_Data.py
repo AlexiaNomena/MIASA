@@ -45,6 +45,7 @@ def decompose(Col, form):
    @params Col:  ndarray of text codes 
    @params form: qualitative variables, values: "SP", "PI", "PII", "Vb", "Subj", "Comp", "P"
    '''
+    Col = Col[~np.isnan(Col)] # remove the NaNs   (operator ~ invert the boolean array np.isnan Test)
    
     if form == "SP": # Sentence particles 
         # take the first two digit of the 10 digit code
@@ -141,7 +142,7 @@ def decompose(Col, form):
     else:
         print("Parameter form must be one of the : 'SP', 'PI', 'PII', 'Vb', 'Subj', 'Comp'")
     
-    return Col[~np.isnan(Col)] # remove the NaNs   (operator ~ invert the boolean array np.isnan Test)
+    return Col 
 
 
 def extract_chapter_index(RawData, sheet_name, lenCol, Chapter_col, Chapter_name):
