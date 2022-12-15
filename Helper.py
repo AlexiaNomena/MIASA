@@ -19,9 +19,13 @@ D_col_var = Similarity_Metric(Coords_Cols, method = "Euclidean")
 func = lambda Coords: np.exp(-Dr.dot(D.dot(Dc))) ### Pearson ratio - 1  #### here independent of the coordinates
 D_assoc = Association_Metric(Coords_Rows, Coords_Cols, func)
 
-# Distance to origin
+
+"""Distane to origin Optional"""
 Orow = np.linalg.norm(Coords_Rows, axis = 1)
 Ocols = np.linalg.norm(Coords_Cols, axis = 1)
+"""If Distance to origina set to None, then distance to Origin is not interpretable"""
+#Orow = None
+#Ocols = None
 
 """joint Euclidean embedding of row and column variables"""
 from Methods.Core.qEmbedding import Euclidean_Embedding
@@ -32,7 +36,7 @@ N = D_col_var.shape[0]
 c1, c2 = 1/4, 1/2 # Parameters for text graphs in MATH+ day cluster 2022
 c3 = (2*c1 + M*c2 - 1)/M # choose this because this is the only one that works for Form = "SP", "PI"
 c = {"c1":c1, "c2":c2, "c3":c3} 
-Coords, vareps = Euclidean_Embedding(D_row_var, D_col_var, Orow, Ocols, D_assoc, c) ### Orow, Ocols are optional, if not given, then distance to Origin is not interpretable
+Coords, vareps = Euclidean_Embedding(D_row_var, D_col_var, Orow, Ocols, D_assoc, c) 
 
 """Coordinate system for regular projection on principal axes"""
 if (Orow is not None)&(Ocols is not None):
