@@ -62,6 +62,11 @@ from Methods.Core.Lower_dim import low_dim_coords
 nb = 15 ### only for UMAP method for Egyptian texts data 
 low_meth = "umap" # or sklearn.manifols methods: MDS, Isomap, 
 Coords_manifold = low_dim_coords(Centred_Coords, dim=2, method  = low_meth, n_neighbors = nb) 
+"""
+Kmeans and UMAP are already parameterized for reproducibility (random_state = 0 for both).
+However, slight changes could still happend due to the optimization procedure of these packages.
+"""
+
 
 """Coordinate system for regular projection on principal axes"""
 if (Orow is not None)&(Ocols is not None):
