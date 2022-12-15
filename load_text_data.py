@@ -76,7 +76,7 @@ from Methods.CA_Models import Model_infos_2D
 variables = variables = [Row_Vals(Data, nans_indices = "Remove Nans"), columns_list]
 A, Num_Obs, ContDataFrame, degree_freedom, D, row_centroid, col_centroid, Dr, Dc, S_0, T_0  = Model_infos_2D(Data, variables, model={"model":"stand"}, isCont = False)
 
-Filter = True ### taget a particular cosine threshold for each representations of the categories
+Filter = False ### taget a particular cosine threshold for each representations of the categories
 
 if not Filter:
     Coords_Rows = (Dr).dot(D)

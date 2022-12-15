@@ -64,7 +64,7 @@ def Separation_axis(ax, xy_rows, xy_cols, outliers, out = 1.2, lims = True, col 
     return ax
 
 
-def OneAnnotation(ax, lab, coords, col_val, xl=5, yl=5, arrow = False, fontsize = 4, alpha = 0.5):
+def OneAnnotation(ax, lab, coords, col_val, xl=5, yl=5, arrow = False, fontsize = 12, alpha = 0.5):
     if arrow:
         ax.annotate("%s"%lab, xy=coords, 
                 xytext= (xl, yl), textcoords='offset points', ha='center', va='bottom',
@@ -257,7 +257,7 @@ def Display(Coords_rows, Coords_cols, Inertia, Data, rows_to_Annot, cols_to_Anno
     
     if not separate:
         if fig == None or ax == None:
-            fig = pl.figure(figsize=(18,10))
+            fig = pl.figure(figsize=(36+18,20+10))#pl.figure(figsize=(18,10))
             ax = fig.add_subplot(2,1,1)
         
         if len(chosenAxes) == 1:

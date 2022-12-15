@@ -3,7 +3,7 @@
 """
 Created on Wed Dec 14 09:32:55 2022
 
-@author: araharin
+@author: raharinirina
 """
 import numpy as np
 
@@ -49,8 +49,8 @@ from Methods.Core.Lower_dim import get_clusters
 palette = "tab20" ## seaborn color palette
 num_clust = N
 Centred_Coords = Coords - Origin[np.newaxis, :]
-Centred_Cols = Emb_Cols - Origin[np.newaxis, :]
-clust_labels, color_clustered = get_clusters(Coords, num_clust, palette, method = "Kmeans", init = Centred_Cols)
+#Centred_Cols = Emb_Cols - Origin[np.newaxis, :]
+clust_labels, color_clustered = get_clusters(Coords, num_clust, palette, method = "Kmeans")#, init = Centred_Cols)
 
 """Lower Dimensional visualization of clusters"""
 from Methods.Core.Lower_dim import low_dim_coords
@@ -74,9 +74,9 @@ Inertia = np.array([0, 1]) # not relevant for manifold
 AllCols = ContDataFrame.columns
 AllRows = ContDataFrame.index
 col_rows = {rows_labels[ContDataFrame.index[i]]:color_clustered[i] for i in range(M)}
-col_cols = {columns_labels[ContDataFrame.columns[i]]:color_clustered[i] for i in range(N)}
+col_cols = {columns_labels[ContDataFrame.columns[i]]:color_clustered[i+M+1] for i in range(N)}
 col_to_use = (col_rows, col_cols)
-marker_to_use = [("o",10),("o",10)]
+marker_to_use = [("o",20),("o",20)]
 fig, xy_rows, xy_cols, gs, center = Display(Rows_manifold, 
                                              Cols_manifold, 
                                              Inertia, 
@@ -98,7 +98,7 @@ fig, xy_rows, xy_cols, gs, center = Display(Rows_manifold,
                                              RowName = RowName,
                                              lims = False) # crop fig
 
-import matplotlib.pyplot as plt                
+import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 pdf= PdfPages("Figures/fig%s_%s"%(col_val,row_val)+".pdf")
 pdf.savefig(fig, bbox_inches = "tight")

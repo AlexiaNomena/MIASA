@@ -3,7 +3,7 @@
 """
 Created on Wed Dec 14 10:28:45 2022
 
-@author: araharin
+@author: raharinirina
 """
 import scipy.spatial as scSp
 import sys

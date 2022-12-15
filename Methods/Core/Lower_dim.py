@@ -3,7 +3,7 @@
 """
 Created on Wed Oct 12 09:09:33 2022
 
-@author: araharin
+@author: raharinirina
 """
 
 import numpy as np
@@ -42,8 +42,9 @@ def low_dim_coords(Coords, dim=2, method  = "MDS", n_neighbors = 15):
     
     return Emb_coords
 
+rand = 0 # fixed initialization for reproducibility of UMAP and Kmeans
 def umap_reducer(Coords, dim, np):
-    reducer = umap.UMAP(n_neighbors = np, metric = "euclidean", n_components = dim) # n_neighbor = 2 (local structure) --- 200 (global structure, truncated when larger than dataset size)
+    reducer = umap.UMAP(n_neighbors = np, metric = "euclidean", n_components = dim, random_state= rand) # n_neighbor = 2 (local structure) --- 200 (global structure, truncated when larger than dataset size)
     scaled_coords = Coords #StandardScaler().fit_transform(Coords)
     Emb_coords = reducer.fit_transform(scaled_coords)
     return Emb_coords
@@ -51,9 +52,9 @@ def umap_reducer(Coords, dim, np):
 
 def get_clusters(Coords, num_clust, palette, method = "Kmeans", init = "k-means++"):
     if method == "Kmeans":
-        embedding = sklc.KMeans(n_clusters = num_clust, init = init, random_state = 0).fit(Coords)
+        embedding = sklc.KMeans(n_clusters = num_clust, init = init, random_state = rand).fit(Coords)
     else:
-        embedding = sklc.KMeans(n_clusters = num_clust, init = init, random_state = 0).fit(Coords)
+        embedding = sklc.KMeans(n_clusters = num_clust, init = init, random_state = rand).fit(Coords)
     
     labels = embedding.labels_
     unique_labs = np.unique(labels)
