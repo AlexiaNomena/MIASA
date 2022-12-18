@@ -15,9 +15,10 @@ from Methods.Core.Generate_Distances import Similarity_Metric, Association_Metri
 
 D_row_var = Similarity_Metric(Coords_Rows, method = "Euclidean")
 D_col_var = Similarity_Metric(Coords_Cols, method = "Euclidean")
+Coords = (Coords_Rows, Coords_Cols)
 
 func = lambda Coords: np.exp(-Dr.dot(D.dot(Dc))) ### Pearson ratio - 1  #### here independent of the coordinates
-D_assoc = Association_Metric(Coords_Rows, Coords_Cols, func)
+D_assoc = Association_Metric(Coords, func)
 
 
 """Distane to origin Optional but must be set to None if not used"""

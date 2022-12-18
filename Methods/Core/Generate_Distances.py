@@ -13,11 +13,10 @@ def Similarity_Metric(Coords, method = "Euclidean"):
         D = scSp.distance.pdist(Coords)
         D = scSp.distance.squareform(D)
     else:
-        sys.exit("method is not implemented. Available: Euclidean")   
+        sys.exit("Method is not suitable. Needed: Euclidean")   
     return D
 
 
-def Association_Metric(Coords_X, Coords_Y, func):
-    Coords = (Coords_X, Coords_Y)
+def Association_Metric(Coords, func):
     D = func(Coords)
     return D
