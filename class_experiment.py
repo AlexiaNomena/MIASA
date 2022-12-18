@@ -6,6 +6,8 @@ Created on Sun Dec 18 13:21:27 2022
 @author: raharinirina
 """
 from Methods.classify import Class_Identification
+from Methods.figure_settings import Display
+
 from sklearn.metrics import rand_score
 import numpy as np
 import pandas as pd
@@ -13,7 +15,7 @@ import matplotlib.pyplot as plt
 import pdb
 
 
-def Classify_test(run_num, pdf):
+def generate_data():
     """Generate Artificial data"""
     per_spl = 200 # # Num iid per samplea
     num_spl = 10 # Num Samples
@@ -50,7 +52,10 @@ def Classify_test(run_num, pdf):
             class_dic[class4[i]+"%d"%(j+1)] = lab[3]
         
         k += 4    
-                
+    
+    return data_dic, class_dic
+
+def Classify_test(data_dic, class_dic, run_num, pdf, plotfig = True):
     """Split data in two random groups of the same size"""
     samples = np.array(list(data_dic.keys()))
     
@@ -62,7 +67,7 @@ def Classify_test(run_num, pdf):
     
     X = np.array([data_dic[X_vars[i]] for i in range(M)])
     Y = np.array([data_dic[Y_vars[i]] for i in range(N)])
-    
+   
     """ True Classes """
     Class_True = np.array([class_dic[samples[i]] for i in range(M+N)])
     
@@ -71,7 +76,6 @@ def Classify_test(run_num, pdf):
     num_clust = 4*3
     Id_Class = Class_Identification(X, Y, num_clust, dist_origin = Orow*Ocols)
     Coords = Id_Class["Coords"]
-    
     
     """Compute accuracy metric = rand_index metric"""
     Class_pred = Id_Class["Class_pred"]
@@ -99,47 +103,47 @@ def Classify_test(run_num, pdf):
         Origin_manifold = np.zeros(Coords_manifold.shape[1])
     
     """Plot and Save figure"""
-    from Methods.figure_settings import Display
-    Inertia = np.array([0, 1]) # not relevant for manifold
-    
-    ### Dummy dataframe
-    DataFrame = pd.DataFrame({Y_vars[i]:np.zeros(M) for i in range(N)}, index = X_vars)
-    rows_labels = {X_vars[i]:X_vars[i] for i in range(M)}
-    columns_labels = {Y_vars[i]:Y_vars[i] for i in range(N)}
-    
-    AllCols = DataFrame.columns
-    AllRows = DataFrame.index
-    
-    color_clustered = Id_Class["color_clustered"]
-    ColName = None
-    RowName = None
-    
-    col_rows = {rows_labels[DataFrame.index[i]]:color_clustered[i] for i in range(M)}
-    col_cols = {columns_labels[DataFrame.columns[i]]:color_clustered[i+M+1] for i in range(N)}
-    col_to_use = (col_rows, col_cols)
-    marker_to_use = [("o",20),("o",20)]
-    fig, xy_rows, xy_cols, gs, center = Display(Rows_manifold, 
-                                                 Cols_manifold, 
-                                                 Inertia, 
-                                                 DataFrame,
-                                                 center = Origin_manifold, 
-                                                 rows_to_Annot = AllRows,  # row items to annotate, if None then no annotation (None if none)
-                                                 cols_to_Annot = AllCols,  # column items to annotate (None if none)
-                                                 Label_rows = rows_labels, # dictionary of labels respectivelly corresponding to the row items (None if none)
-                                                 Label_cols = columns_labels,     # dictionary of labels respectivelly corresponding to the column items that (None if none)
-                                                 markers = marker_to_use,# pyplot markertypes, markersize: [(marker for the row items, size), (marker for the columb items, size)] 
-                                                 col = col_to_use,        # pyplot colortypes : [color for the row items, color for the column items] 
-                                                 figtitle = "method = %s (%d)"%(low_meth, run_num), 
-                                                 outliers = (True, True),
-                                                 dtp = ("<U4", "<U4"), # checked from printing variable samples line 56
-                                                 chosenAxes = np.array([0,1]), 
-                                                 show_inertia = False, 
-                                                 model={"model":"stand"}, 
-                                                 ColName = ColName, 
-                                                 RowName = RowName,
-                                                 lims = False) # crop fig
-    
-    pdf.savefig(fig, bbox_inches = "tight")
+    if plotfig:
+        Inertia = np.array([0, 1]) # not relevant for manifold
+        
+        ### Dummy dataframe
+        DataFrame = pd.DataFrame({Y_vars[i]:np.zeros(M) for i in range(N)}, index = X_vars)
+        rows_labels = {X_vars[i]:X_vars[i] for i in range(M)}
+        columns_labels = {Y_vars[i]:Y_vars[i] for i in range(N)}
+        
+        AllCols = DataFrame.columns
+        AllRows = DataFrame.index
+        
+        color_clustered = Id_Class["color_clustered"]
+        ColName = None
+        RowName = None
+        
+        col_rows = {rows_labels[DataFrame.index[i]]:color_clustered[i] for i in range(M)}
+        col_cols = {columns_labels[DataFrame.columns[i]]:color_clustered[i+M+1] for i in range(N)}
+        col_to_use = (col_rows, col_cols)
+        marker_to_use = [("o",20),("o",20)]
+        fig, xy_rows, xy_cols, gs, center = Display(Rows_manifold, 
+                                                     Cols_manifold, 
+                                                     Inertia, 
+                                                     DataFrame,
+                                                     center = Origin_manifold, 
+                                                     rows_to_Annot = AllRows,  # row items to annotate, if None then no annotation (None if none)
+                                                     cols_to_Annot = AllCols,  # column items to annotate (None if none)
+                                                     Label_rows = rows_labels, # dictionary of labels respectivelly corresponding to the row items (None if none)
+                                                     Label_cols = columns_labels,     # dictionary of labels respectivelly corresponding to the column items that (None if none)
+                                                     markers = marker_to_use,# pyplot markertypes, markersize: [(marker for the row items, size), (marker for the columb items, size)] 
+                                                     col = col_to_use,        # pyplot colortypes : [color for the row items, color for the column items] 
+                                                     figtitle = "method = %s (%d)"%(low_meth, run_num), 
+                                                     outliers = (True, True),
+                                                     dtp = ("<U4", "<U4"), # checked from printing variable samples line 56
+                                                     chosenAxes = np.array([0,1]), 
+                                                     show_inertia = False, 
+                                                     model={"model":"stand"}, 
+                                                     ColName = ColName, 
+                                                     RowName = RowName,
+                                                     lims = False) # crop fig
+        
+        pdf.savefig(fig, bbox_inches = "tight")
 
 
     return acc_metric
@@ -147,10 +151,19 @@ def Classify_test(run_num, pdf):
 if __name__ == "__main__":
     from matplotlib.backends.backend_pdf import PdfPages
     pdf= PdfPages("Figures/fig_Class_test.pdf")
-    acc_metric = Classify_test(1, pdf)
-    print("Accuracy:%.2f %%"%(acc_metric*100))
+    repeat = 100
+    acc_metric = []
+    for r in range(repeat):
+        data_dic, class_dic = generate_data()
+        if r < 10:
+            acc_metric.append(Classify_test(data_dic, class_dic, r, pdf, plotfig = True))
+        else:
+            acc_metric.append(Classify_test(data_dic, class_dic, r, pdf, plotfig = False))
+    acc_metric = np.array(acc_metric)
+    print("Accuracy: mean:%.2f, std:%.2f"%(np.mean(acc_metric), np.std(acc_metric)))    
+    #print("Accuracy:%.2f %%"%(acc_metric[0]*100))
     pdf.close()
-    plt.show()
+    #plt.show()
 
 
 
