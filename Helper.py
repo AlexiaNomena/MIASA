@@ -74,9 +74,9 @@ if (Orow is not None)&(Ocols is not None):
     Cols_manifold = Coords_manifold[M+1:, :]
     Origin_manifold = Coords_manifold[M, :] 
 else:
-    Emb_Rows_manifold = Coords_manifold[:M, :]
-    Emb_Cols_manifold = Coords_manifold[M:, :]
-    Origin_manifold = np.zeros(Emb_Rows.shape[1])
+    Rows_manifold = Coords_manifold[:M, :]
+    Cols_manifold = Coords_manifold[M:, :]
+    Origin_manifold = np.zeros(Coords_manifold.shape[1])
 
 """Plot and Save figure"""
 from Methods.figure_settings import Display
