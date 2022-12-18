@@ -17,7 +17,7 @@ from functools import partial
 import umap
 import seaborn as sns
 
-def low_dim_coords(Coords, dim=2, method  = "MDS", n_neighbors = 15):
+def low_dim_coords(Coords, dim=2, method  = "MDS", n_neighbors = 15, min_dist = None):
     '''
     @ brief          : embeding of points onto a lower-dimensional manifold of using sklean.manifold
     @ param Coords   : Coords, dim, method
@@ -38,13 +38,16 @@ def low_dim_coords(Coords, dim=2, method  = "MDS", n_neighbors = 15):
         Emb_coords = MDS_YH(Coords, dim)
         
     elif method == "umap":
-        Emb_coords = umap_reducer(Coords, dim, n_neighbors)
+        Emb_coords = umap_reducer(Coords, dim, n_neighbors, min_dist)
     
     return Emb_coords
 
 rand = 0 # fixed initialization for reproducibility of UMAP and Kmeans
-def umap_reducer(Coords, dim, np):
-    reducer = umap.UMAP(n_neighbors = np, metric = "euclidean", n_components = dim, random_state= rand) # n_neighbor = 2 (local structure) --- 200 (global structure, truncated when larger than dataset size)
+def umap_reducer(Coords, dim, np, min_dist):
+    if min_dist == None:
+        reducer = umap.UMAP(n_neighbors = np, metric = "euclidean", n_components = dim, random_state= rand) # n_neighbor = 2 (local structure) --- 200 (global structure, truncated when larger than dataset size)
+    else:
+        reducer = umap.UMAP(n_neighbors = np, min_dist = min_dist, metric = "euclidean", n_components = dim, random_state= rand)
     scaled_coords = Coords #StandardScaler().fit_transform(Coords)
     Emb_coords = reducer.fit_transform(scaled_coords)
     return Emb_coords
