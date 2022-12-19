@@ -12,7 +12,7 @@ import numpy as np
 from sklearn.metrics import rand_score
 
 
-def Classify_general(data_dic, class_dic, run_num, num_clust, pdf, plotfig = True):
+def Classify_general(data_dic, class_dic, num_clust):
     """Split data in two random groups of the same size"""
     samples = np.array(list(data_dic.keys()))
     

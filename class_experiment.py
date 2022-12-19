@@ -7,7 +7,6 @@ Created on Sun Dec 18 13:21:27 2022
 """
 from Methods.classify import Classify_general, plotClass
 import numpy as np
-import matplotlib.pyplot as plt
 import pdb
 
 def generate_data():
@@ -61,13 +60,12 @@ if __name__ == "__main__":
     acc_metric = []
     for r in range(repeat):
         data_dic, class_dic, num_clust, dtp = generate_data()
-        
+        Id_Class, X_vars, Y_vars, acc_metric_r = Classify_general(data_dic, class_dic, num_clust)
+        acc_metric.append(r)
         print("num run", r)
         if r < 10:
+            plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, r)
             
-            acc_metric.append(Classify_test(data_dic, class_dic, r, pdf, plotfig = True))
-        else:
-            acc_metric.append(Classify_test(data_dic, class_dic, r, pdf, plotfig = False))
     acc_metric = np.array(acc_metric)
     print("Accuracy: mean:%.2f, std:%.2f"%(np.mean(acc_metric), np.std(acc_metric)))    
     #print("Accuracy:%.2f %%"%(acc_metric[0]*100))
