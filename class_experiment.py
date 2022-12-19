@@ -13,6 +13,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import pdb
+from Methods.Core.Lower_dim import low_dim_coords
 
 
 def generate_data():
@@ -53,40 +54,14 @@ def generate_data():
         
         k += 4    
     
-    return data_dic, class_dic
+    num_clust = len(labs)
+    return data_dic, class_dic, num_clust
 
-def Classify_test(data_dic, class_dic, run_num, pdf, plotfig = True):
-    """Split data in two random groups of the same size"""
-    samples = np.array(list(data_dic.keys()))
-    
-    np.random.shuffle(samples)
-    X_vars = samples[:len(samples)//2]
-    Y_vars = samples[len(X_vars):]
-    M = len(X_vars)
-    N = len(Y_vars)
-    
-    X = np.array([data_dic[X_vars[i]] for i in range(M)])
-    Y = np.array([data_dic[Y_vars[i]] for i in range(N)])
-   
-    """ True Classes """
-    Class_True = np.array([class_dic[samples[i]] for i in range(M+N)])
-    
-    """ Identify Class using MIASA framework """
-    Orow, Ocols = True, True
-    num_clust = 4*3
-    Id_Class = Miasa_Class(X, Y, num_clust, dist_origin = Orow*Ocols)
-    Coords = Id_Class["Coords"]
-    
-    """Compute accuracy metric = rand_index metric"""
-    Class_pred = Id_Class["Class_pred"]
-    acc_metric = rand_score(Class_True, Class_pred)
-    
-    
+
     
     """Plot and Save figure"""
     if plotfig:
         """Lower Dimensional visualization of clusters"""
-        from Methods.Core.Lower_dim import low_dim_coords
         nb = 2 ### 
         low_meth = "umap" # or sklearn.manifols methods: MDS, Isomap, 
         md = 0.99
@@ -156,7 +131,7 @@ if __name__ == "__main__":
     repeat = 100
     acc_metric = []
     for r in range(repeat):
-        data_dic, class_dic = generate_data()
+        data_dic, class_dic, num_clust = generate_data()
         print("num run", r)
         if r < 10:
             acc_metric.append(Classify_test(data_dic, class_dic, r, pdf, plotfig = True))
