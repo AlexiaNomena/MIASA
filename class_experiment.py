@@ -5,16 +5,10 @@ Created on Sun Dec 18 13:21:27 2022
 
 @author: raharinirina
 """
-from Methods.classify import Miasa_Class
-from Methods.figure_settings import Display
-
-from sklearn.metrics import rand_score
+from Methods.classify import Classify_general, plotClass
 import numpy as np
-import pandas as pd
 import matplotlib.pyplot as plt
 import pdb
-from Methods.Core.Lower_dim import low_dim_coords
-
 
 def generate_data():
     """Generate Artificial data"""
@@ -55,75 +49,10 @@ def generate_data():
         k += 4    
     
     num_clust = len(labs)
-    return data_dic, class_dic, num_clust
+    dtp = ("<U4", "<U4") #checked from printing variables
+    return data_dic, class_dic, num_clust, dtp
 
 
-    
-    """Plot and Save figure"""
-    if plotfig:
-        """Lower Dimensional visualization of clusters"""
-        nb = 2 ### 
-        low_meth = "umap" # or sklearn.manifols methods: MDS, Isomap, 
-        md = 0.99
-        Coords_manifold = low_dim_coords(Coords, dim=2, method  = low_meth, n_neighbors = nb, min_dist = md) 
-        """
-        Kmeans and UMAP are already parameterized for reproducibility (random_state = 0 for both).
-        However, slight changes could still happen due to the optimization procedure and versions of these packages.
-        """
-        
-        """Coordinate system for regular projection on principal axes"""
-        if (Orow is not None)&(Ocols is not None):
-            Rows_manifold = Coords_manifold[:M, :]
-            Cols_manifold = Coords_manifold[M+1:, :]
-            Origin_manifold = Coords_manifold[M, :] 
-        else:
-            Rows_manifold = Coords_manifold[:M, :]
-            Cols_manifold = Coords_manifold[M:, :]
-            Origin_manifold = np.zeros(Coords_manifold.shape[1])
-        
-        Inertia = np.array([0, 1]) # not relevant for manifold
-        
-        ### Dummy dataframe
-        DataFrame = pd.DataFrame({Y_vars[i]:np.zeros(M) for i in range(N)}, index = X_vars)
-        rows_labels = {X_vars[i]:X_vars[i] for i in range(M)}
-        columns_labels = {Y_vars[i]:Y_vars[i] for i in range(N)}
-        
-        AllCols = DataFrame.columns
-        AllRows = DataFrame.index
-        
-        color_clustered = Id_Class["color_clustered"]
-        ColName = None
-        RowName = None
-        
-        col_rows = {rows_labels[DataFrame.index[i]]:color_clustered[i] for i in range(M)}
-        col_cols = {columns_labels[DataFrame.columns[i]]:color_clustered[i+M+1] for i in range(N)}
-        col_to_use = (col_rows, col_cols)
-        marker_to_use = [("o",20),("o",20)]
-        fig, xy_rows, xy_cols, gs, center = Display(Rows_manifold, 
-                                                     Cols_manifold, 
-                                                     Inertia, 
-                                                     DataFrame,
-                                                     center = Origin_manifold, 
-                                                     rows_to_Annot = AllRows,  # row items to annotate, if None then no annotation (None if none)
-                                                     cols_to_Annot = AllCols,  # column items to annotate (None if none)
-                                                     Label_rows = rows_labels, # dictionary of labels respectivelly corresponding to the row items (None if none)
-                                                     Label_cols = columns_labels,     # dictionary of labels respectivelly corresponding to the column items that (None if none)
-                                                     markers = marker_to_use,# pyplot markertypes, markersize: [(marker for the row items, size), (marker for the columb items, size)] 
-                                                     col = col_to_use,        # pyplot colortypes : [color for the row items, color for the column items] 
-                                                     figtitle = "method = %s (%d)"%(low_meth, run_num), 
-                                                     outliers = (True, True),
-                                                     dtp = ("<U4", "<U4"), # checked from printing variable samples line 56
-                                                     chosenAxes = np.array([0,1]), 
-                                                     show_inertia = False, 
-                                                     model={"model":"stand"}, 
-                                                     ColName = ColName, 
-                                                     RowName = RowName,
-                                                     lims = False) # crop fig
-        
-        pdf.savefig(fig, bbox_inches = "tight")
-
-
-    return acc_metric
 
 if __name__ == "__main__":
     from matplotlib.backends.backend_pdf import PdfPages
@@ -131,9 +60,11 @@ if __name__ == "__main__":
     repeat = 100
     acc_metric = []
     for r in range(repeat):
-        data_dic, class_dic, num_clust = generate_data()
+        data_dic, class_dic, num_clust, dtp = generate_data()
+        
         print("num run", r)
         if r < 10:
+            
             acc_metric.append(Classify_test(data_dic, class_dic, r, pdf, plotfig = True))
         else:
             acc_metric.append(Classify_test(data_dic, class_dic, r, pdf, plotfig = False))

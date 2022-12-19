@@ -70,9 +70,9 @@ def get_class(X, Y, Feature_X, Feature_Y, func, ftype, method, emb_params, dist_
         Orow = None
         Ocols = None
     
+    M = Feature_X.shape[0]
+    N = Feature_Y.shape[0]
     if emb_params is None:
-        M = Feature_X.shape[0]
-        N = Feature_Y.shape[0]
         c1, c2 = 1/2, 2
         a = 1. - 1./(M+N)
         b = 2.*c2/(M+N)
@@ -95,10 +95,11 @@ def get_class(X, Y, Feature_X, Feature_Y, func, ftype, method, emb_params, dist_
     if dist_origin:
         Coords = Coords - Coords[M, :][np.newaxis, :]
         Class_pred = np.concatenate((clust_labels[:M], clust_labels[M+1:]), axis = 0)
+        was_orig = True
     else:
         Class_pred = clust_labels
+        was_orig = False
         
-    
-    return {"Coords": Coords, "vareps":vareps, "Class_pred":Class_pred, "clust_labels":clust_labels, "color_clustered":color_clustered}
+    return {"Coords": Coords, "shape":(M, N), "was_orig":was_orig, "vareps":vareps, "Class_pred":Class_pred, "clust_labels":clust_labels, "color_clustered":color_clustered}
     
     
