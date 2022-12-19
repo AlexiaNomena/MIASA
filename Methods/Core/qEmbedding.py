@@ -37,10 +37,9 @@ def Euclidean_Embedding(DX, DY, UX, UY, fXY, c):
     U = U[:, sort]
     test = np.sum(sigma<0)
     if test == 0:
-        print("Replacement matrix is PSD")
+        print("Replacement matrix is PSD: success Euclidean embedding")
         SS = np.sqrt(np.diag(sigma)) 
         Coords0 = np.real(U.dot(SS))
-        
         
         """ Then remove the connecting point (see Paper: Qualitative Euclidean Embedding) """
         Coords = Coords0[1:, :]

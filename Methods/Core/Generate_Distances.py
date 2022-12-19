@@ -6,6 +6,7 @@ Created on Wed Dec 14 10:28:45 2022
 @author: raharinirina
 """
 import scipy.spatial as scSp
+import numpy as np
 import sys
 
 def Similarity_Metric(Coords, method = "Euclidean"):
@@ -17,6 +18,15 @@ def Similarity_Metric(Coords, method = "Euclidean"):
     return D
 
 
-def Association_Metric(Coords, func):
-    D = func(Coords)
+def Association_Metric(Coords, func, ftype = "vectorized"):
+    if ftype == "vectorized":
+        D = func(Coords)
+    
+    else:
+        M, N = Coords[0].shape[0], Coords[1].shape[0]
+        D = np.zeros((M, N))
+        for i in range(M):
+            for j in range(N):
+                Coords_ij = (Coords[0][i, :], Coords[1][j, :])
+                D[i, j] = func(Coords_ij)
     return D

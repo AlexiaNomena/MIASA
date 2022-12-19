@@ -13,15 +13,18 @@ from .Core.qEmbedding import Euclidean_Embedding
 
 import sys
 import numpy as np
+from scipy.stats import ks_2samp
+import pdb
 
-def Class_Identification(X, Y, num_clust, emb_params = None, dist_origin = True, method = "Kolmogorov-Smirnov", clust_method = "Kmeans", palette = "tab20"):
+
+def Miasa_Class(X, Y, num_clust, emb_params = None, dist_origin = True, method = "Kolmogorov-Smirnov", clust_method = "Kmeans", palette = "tab20"):
     """Compute features"""
     if method == "Kolmogorov-Smirnov":
-       Feature_X, Feature_Y, func = KS(X,Y)
+       Feature_X, Feature_Y, func, ftype = KS(X,Y)
     else:
-       Feature_X, Feature_Y, func = Sub_Eucl(X, Y)
+       Feature_X, Feature_Y, func, ftype = Sub_Eucl(X, Y)
 
-    Result = get_class(Feature_X, Feature_Y, func, emb_params, dist_origin, num_clust, clust_method, palette)
+    Result = get_class(X, Y, Feature_X, Feature_Y, func, ftype, method, emb_params, dist_origin, num_clust, clust_method, palette)
 
     return Result
 
@@ -33,26 +36,32 @@ def KS(X,Y):
     interval = np.linspace(lbd, ubd, 500)
     Feature_X = EmpCDF(X, interval)
     Feature_Y = EmpCDF(Y, interval)
-    func = lambda Features: np.max(np.abs(Features[0] - Features[1]))
-    return Feature_X, Feature_Y, func
+    #func = lambda Features: np.max(np.abs(Features[0] - Features[1]))
+    func = lambda Features: 1e-3 + np.abs(ks_2samp(Features[0], Features[1]).statistic) # use the KS statistic  added a constant to avoid zero everywhere
+    ftype = "not_vectorized"
+    return Feature_X, Feature_Y, func, ftype
 
 
 def Sub_Eucl(X, Y):
     Feature_X = X.copy()
     Feature_Y = Y.copy()
     func = lambda Features: np.max(np.abs(Features[0][:, np.newaxis] - Features[1][np.newaxis, :]))
-    return Feature_X, Feature_Y, func
+    ftype = "vectorized"
+    return Feature_X, Feature_Y, func, ftype
     
 
-def get_class(Feature_X, Feature_Y, func, emb_params, dist_origin = False, num_clust=None, clust_method = "Kmeans", palette = "tab20"):
+def get_class(X, Y, Feature_X, Feature_Y, func, ftype, method, emb_params, dist_origin = False, num_clust=None, clust_method = "Kmeans", palette = "tab20"):
     """ Similarity metric """
     DX = Similarity_Metric(Feature_X, method = "Euclidean")
     DY = Similarity_Metric(Feature_Y, method = "Euclidean")
     
     """Association metric"""
-    Features = (Feature_X, Feature_Y)
-    D_assoc = Association_Metric(Features, func)
+    if method == "KS":
+        Features = (X, Y)
+    else:
+        Features = (Feature_X, Feature_Y)
     
+    D_assoc = Association_Metric(Features, func, ftype)
     """Distane to origin Optional but must be set to None if not used"""
     if dist_origin:
         Orow = np.linalg.norm(Feature_X, axis = 1)
@@ -71,8 +80,10 @@ def get_class(Feature_X, Feature_Y, func, emb_params, dist_origin = False, num_c
         c = {"c1":c1, "c2":c2, "c3":c3} 
     else:
         c = emb_params
-        
-    Coords, vareps = Euclidean_Embedding(DX, DY, Orow, Ocols, D_assoc, c)
+    
+    alpha = np.max(D_assoc) # adding a constant to the Euclidean distances to statisfy one of the conditions for embedding
+    Coords, vareps = Euclidean_Embedding(DX+alpha, DY+alpha, Orow+alpha, Ocols+alpha, D_assoc, c)
+    
     if clust_method == "Kmeans":
         if num_clust == None:
             sys.exit("Kmeans requires number of clusters parameter: num_clust")

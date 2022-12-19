@@ -5,7 +5,7 @@ Created on Sun Dec 18 13:21:27 2022
 
 @author: raharinirina
 """
-from Methods.classify import Class_Identification
+from Methods.classify import Miasa_Class
 from Methods.figure_settings import Display
 
 from sklearn.metrics import rand_score
@@ -74,36 +74,38 @@ def Classify_test(data_dic, class_dic, run_num, pdf, plotfig = True):
     """ Identify Class using MIASA framework """
     Orow, Ocols = True, True
     num_clust = 4*3
-    Id_Class = Class_Identification(X, Y, num_clust, dist_origin = Orow*Ocols)
+    Id_Class = Miasa_Class(X, Y, num_clust, dist_origin = Orow*Ocols)
     Coords = Id_Class["Coords"]
     
     """Compute accuracy metric = rand_index metric"""
     Class_pred = Id_Class["Class_pred"]
     acc_metric = rand_score(Class_True, Class_pred)
     
-    """Lower Dimensional visualization of clusters"""
-    from Methods.Core.Lower_dim import low_dim_coords
-    nb = 2 ### 
-    low_meth = "umap" # or sklearn.manifols methods: MDS, Isomap, 
-    md = 0.99
-    Coords_manifold = low_dim_coords(Coords, dim=2, method  = low_meth, n_neighbors = nb, min_dist = md) 
-    """
-    Kmeans and UMAP are already parameterized for reproducibility (random_state = 0 for both).
-    However, slight changes could still happen due to the optimization procedure and versions of these packages.
-    """
     
-    """Coordinate system for regular projection on principal axes"""
-    if (Orow is not None)&(Ocols is not None):
-        Rows_manifold = Coords_manifold[:M, :]
-        Cols_manifold = Coords_manifold[M+1:, :]
-        Origin_manifold = Coords_manifold[M, :] 
-    else:
-        Rows_manifold = Coords_manifold[:M, :]
-        Cols_manifold = Coords_manifold[M:, :]
-        Origin_manifold = np.zeros(Coords_manifold.shape[1])
     
     """Plot and Save figure"""
     if plotfig:
+        """Lower Dimensional visualization of clusters"""
+        from Methods.Core.Lower_dim import low_dim_coords
+        nb = 2 ### 
+        low_meth = "umap" # or sklearn.manifols methods: MDS, Isomap, 
+        md = 0.99
+        Coords_manifold = low_dim_coords(Coords, dim=2, method  = low_meth, n_neighbors = nb, min_dist = md) 
+        """
+        Kmeans and UMAP are already parameterized for reproducibility (random_state = 0 for both).
+        However, slight changes could still happen due to the optimization procedure and versions of these packages.
+        """
+        
+        """Coordinate system for regular projection on principal axes"""
+        if (Orow is not None)&(Ocols is not None):
+            Rows_manifold = Coords_manifold[:M, :]
+            Cols_manifold = Coords_manifold[M+1:, :]
+            Origin_manifold = Coords_manifold[M, :] 
+        else:
+            Rows_manifold = Coords_manifold[:M, :]
+            Cols_manifold = Coords_manifold[M:, :]
+            Origin_manifold = np.zeros(Coords_manifold.shape[1])
+        
         Inertia = np.array([0, 1]) # not relevant for manifold
         
         ### Dummy dataframe
@@ -155,6 +157,7 @@ if __name__ == "__main__":
     acc_metric = []
     for r in range(repeat):
         data_dic, class_dic = generate_data()
+        print("num run", r)
         if r < 10:
             acc_metric.append(Classify_test(data_dic, class_dic, r, pdf, plotfig = True))
         else:
