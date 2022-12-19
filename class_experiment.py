@@ -55,21 +55,39 @@ def generate_data():
 
 if __name__ == "__main__":
     from matplotlib.backends.backend_pdf import PdfPages
-    pdf= PdfPages("Figures/fig_Class_test.pdf")
     repeat = 100
-    acc_metric = []
-    for r in range(repeat):
-        data_dic, class_dic, num_clust, dtp = generate_data()
-        Id_Class, X_vars, Y_vars, acc_metric_r = Classify_general(data_dic, class_dic, num_clust)
-        acc_metric.append(r)
-        print("num run", r)
-        if r < 10:
-            plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, r)
+    
+    classifiers = ["MIASA", "Non_Metric"]
+    clust_methods = ["Kmeans", "Kmedoid"]
+    metric_method = ["KS-statistic", "KS-p_value", "OR", "RR"]
+    
+    method_dic_list = []
+    method_name = []
+    for i in range(len(classifiers)):
+        for k in range(len(metric_method)):
+            method_dic_list.append({"class_method":classifiers[i], "clust_method":clust_methods[i], "metric_method":metric_method[k]})
+            method_name.append(classifiers[i]+"-"+metric_method[k])
+    All_acc = []
+    for i in range(len(method_dic_list)):
+        pdf= PdfPages("Figures/fig_Class_test.pdf")
+
+        acc_metric = []
+        for r in range(repeat):
+            data_dic, class_dic, num_clust, dtp = generate_data()
+            Id_Class, X_vars, Y_vars, acc_r = Classify_general(data_dic, class_dic, num_clust, method_dic = method_dic_list[i])
             
-    acc_metric = np.array(acc_metric)
-    print("Accuracy: mean:%.2f, std:%.2f"%(np.mean(acc_metric), np.std(acc_metric)))    
-    #print("Accuracy:%.2f %%"%(acc_metric[0]*100))
-    pdf.close()
+            acc_metric.append(acc_r)
+            print("method num %d/%d"%(i, len(method_dic_list)), "run %d/%d"%(r,repeat))
+            if r < 10:
+                plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, r)
+            
+            
+        acc_metric = np.array(acc_metric)
+        All_acc.append(acc_metric)
+        print("Accuracy: mean:%.2f, std:%.2f"%(np.mean(acc_metric), np.std(acc_metric)))    
+        pdf.close()
+        
+    
     #plt.show()
 
 
