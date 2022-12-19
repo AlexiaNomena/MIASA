@@ -7,56 +7,36 @@ Created on Sun Dec 18 14:03:16 2022
 """
 
 from .Core.Generate_Distances import Similarity_Metric, Association_Metric
-from .Generate_Features import EmpCDF
+from .Generate_Features import KS_v1, KS_v2, Sub_Eucl
 from .Core.Lower_dim import get_clusters
 from .Core.qEmbedding import Euclidean_Embedding
 
 import sys
 import numpy as np
-from scipy.stats import ks_2samp
 import pdb
 
 
-def Miasa_Class(X, Y, num_clust, emb_params = None, dist_origin = True, method = "Kolmogorov-Smirnov", clust_method = "Kmeans", palette = "tab20"):
+def Miasa_Class(X, Y, num_clust, emb_params = None, dist_origin = True, metric_method = "KS-statistic", clust_method = "Kmeans", palette = "tab20"):
     """Compute features"""
-    if method == "Kolmogorov-Smirnov":
-       Feature_X, Feature_Y, func, ftype = KS(X,Y)
+    if metric_method == "KS-statistic":
+       Feature_X, Feature_Y, func, ftype = KS_v1(X,Y)
+    elif metric_method == "KS-p_value":
+        Feature_X, Feature_Y, func, ftype = KS_v2(X,Y)
     else:
        Feature_X, Feature_Y, func, ftype = Sub_Eucl(X, Y)
 
-    Result = get_class(X, Y, Feature_X, Feature_Y, func, ftype, method, emb_params, dist_origin, num_clust, clust_method, palette)
+    Result = get_class(X, Y, Feature_X, Feature_Y, func, ftype, metric_method, emb_params, dist_origin, num_clust, clust_method, palette)
 
     return Result
-
-
-def KS(X,Y):
-    lbd = min(np.min(X), np.min(Y))
-    ubd = max(np.max(X), np.max(Y))
-    
-    interval = np.linspace(lbd, ubd, 500)
-    Feature_X = EmpCDF(X, interval)
-    Feature_Y = EmpCDF(Y, interval)
-    #func = lambda Features: np.max(np.abs(Features[0] - Features[1]))
-    func = lambda Features: 1e-3 + np.abs(ks_2samp(Features[0], Features[1]).statistic) # use the KS statistic  added a constant to avoid zero everywhere
-    ftype = "not_vectorized"
-    return Feature_X, Feature_Y, func, ftype
-
-
-def Sub_Eucl(X, Y):
-    Feature_X = X.copy()
-    Feature_Y = Y.copy()
-    func = lambda Features: np.max(np.abs(Features[0][:, np.newaxis] - Features[1][np.newaxis, :]))
-    ftype = "vectorized"
-    return Feature_X, Feature_Y, func, ftype
     
 
-def get_class(X, Y, Feature_X, Feature_Y, func, ftype, method, emb_params, dist_origin = False, num_clust=None, clust_method = "Kmeans", palette = "tab20"):
+def get_class(X, Y, Feature_X, Feature_Y, func, ftype, metric_method, emb_params, dist_origin = False, num_clust=None, clust_method = "Kmeans", palette = "tab20"):
     """ Similarity metric """
     DX = Similarity_Metric(Feature_X, method = "Euclidean")
     DY = Similarity_Metric(Feature_Y, method = "Euclidean")
     
     """Association metric"""
-    if method == "KS":
+    if metric_method == "KS-statistic":
         Features = (X, Y)
     else:
         Features = (Feature_X, Feature_Y)
@@ -90,7 +70,7 @@ def get_class(X, Y, Feature_X, Feature_Y, func, ftype, method, emb_params, dist_
         else:
             clust_labels, color_clustered = get_clusters(Coords, num_clust, palette, method = "Kmeans")
     else:
-        sys.exit("clust_method is not available")
+        sys.exit("A metric-based clustering method is required for MIASA")
     
     if dist_origin:
         Coords = Coords - Coords[M, :][np.newaxis, :]

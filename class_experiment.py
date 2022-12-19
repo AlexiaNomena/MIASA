@@ -5,7 +5,7 @@ Created on Sun Dec 18 13:21:27 2022
 
 @author: raharinirina
 """
-from Methods.classify import Classify_general, plotClass
+from Methods.classify import Classify_general, plotClass, BarPlotClass
 import numpy as np
 import pdb
 
@@ -57,37 +57,38 @@ if __name__ == "__main__":
     from matplotlib.backends.backend_pdf import PdfPages
     repeat = 100
     
-    classifiers = ["MIASA", "Non_Metric"]
-    clust_methods = ["Kmeans", "Kmedoid"]
+    classifiers = ["MIASA"]#, "Non_Metric"]
+    clust_methods = ["Kmeans", "Kmedoids"] # MIASA uses only metric-based clust method (e.g. K-means) and "Non_metric" uses non-metric-based clust method (e.g. K-medoids)
     metric_method = ["KS-statistic", "KS-p_value", "OR", "RR"]
     
     method_dic_list = []
     method_name = []
+    pdf = []
     for i in range(len(classifiers)):
         for k in range(len(metric_method)):
             method_dic_list.append({"class_method":classifiers[i], "clust_method":clust_methods[i], "metric_method":metric_method[k]})
             method_name.append(classifiers[i]+"-"+metric_method[k])
-    All_acc = []
-    for i in range(len(method_dic_list)):
-        pdf= PdfPages("Figures/fig_Class_test.pdf")
-
-        acc_metric = []
-        for r in range(repeat):
+            pdf.append(PdfPages("Figures/%s.pdf"%classifiers[i]+"-"+metric_method[k]))
+            
+    
+    acc_list = np.zeros((len(method_dic_list), repeat))
+    for r in range(repeat):
+        for i in range(len(method_dic_list)):    
             data_dic, class_dic, num_clust, dtp = generate_data()
             Id_Class, X_vars, Y_vars, acc_r = Classify_general(data_dic, class_dic, num_clust, method_dic = method_dic_list[i])
-            
-            acc_metric.append(acc_r)
             print("method num %d/%d"%(i, len(method_dic_list)), "run %d/%d"%(r,repeat))
             if r < 10:
-                plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, r)
+                plotClass(Id_Class, X_vars, Y_vars, pdf[i], dtp, r)
             
-            
-        acc_metric = np.array(acc_metric)
-        All_acc.append(acc_metric)
-        print("Accuracy: mean:%.2f, std:%.2f"%(np.mean(acc_metric), np.std(acc_metric)))    
-        pdf.close()
+            acc_list[i, r] = np.array(acc_r)
         
+    for i in range(len(method_dic_list)):
+        pdf[i].close()
     
+    pdfb= PdfPages("Figures/BP_Class_test.pdf")    
+    BarPlotClass(acc_list, method_name)
+    pdfb.close()
+
     #plt.show()
 
 

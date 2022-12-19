@@ -11,7 +11,11 @@ from .miasa_class import Miasa_Class
 import numpy as np
 from sklearn.metrics import rand_score
 
-def Classify_general(data_dic, class_dic, num_clust):
+def Classify_general(data_dic, class_dic, num_clust, method_dic):
+    class_method = method_dic["class_method"]
+    clust_method = method_dic["clust_method"]
+    metric_method = method_dic["metric_method"]
+    
     """Split data in two random groups of the same size"""
     samples = np.array(list(data_dic.keys()))
     
@@ -28,8 +32,12 @@ def Classify_general(data_dic, class_dic, num_clust):
     Class_True = np.array([class_dic[samples[i]] for i in range(M+N)])
     
     """ Identify Class using MIASA framework """
-    Orow, Ocols = True, True
-    Id_Class = Miasa_Class(X, Y, num_clust, dist_origin = Orow*Ocols)
+    if class_method == "MIASA":
+        Orow, Ocols = True, True
+        Id_Class = Miasa_Class(X, Y, num_clust, dist_origin = Orow*Ocols, metric_method = metric_method, clust_method = clust_method)
+    
+    #elif class_method == "Non-Metric"
+    #    Id_Class = NonMetric_Class(X, Y, num_clust, dist_origin = Orow*Ocols, metric_method = metric_method, clust_method = clust_method)
     
     """Compute accuracy metric = rand_index metric"""
     Class_pred = Id_Class["Class_pred"]
@@ -107,3 +115,6 @@ def plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, run_num):
                                                  lims = False) # crop fig
     
     pdf.savefig(fig, bbox_inches = "tight")
+    
+    
+def BarPlotClas()
