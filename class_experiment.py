@@ -55,11 +55,11 @@ def generate_data():
 
 if __name__ == "__main__":
     from matplotlib.backends.backend_pdf import PdfPages
-    repeat = 100
+    repeat = 200
     
     classifiers = ["MIASA"]#, "Non_Metric"]
     clust_methods = ["Kmeans", "Kmedoids"] # MIASA uses only metric-based clust method (e.g. K-means) and "Non_metric" uses non-metric-based clust method (e.g. K-medoids)
-    metric_method = ["KS-statistic", "KS-p_value", "OR", "RR"]
+    metric_method = ["KS-statistic", "KS-p_value"]#,# "OR", "RR"]
     
     method_dic_list = []
     method_name = []
@@ -68,15 +68,14 @@ if __name__ == "__main__":
         for k in range(len(metric_method)):
             method_dic_list.append({"class_method":classifiers[i], "clust_method":clust_methods[i], "metric_method":metric_method[k]})
             method_name.append(classifiers[i]+"-"+metric_method[k])
-            pdf.append(PdfPages("Figures/%s.pdf"%classifiers[i]+"-"+metric_method[k]))
+            pdf.append(PdfPages("Figures/%s.pdf"%(classifiers[i]+"-"+metric_method[k]), ))
             
-    
     acc_list = np.zeros((len(method_dic_list), repeat))
     for r in range(repeat):
         for i in range(len(method_dic_list)):    
             data_dic, class_dic, num_clust, dtp = generate_data()
             Id_Class, X_vars, Y_vars, acc_r = Classify_general(data_dic, class_dic, num_clust, method_dic = method_dic_list[i])
-            print("method num %d/%d"%(i, len(method_dic_list)), "run %d/%d"%(r,repeat))
+            print("method num %d/%d"%(i+1, len(method_dic_list)), "run %d/%d"%(r+1,repeat))
             if r < 10:
                 plotClass(Id_Class, X_vars, Y_vars, pdf[i], dtp, r)
             
@@ -85,8 +84,8 @@ if __name__ == "__main__":
     for i in range(len(method_dic_list)):
         pdf[i].close()
     
-    pdfb= PdfPages("Figures/BP_Class_test.pdf")    
-    BarPlotClass(acc_list, method_name)
+    pdfb= PdfPages("Figures/BP_Class_test_%d.pdf"%repeat)    
+    BarPlotClass(acc_list, method_name, pdfb, stat_name = "RI scores")
     pdfb.close()
 
     #plt.show()

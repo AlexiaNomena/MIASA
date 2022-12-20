@@ -10,6 +10,7 @@ from .miasa_class import Miasa_Class
 
 import numpy as np
 from sklearn.metrics import rand_score
+import pdb
 
 def Classify_general(data_dic, class_dic, num_clust, method_dic):
     class_method = method_dic["class_method"]
@@ -46,7 +47,7 @@ def Classify_general(data_dic, class_dic, num_clust, method_dic):
     
 
 
-from .figure_settings import Display
+from .figure_settings import Display, PreFig
 from .Core.Lower_dim import low_dim_coords
 import pandas as pd
 def plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, run_num):   
@@ -116,5 +117,20 @@ def plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, run_num):
     
     pdf.savefig(fig, bbox_inches = "tight")
     
+ 
+import matplotlib.pyplot as plt    
+def BarPlotClass(data, method_name, pdf, stat_name = None):
+    PreFig()
+    fig = plt.figure(figsize=(7,7))
+    ax = fig.add_subplot(111)
+
+    data_list = []
+    for i in range(data.shape[0]):
+        data_list.append(data[i, :])
+    ax.boxplot(data_list, showfliers=False) # showfliers = False remove outliers
+    plt.xticks(np.cumsum(np.ones(len(method_name))), method_name)
+    xmin, xmax = ax.get_xlim()
+    plt.ylabel(stat_name, fontsize = 20)
+    pdf.savefig(fig, bbox_inches = "tight")
     
-def BarPlotClas()
+    
