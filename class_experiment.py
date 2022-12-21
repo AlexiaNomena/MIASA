@@ -59,7 +59,7 @@ if __name__ == "__main__":
     
     classifiers = ["MIASA"]#, "Non_Metric"]
     clust_methods = ["Kmeans", "Kmedoids"] # MIASA uses only metric-based clust method (e.g. K-means) and "Non_metric" uses non-metric-based clust method (e.g. K-medoids)
-    metric_method = ["KS-statistic", "KS-p_value"]#,# "OR", "RR"]
+    metric_method = ["KS-statistic", "KS-p_value"]# "OR", "RR"]
     
     method_dic_list = []
     method_name = []
@@ -77,7 +77,8 @@ if __name__ == "__main__":
             Id_Class, X_vars, Y_vars, acc_r = Classify_general(data_dic, class_dic, num_clust, method_dic = method_dic_list[i])
             print("method num %d/%d"%(i+1, len(method_dic_list)), "run %d/%d"%(r+1,repeat))
             if r < 10:
-                plotClass(Id_Class, X_vars, Y_vars, pdf[i], dtp, r)
+                if method_dic_list[i]["class_method"] == "MIASA":
+                    plotClass(Id_Class, X_vars, Y_vars, pdf[i], dtp, r)
             
             acc_list[i, r] = np.array(acc_r)
         

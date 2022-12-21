@@ -70,7 +70,7 @@ def get_class(X, Y, Feature_X, Feature_Y, func, ftype, metric_method, c_dic, dis
         else:
             clust_labels, color_clustered = get_clusters(Coords, num_clust, palette, method = "Kmeans")
     else:
-        sys.exit("A metric-based clustering method is required for MIASA")
+        sys.exit("A metric-distance based clustering method is required for MIASA \n Available here is Kmeans")
     
     if dist_origin:
         Coords = Coords - Coords[M, :][np.newaxis, :]

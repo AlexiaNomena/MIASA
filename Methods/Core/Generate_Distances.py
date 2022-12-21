@@ -9,6 +9,7 @@ import scipy.spatial as scSp
 import numpy as np
 import sys
 
+
 def Similarity_Metric(Coords, method = "Euclidean"):
     if method == "Euclidean":
         D = scSp.distance.pdist(Coords)

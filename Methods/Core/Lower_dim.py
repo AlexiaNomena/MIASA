@@ -8,6 +8,8 @@ Created on Wed Oct 12 09:09:33 2022
 
 import numpy as np
 import sklearn.cluster as sklc
+import sklearn_extra.cluster as sklEc
+
 import sklearn.manifold as sklm
 import pdb
 import scipy as sp
@@ -56,8 +58,12 @@ def umap_reducer(Coords, dim, np, min_dist):
 def get_clusters(Coords, num_clust, palette, method = "Kmeans", init = "k-means++"):
     if method == "Kmeans":
         embedding = sklc.KMeans(n_clusters = num_clust, init = init, random_state = rand).fit(Coords)
-    else:
-        embedding = sklc.KMeans(n_clusters = num_clust, init = init, random_state = rand).fit(Coords)
+        
+    elif method == "Kmedoids":
+        if init == "k-means++":
+            init = "k-medoids++"
+        embedding = sklEc.KMedoids(n_clusters = num_clust, metric = "precomputed" ,init = init, random_state = rand).fit(Coords) # in this case coords it the proximity matrix
+    
     
     labels = embedding.labels_
     unique_labs = np.unique(labels)
@@ -77,6 +83,8 @@ def get_clusters(Coords, num_clust, palette, method = "Kmeans", init = "k-means+
     
     return labels, col_labs
                     
+
+
 
 def dist_error(tXflat, D, dim):
     if dim>= 2:

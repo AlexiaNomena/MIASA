@@ -6,12 +6,18 @@ Created on Mon Dec 19 17:18:37 2022
 @author: raharinirina
 """
 from .miasa_class import Miasa_Class
-
+from .Generate_Features import KS_v1, KS_v2, Sub_Eucl
+from .Core.Generate_Distances import Similarity_Metric, Association_Metric
+from .Core.Lower_dim import get_clusters
+from .Core.CosLM import Proxy_Mat
 
 import numpy as np
 from sklearn.metrics import rand_score
 import pdb
+import sys
 
+
+""" Identification of Classes """
 def Classify_general(data_dic, class_dic, num_clust, method_dic):
     class_method = method_dic["class_method"]
     clust_method = method_dic["clust_method"]
@@ -37,8 +43,8 @@ def Classify_general(data_dic, class_dic, num_clust, method_dic):
         Orow, Ocols = True, True
         Id_Class = Miasa_Class(X, Y, num_clust, dist_origin = Orow*Ocols, metric_method = metric_method, clust_method = clust_method)
     
-    #elif class_method == "Non-Metric"
-    #    Id_Class = NonMetric_Class(X, Y, num_clust, dist_origin = Orow*Ocols, metric_method = metric_method, clust_method = clust_method)
+    elif class_method == "Non-Metric":
+       Id_Class = NonMetricDist_Class(X, Y, num_clust, dist_origin = Orow*Ocols, metric_method = metric_method, clust_method = clust_method)
     
     """Compute accuracy metric = rand_index metric"""
     Class_pred = Id_Class["Class_pred"]
@@ -46,7 +52,67 @@ def Classify_general(data_dic, class_dic, num_clust, method_dic):
     return Id_Class, X_vars, Y_vars, acc_metric
     
 
+def NonMetricDist_Class(X, Y, num_clust, dist_origin = True, metric_method = "KS-statistic", clust_method = "Kmeans", palette = "tab20"):
+    """Compute features"""
+    if metric_method == "KS-statistic":
+       Feature_X, Feature_Y, func, ftype = KS_v1(X,Y)
+    elif metric_method == "KS-p_value":
+        Feature_X, Feature_Y, func, ftype = KS_v2(X,Y)
+    else:
+       Feature_X, Feature_Y, func, ftype = Sub_Eucl(X, Y)
 
+    Result = get_NMDclass(X, Y, Feature_X, Feature_Y, func, ftype, metric_method, dist_origin, num_clust, clust_method, palette)
+
+    return Result
+
+    
+def get_NMDclass(X, Y, Feature_X, Feature_Y, func, ftype, metric_method, dist_origin = False, num_clust=None, clust_method = "Kmeans", palette = "tab20"):
+    """ Similarity metric """
+    DX = Similarity_Metric(Feature_X, method = "Euclidean")
+    DY = Similarity_Metric(Feature_Y, method = "Euclidean")
+    
+    """Association metric"""
+    if metric_method == "KS-statistic":
+        Features = (X, Y)
+    else:
+        Features = (Feature_X, Feature_Y)
+    
+    D_assoc = Association_Metric(Features, func, ftype)
+    """Distane to origin Optional but must be set to None if not used"""
+    if dist_origin:
+        Orow = np.linalg.norm(Feature_X, axis = 1)
+        Ocols = np.linalg.norm(Feature_Y, axis = 1)
+    else:
+        Orow = None
+        Ocols = None
+    
+    M = Feature_X.shape[0]
+    N = Feature_Y.shape[0]
+    
+    DMat = Proxy_Mat(DX, DY, UX = Orow, UY = Ocols, fXY = D_assoc)
+        
+    if clust_method == "Kmedoids":
+        if num_clust == None:
+            sys.exit("Kmedoids requires number of clusters parameter: num_clust")
+        else:
+            clust_labels, color_clustered = get_clusters(DMat, num_clust, palette, method = "Kmedoids")
+    else:
+        sys.exit("A non-metric distance clustering method is required for Non Metric Distance \n Available here is Kmedoids")
+    
+    if dist_origin:
+        Class_pred = np.concatenate((clust_labels[:M], clust_labels[M+1:]), axis = 0)
+        was_orig = True
+    else:
+        Class_pred = clust_labels
+        was_orig = False
+        
+    return {"shape":(M, N), "was_orig":was_orig, "Class_pred":Class_pred, "clust_labels":clust_labels, "color_clustered":color_clustered}
+    
+
+
+
+
+"""Visualization of classes"""
 from .figure_settings import Display, PreFig
 from .Core.Lower_dim import low_dim_coords
 import pandas as pd
