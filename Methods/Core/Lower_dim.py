@@ -19,6 +19,7 @@ from functools import partial
 import umap
 import seaborn as sns
 
+
 def low_dim_coords(Coords, dim=2, method  = "MDS", n_neighbors = 15, min_dist = None):
     '''
     @ brief          : embeding of points onto a lower-dimensional manifold of using sklean.manifold
@@ -54,16 +55,17 @@ def umap_reducer(Coords, dim, np, min_dist):
     Emb_coords = reducer.fit_transform(scaled_coords)
     return Emb_coords
 
-
-def get_clusters(Coords, num_clust, palette, method = "Kmeans", init = "k-means++"):
+def get_clusters(Coords, num_clust, palette, method = "Kmeans", init = "k-means++", metric = None):
     if method == "Kmeans":
         embedding = sklc.KMeans(n_clusters = num_clust, init = init, random_state = rand).fit(Coords)
         
     elif method == "Kmedoids":
         if init == "k-means++":
             init = "k-medoids++"
-        embedding = sklEc.KMedoids(n_clusters = num_clust, metric = "precomputed" ,init = init, random_state = rand).fit(Coords) # in this case coords it the proximity matrix
-    
+        if metric == "precomputed":
+            embedding = sklEc.KMedoids(n_clusters = num_clust, metric = "precomputed" ,init = init, random_state = rand).fit(Coords) # in this case coords it the proximity matrix
+        else:
+            embedding = sklEc.KMedoids(n_clusters = num_clust,init = init, random_state = rand).fit(Coords)
     
     labels = embedding.labels_
     unique_labs = np.unique(labels)
@@ -84,8 +86,6 @@ def get_clusters(Coords, num_clust, palette, method = "Kmeans", init = "k-means+
     return labels, col_labs
                     
 
-
-
 def dist_error(tXflat, D, dim):
     if dim>= 2:
         tD = sp.spatial.distance.pdist(tXflat.reshape((D.shape[0], dim)))
@@ -96,6 +96,7 @@ def dist_error(tXflat, D, dim):
     tD = sp.spatial.distance.squareform(tD)
     T = tD - D
     return T.flatten()
+
 
 def MDS_YH(Coords, dim, method = "LQ"): 
     '''

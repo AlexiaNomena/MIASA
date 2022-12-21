@@ -7,7 +7,7 @@ Created on Mon Dec 19 17:18:37 2022
 """
 from .miasa_class import Miasa_Class
 from .Generate_Features import KS_v1, KS_v2, Sub_Eucl
-from .Core.Generate_Distances import Similarity_Metric, Association_Metric
+from .Core.Generate_Distances import Similarity_Distance, Association_Distance
 from .Core.Lower_dim import get_clusters
 from .Core.CosLM import Prox_Mat
 
@@ -69,8 +69,8 @@ def NonMetricDist_Class(X, Y, num_clust, dist_origin = True, metric_method = "KS
     
 def get_NMDclass(X, Y, Feature_X, Feature_Y, func, ftype, metric_method, dist_origin = False, num_clust=None, clust_method = "Kmeans", palette = "tab20"):
     """ Similarity metric """
-    DX = Similarity_Metric(Feature_X, method = "Euclidean")
-    DY = Similarity_Metric(Feature_Y, method = "Euclidean")
+    DX = Similarity_Distance(Feature_X, method = "Euclidean")
+    DY = Similarity_Distance(Feature_Y, method = "Euclidean")
     
     """Association metric"""
     if metric_method == "KS-statistic":
@@ -78,7 +78,7 @@ def get_NMDclass(X, Y, Feature_X, Feature_Y, func, ftype, metric_method, dist_or
     else:
         Features = (Feature_X, Feature_Y)
     
-    D_assoc = Association_Metric(Features, func, ftype)
+    D_assoc = Association_Distance(Features, func, ftype)
     """Distane to origin Optional but must be set to None if not used"""
     if dist_origin:
         Orows = np.linalg.norm(Feature_X, axis = 1)
@@ -96,7 +96,7 @@ def get_NMDclass(X, Y, Feature_X, Feature_Y, func, ftype, metric_method, dist_or
         if num_clust == None:
             sys.exit("Kmedoids requires number of clusters parameter: num_clust")
         else:
-            clust_labels, color_clustered = get_clusters(DMat, num_clust, palette, method = "Kmedoids")
+            clust_labels, color_clustered = get_clusters(DMat, num_clust, palette, method = "Kmedoids", metric = "precomputed")
     else:
         sys.exit("A non-metric distance clustering method is required for Non Metric Distance \n Available here is Kmedoids")
     
@@ -194,6 +194,7 @@ def BarPlotClass(data, method_name, pdf, stat_name = None):
     data_list = []
     for i in range(data.shape[0]):
         data_list.append(data[i, :])
+        
     ax.boxplot(data_list, showfliers=False) # showfliers = False remove outliers
     plt.xticks(np.cumsum(np.ones(len(method_name))), method_name, rotation=75)
     xmin, xmax = ax.get_xlim()

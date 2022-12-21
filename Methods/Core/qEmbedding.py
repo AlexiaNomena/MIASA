@@ -9,6 +9,7 @@ from .CosLM import *
 import scipy as sp
 import numpy as np
 
+
 def Euclidean_Embedding(DX, DY, UX, UY, fXY, c_dic):
     """
     @brief Joint Embedding of two disjoint sets of points (see Paper: Qualitative Euclidean Embedding)

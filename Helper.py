@@ -11,20 +11,20 @@ import numpy as np
 from load_text_data import Coords_Rows, Coords_Cols, ContDataFrame, columns_labels, rows_labels, D, Dr, Dc, row_val, col_val, dtp, ColName, RowName
 
 """ Compute similarity and association metrics: e.g. here using modules bellow """
-from Methods.Core.Generate_Distances import Similarity_Metric, Association_Metric
+from Methods.Core.Generate_Distances import Similarity_Distance, Association_Distance
 
-D_row_var = Similarity_Metric(Coords_Rows, method = "Euclidean")
-D_col_var = Similarity_Metric(Coords_Cols, method = "Euclidean")
+D_row_var = Similarity_Distance(Coords_Rows, method = "Euclidean")
+D_col_var = Similarity_Distance(Coords_Cols, method = "Euclidean")
 
 Coords = (Coords_Rows, Coords_Cols)
 func = lambda Coords: np.exp(-Dr.dot(D.dot(Dc))) ### Pearson ratio - 1  #### here independent of the coordinates
-D_assoc = Association_Metric(Coords, func)
+D_assoc = Association_Distance(Coords, func)
 
 
 """Distane to origin Optional but must be set to None if not used"""
 Orow = np.linalg.norm(Coords_Rows, axis = 1)
 Ocols = np.linalg.norm(Coords_Cols, axis = 1)
-"""If Distance to origina set to None, then distance to Origin is not interpretable"""
+"""If Distance to origin is set to None, then distance to Origin is not interpretable"""
 #Orow = None
 #Ocols = None
 

@@ -10,7 +10,7 @@ import numpy as np
 import sys
 
 
-def Similarity_Metric(Coords, method = "Euclidean"):
+def Similarity_Distance(Coords, method = "Euclidean"):
     if method == "Euclidean":
         D = scSp.distance.pdist(Coords)
         D = scSp.distance.squareform(D)
@@ -19,7 +19,7 @@ def Similarity_Metric(Coords, method = "Euclidean"):
     return D
 
 
-def Association_Metric(Coords, func, ftype = "vectorized"):
+def Association_Distance(Coords, func, ftype = "vectorized"):
     if ftype == "vectorized":
         D = func(Coords)
     
