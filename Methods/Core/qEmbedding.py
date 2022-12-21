@@ -9,7 +9,7 @@ from .CosLM import *
 import scipy as sp
 import numpy as np
 
-def Euclidean_Embedding(DX, DY, UX, UY, fXY, c):
+def Euclidean_Embedding(DX, DY, UX, UY, fXY, c_dic):
     """
     @brief Joint Embedding of two disjoint sets of points (see Paper: Qualitative Euclidean Embedding)
     Parameters
@@ -19,7 +19,7 @@ def Euclidean_Embedding(DX, DY, UX, UY, fXY, c):
     UX : shape (M,)  , Distance to theoretical origin point for the set of points X
     UY : shape (N,)    ,Distance to theoretical origin point for the set of points Y   
     fXY  : shape (M, N), Proximity set matrix between the points of X and Y, Compatible with the positions of the points in DX and DY
-    c  : Dictionary of parameters with keys "c1", "c2", "c3"
+    c_dic  : Dictionary of parameters with keys "c1", "c2", "c3"
     
     Returns
     -------

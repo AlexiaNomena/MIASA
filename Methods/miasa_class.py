@@ -16,7 +16,7 @@ import numpy as np
 import pdb
 
 
-def Miasa_Class(X, Y, num_clust, emb_params = None, dist_origin = True, metric_method = "KS-statistic", clust_method = "Kmeans", palette = "tab20"):
+def Miasa_Class(X, Y, num_clust, c_dic = None, dist_origin = True, metric_method = "KS-statistic", clust_method = "Kmeans", palette = "tab20"):
     """Compute features"""
     if metric_method == "KS-statistic":
        Feature_X, Feature_Y, func, ftype = KS_v1(X,Y)
@@ -25,12 +25,12 @@ def Miasa_Class(X, Y, num_clust, emb_params = None, dist_origin = True, metric_m
     else:
        Feature_X, Feature_Y, func, ftype = Sub_Eucl(X, Y)
 
-    Result = get_class(X, Y, Feature_X, Feature_Y, func, ftype, metric_method, emb_params, dist_origin, num_clust, clust_method, palette)
+    Result = get_class(X, Y, Feature_X, Feature_Y, func, ftype, metric_method, c_dic, dist_origin, num_clust, clust_method, palette)
 
     return Result
     
 
-def get_class(X, Y, Feature_X, Feature_Y, func, ftype, metric_method, emb_params, dist_origin = False, num_clust=None, clust_method = "Kmeans", palette = "tab20"):
+def get_class(X, Y, Feature_X, Feature_Y, func, ftype, metric_method, c_dic, dist_origin = False, num_clust=None, clust_method = "Kmeans", palette = "tab20"):
     """ Similarity metric """
     DX = Similarity_Metric(Feature_X, method = "Euclidean")
     DY = Similarity_Metric(Feature_Y, method = "Euclidean")
@@ -52,17 +52,17 @@ def get_class(X, Y, Feature_X, Feature_Y, func, ftype, metric_method, emb_params
     
     M = Feature_X.shape[0]
     N = Feature_Y.shape[0]
-    if emb_params is None:
+    if c_dic is None:
         c1, c2 = 1/2, 2
         a = 1. - 1./(M+N)
         b = 2.*c2/(M+N)
         c3 =  min(((2.*c1 + c2) - b)/a, 2*c2+2)
-        c = {"c1":c1, "c2":c2, "c3":c3} 
+        c_dic = {"c1":c1, "c2":c2, "c3":c3}     
     else:
-        c = emb_params
+        c_dic = c_dic
     
     alpha = np.max(D_assoc) # adding a constant to the Euclidean distances to statisfy one of the conditions for embedding
-    Coords, vareps = Euclidean_Embedding(DX+alpha, DY+alpha, Orow+alpha, Ocols+alpha, D_assoc, c)
+    Coords, vareps = Euclidean_Embedding(DX+alpha, DY+alpha, Orow+alpha, Ocols+alpha, D_assoc, c_dic)
     
     if clust_method == "Kmeans":
         if num_clust == None:
