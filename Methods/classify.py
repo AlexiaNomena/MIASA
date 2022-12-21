@@ -9,7 +9,7 @@ from .miasa_class import Miasa_Class
 from .Generate_Features import KS_v1, KS_v2, Sub_Eucl
 from .Core.Generate_Distances import Similarity_Metric, Association_Metric
 from .Core.Lower_dim import get_clusters
-from .Core.CosLM import Proxy_Mat
+from .Core.CosLM import Prox_Mat
 
 import numpy as np
 from sklearn.metrics import rand_score
@@ -40,11 +40,12 @@ def Classify_general(data_dic, class_dic, num_clust, method_dic):
     
     """ Identify Class using MIASA framework """
     if class_method == "MIASA":
-        Orow, Ocols = True, True
-        Id_Class = Miasa_Class(X, Y, num_clust, dist_origin = Orow*Ocols, metric_method = metric_method, clust_method = clust_method)
+        Orows, Ocols = True, True
+        Id_Class = Miasa_Class(X, Y, num_clust, dist_origin = Orows*Ocols, metric_method = metric_method, clust_method = clust_method)
     
-    elif class_method == "Non-Metric":
-       Id_Class = NonMetricDist_Class(X, Y, num_clust, dist_origin = Orow*Ocols, metric_method = metric_method, clust_method = clust_method)
+    elif class_method == "non_MD":
+        Orows, Ocols = True, True
+        Id_Class = NonMetricDist_Class(X, Y, num_clust, dist_origin = Orows*Ocols, metric_method = metric_method, clust_method = clust_method)
     
     """Compute accuracy metric = rand_index metric"""
     Class_pred = Id_Class["Class_pred"]
@@ -80,16 +81,16 @@ def get_NMDclass(X, Y, Feature_X, Feature_Y, func, ftype, metric_method, dist_or
     D_assoc = Association_Metric(Features, func, ftype)
     """Distane to origin Optional but must be set to None if not used"""
     if dist_origin:
-        Orow = np.linalg.norm(Feature_X, axis = 1)
+        Orows = np.linalg.norm(Feature_X, axis = 1)
         Ocols = np.linalg.norm(Feature_Y, axis = 1)
     else:
-        Orow = None
+        Orows = None
         Ocols = None
     
     M = Feature_X.shape[0]
     N = Feature_Y.shape[0]
     
-    DMat = Proxy_Mat(DX, DY, UX = Orow, UY = Ocols, fXY = D_assoc)
+    DMat = Prox_Mat(DX, DY, UX = Orows, UY = Ocols, fXY = D_assoc)
         
     if clust_method == "Kmedoids":
         if num_clust == None:
@@ -194,7 +195,7 @@ def BarPlotClass(data, method_name, pdf, stat_name = None):
     for i in range(data.shape[0]):
         data_list.append(data[i, :])
     ax.boxplot(data_list, showfliers=False) # showfliers = False remove outliers
-    plt.xticks(np.cumsum(np.ones(len(method_name))), method_name)
+    plt.xticks(np.cumsum(np.ones(len(method_name))), method_name, rotation=75)
     xmin, xmax = ax.get_xlim()
     plt.ylabel(stat_name, fontsize = 20)
     pdf.savefig(fig, bbox_inches = "tight")

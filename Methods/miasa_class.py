@@ -44,10 +44,10 @@ def get_class(X, Y, Feature_X, Feature_Y, func, ftype, metric_method, c_dic, dis
     D_assoc = Association_Metric(Features, func, ftype)
     """Distane to origin Optional but must be set to None if not used"""
     if dist_origin:
-        Orow = np.linalg.norm(Feature_X, axis = 1)
+        Orows = np.linalg.norm(Feature_X, axis = 1)
         Ocols = np.linalg.norm(Feature_Y, axis = 1)
     else:
-        Orow = None
+        Orows = None
         Ocols = None
     
     M = Feature_X.shape[0]
@@ -62,7 +62,7 @@ def get_class(X, Y, Feature_X, Feature_Y, func, ftype, metric_method, c_dic, dis
         c_dic = c_dic
     
     alpha = np.max(D_assoc) # adding a constant to the Euclidean distances to statisfy one of the conditions for embedding
-    Coords, vareps = Euclidean_Embedding(DX+alpha, DY+alpha, Orow+alpha, Ocols+alpha, D_assoc, c_dic)
+    Coords, vareps = Euclidean_Embedding(DX+alpha, DY+alpha, Orows+alpha, Ocols+alpha, D_assoc, c_dic)
     
     if clust_method == "Kmeans":
         if num_clust == None:

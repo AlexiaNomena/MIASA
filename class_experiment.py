@@ -15,16 +15,16 @@ def generate_data():
     num_spl = 10 # Num Samples
     
     data_dic = {}
-    class1 = ["1a", "1b", "1c"]
+    class_type1 = ["1a", "1b", "1c"]
     val1 = [(0, 1), (0, 5), (2, 1)]
     
-    class2 = ["2a", "2b", "2c"]
+    class_type2 = ["2a", "2b", "2c"]
     val2 = [(0, 1), (0, 5), (2, 3)]
     
-    class3 = ["3a", "3b", "3c"]
+    class_type3 = ["3a", "3b", "3c"]
     val3 = [1, 2, 3]
     
-    class4 = ["4a", "4b", "4c"]
+    class_type4 = ["4a", "4b", "4c"]
     val4 = [1, 3, 6]
     
     class_dic = {}
@@ -35,15 +35,15 @@ def generate_data():
     for i in range(3):
         lab = labs[k:k+4]
         for j in range(num_spl):
-            data_dic[class1[i]+"%d"%(j+1)] = np.random.normal(val1[i][0], val1[i][1], size = per_spl)
-            data_dic[class2[i]+"%d"%(j+1)] = np.random.uniform(val2[i][0], val2[i][1], size = per_spl)
-            data_dic[class3[i]+"%d"%(j+1)] = np.random.pareto(val3[i], size = per_spl)
-            data_dic[class4[i]+"%d"%(j+1)] = np.random.poisson(val4[i], size = per_spl)
+            data_dic[class_type1[i]+"%d"%(j+1)] = np.random.normal(val1[i][0], val1[i][1], size = per_spl)
+            data_dic[class_type2[i]+"%d"%(j+1)] = np.random.uniform(val2[i][0], val2[i][1], size = per_spl)
+            data_dic[class_type3[i]+"%d"%(j+1)] = np.random.pareto(val3[i], size = per_spl)
+            data_dic[class_type4[i]+"%d"%(j+1)] = np.random.poisson(val4[i], size = per_spl)
             
-            class_dic[class1[i]+"%d"%(j+1)] = lab[0]
-            class_dic[class2[i]+"%d"%(j+1)] = lab[1]
-            class_dic[class3[i]+"%d"%(j+1)] = lab[2]
-            class_dic[class4[i]+"%d"%(j+1)] = lab[3]
+            class_dic[class_type1[i]+"%d"%(j+1)] = lab[0]
+            class_dic[class_type2[i]+"%d"%(j+1)] = lab[1]
+            class_dic[class_type3[i]+"%d"%(j+1)] = lab[2]
+            class_dic[class_type4[i]+"%d"%(j+1)] = lab[3]
         
         k += 4    
     
@@ -57,18 +57,21 @@ if __name__ == "__main__":
     from matplotlib.backends.backend_pdf import PdfPages
     repeat = 200
     
-    classifiers = ["MIASA"]#, "Non_Metric"]
-    clust_methods = ["Kmeans", "Kmedoids"] # MIASA uses only metric-based clust method (e.g. K-means) and "Non_metric" uses non-metric-based clust method (e.g. K-medoids)
+    classifiers = ["MIASA", "non_MD"]#,["MIASA"]#, non_MD = "Non_Metric_Distance"]
+    clust_methods = ["Kmeans", "Kmedoids"] #MIASA uses only metric-based clust method (e.g. K-means) and "non_MD" uses non-metric-distance clust method (e.g. K-medoids)
     metric_method = ["KS-statistic", "KS-p_value"]# "OR", "RR"]
     
     method_dic_list = []
     method_name = []
-    pdf = []
-    for i in range(len(classifiers)):
-        for k in range(len(metric_method)):
-            method_dic_list.append({"class_method":classifiers[i], "clust_method":clust_methods[i], "metric_method":metric_method[k]})
+    for k in range(len(metric_method)):
+        for i in range(len(classifiers)):
+            dic_meth = {"class_method":classifiers[i], "clust_method":clust_methods[i], "metric_method":metric_method[k], "fig": classifiers[i]+"-"+metric_method[k]}
+
+            if dic_meth["class_method"] == "MIASA":
+                dic_meth["fig"] = (PdfPages("Figures/%s.pdf"%(classifiers[i]+"-"+metric_method[k]), ))
+                
+            method_dic_list.append(dic_meth)
             method_name.append(classifiers[i]+"-"+metric_method[k])
-            pdf.append(PdfPages("Figures/%s.pdf"%(classifiers[i]+"-"+metric_method[k]), ))
             
     acc_list = np.zeros((len(method_dic_list), repeat))
     for r in range(repeat):
@@ -78,12 +81,14 @@ if __name__ == "__main__":
             print("method num %d/%d"%(i+1, len(method_dic_list)), "run %d/%d"%(r+1,repeat))
             if r < 10:
                 if method_dic_list[i]["class_method"] == "MIASA":
-                    plotClass(Id_Class, X_vars, Y_vars, pdf[i], dtp, r)
+                    pdf = method_dic_list[i]["fig"]
+                    plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, r)
             
             acc_list[i, r] = np.array(acc_r)
         
     for i in range(len(method_dic_list)):
-        pdf[i].close()
+        if method_dic_list[i]["class_method"] == "MIASA":
+            method_dic_list[i]["fig"].close()
     
     pdfb= PdfPages("Figures/BP_Class_test_%d.pdf"%repeat)    
     BarPlotClass(acc_list, method_name, pdfb, stat_name = "RI scores")

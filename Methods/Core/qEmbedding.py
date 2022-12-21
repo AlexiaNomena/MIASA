@@ -27,7 +27,7 @@ def Euclidean_Embedding(DX, DY, UX, UY, fXY, c_dic):
             Coordinates of points X and Y on the rows
     vareps: > 0 scalar defining the Embedding (see Paper)
     """
-    COS_MAT, c1, c2, c3, zeta_f = CosLM(DX, DY, UX, UY, fXY, c) 
+    COS_MAT, c1, c2, c3, zeta_f = CosLM(DX, DY, UX, UY, fXY, c_dic) 
     sigma, U = sp.linalg.eigh(COS_MAT)
     sigma = np.real(sigma) # COS_MAT is symmetric, thus imaginary numbers are supposed to be zero or numerical zeros
     sigma[np.isclose(sigma, np.zeros(len(sigma)))] = 0
