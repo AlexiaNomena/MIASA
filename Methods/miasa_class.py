@@ -7,7 +7,7 @@ Created on Sun Dec 18 14:03:16 2022
 """
 
 from .Core.Generate_Distances import Similarity_Distance, Association_Distance
-from .Generate_Features import KS_v1, KS_v2, Sub_Eucl
+from .Generate_Features import KS_v1, KS_v2, Sub_Eucl, covariance, corrcoeff
 from .Core.Lower_dim import get_clusters
 from .Core.qEmbedding import Euclidean_Embedding
 
@@ -20,8 +20,16 @@ def Miasa_Class(X, Y, num_clust, c_dic = None, dist_origin = True, metric_method
     """Compute features"""
     if metric_method == "KS-statistic":
        Feature_X, Feature_Y, func, ftype = KS_v1(X,Y)
+       
     elif metric_method == "KS-p_value":
         Feature_X, Feature_Y, func, ftype = KS_v2(X,Y)
+        
+    elif metric_method == "Covariance":
+        Fearture_X, Feature_Y, func, ftype = covariance(X, Y)
+    
+    elif metric_method == "CorrCoeff":
+        Fearture_X, Feature_Y, func, ftype = corrcoeff(X, Y)
+        
     else:
        Feature_X, Feature_Y, func, ftype = Sub_Eucl(X, Y)
 
@@ -36,12 +44,12 @@ def get_class(X, Y, Feature_X, Feature_Y, func, ftype, metric_method, c_dic, dis
     DY = Similarity_Distance(Feature_Y, method = "Euclidean")
     
     """Association metric"""
-    if metric_method == "KS-statistic":
-        Features = (X, Y)
+    if metric_method in ("KS-statistic", "Covariance", "CorrCoeff"):
+        Z = (X, Y)
     else:
-        Features = (Feature_X, Feature_Y)
+        Z = (Feature_X, Feature_Y)
     
-    D_assoc = Association_Distance(Features, func, ftype)
+    D_assoc = Association_Distance(Z, func, ftype)
     """Distane to origin Optional but must be set to None if not used"""
     if dist_origin:
         Orows = np.linalg.norm(Feature_X, axis = 1)

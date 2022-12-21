@@ -21,7 +21,7 @@ def KS_v1(X,Y):
     interval = np.linspace(lbd, ubd, 500)
     Feature_X = EmpCDF(X, interval)
     Feature_Y = EmpCDF(Y, interval)
-    func = lambda Features: 1e-3 + np.abs(ks_2samp(Features[0], Features[1]).statistic) # use the KS statistic  added a constant to avoid zero everywhere
+    func = lambda Z: 1e-3 + np.abs(ks_2samp(Z[0], Z[1]).statistic) # use the KS statistic  added a constant to avoid zero everywhere
     ftype = "not_vectorized"
     return Feature_X, Feature_Y, func, ftype
 
@@ -32,7 +32,7 @@ def KS_v2(X,Y):
     interval = np.linspace(lbd, ubd, 500)
     Feature_X = EmpCDF(X, interval)
     Feature_Y = EmpCDF(Y, interval)
-    func = lambda Features: 1e-3 + 1 - ks_2samp(Features[0], Features[1]).pvalue # use the KS statistic  added a constant to avoid zero everywhere
+    func = lambda Z: 1e-3 + 1 - ks_2samp(Z[0], Z[1]).pvalue # use the KS statistic  added a constant to avoid zero everywhere
     ftype = "not_vectorized"
     return Feature_X, Feature_Y, func, ftype
 
@@ -40,7 +40,22 @@ def KS_v2(X,Y):
 def Sub_Eucl(X, Y):
     Feature_X = X.copy()
     Feature_Y = Y.copy()
-    func = lambda Features: np.max(np.abs(Features[0][:, np.newaxis] - Features[1][np.newaxis, :]))
+    func = lambda Z: np.max(np.abs(Z[0][:, np.newaxis] - Z[1][np.newaxis, :]))
     ftype = "vectorized"
     return Feature_X, Feature_Y, func, ftype
+
+def covariance(X, Y):
+    Feature_X = np.cov(X)
+    Feature_Y = np.cov(Y)
+    func = lambda Z: np.exp(-(Z[0]- np.mean(Z[0], axis = 1)[np.newaxis, :]).dot((Z[1]- np.mean(Z[1], axis = 1)[np.newaxis, :]).T))
+    ftype = "vectorized"      
+    return Feature_X, Feature_Y, func, ftype
+        
+def corrcoeff(X, Y):
+    Feature_X = np.cov(X)/np.var(X, axis = 1)
+    Feature_Y = np.cov(Y)/np.var(Y, axis = 1)
+    func = lambda Z: np.exp(-(Z[0]- np.mean(Z[0], axis = 1)[np.newaxis, :]).dot((Z[1]- np.mean(Z[1], axis = 1)[np.newaxis, :]).T)/np.std(Z[0], axis = 1)[:, np.newaxis]*np.std(Z[1], axis = 1)[np.newaxis, :])
+    ftype = "vectorized"      
+    return Feature_X, Feature_Y, func, ftype 
+    
     
