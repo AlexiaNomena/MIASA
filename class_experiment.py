@@ -5,13 +5,13 @@ Created on Sun Dec 18 13:21:27 2022
 
 @author: raharinirina
 """
-from Methods.classify import Classify_general, plotClass, BarPlotClass
+from Methods.classify import repeated_classifications, plotClass, BarPlotClass
 import numpy as np
 import pdb
 
 
 """ Classification Experiment on random samples from specific probability distributions """
-def generate_data(var_data = False):
+def generate_data_dist(var_data = False, noise = False):
     """Generate Artificial data"""
     per_spl = 200 # # Num iid per var / num sample per var
     data_dic = {}
@@ -77,57 +77,12 @@ def generate_data(var_data = False):
     return data_dic, class_dic, num_clust, dtp
 
 
-def one_classification(r, method_dic_list, var_data):
-    acc_res = np.zeros(len(method_dic_list))
-    for i in range(len(method_dic_list)):    
-        data_dic, class_dic, num_clust, dtp = generate_data(var_data)
-        Id_Class, X_vars, Y_vars, acc_r = Classify_general(data_dic, class_dic, num_clust, method_dic = method_dic_list[i])
-        print("method num %d/%d"%(i+1, len(method_dic_list)), "run %d/%d"%(r+1,repeat))
-        acc_res[i] = acc_r
-        
-    return acc_res
-
-
-import joblib as jb
-from functools import partial
-
-def repeated_classifications(repeat, method_dic_list, var_data = False, n_jobs = 25):
-    if repeat < 10:
-        repeat = 10 + repeat
-        
-    acc_list = []
-    ### plot and save the first 10 classification runs
-    for r in range(10):
-        sub_list = []
-        for i in range(len(method_dic_list)):    
-            data_dic, class_dic, num_clust, dtp = generate_data(var_data)
-            Id_Class, X_vars, Y_vars, acc_r = Classify_general(data_dic, class_dic, num_clust, method_dic = method_dic_list[i])
-            print("method num %d/%d"%(i+1, len(method_dic_list)), "run %d/%d"%(r+1,repeat))
-
-            if method_dic_list[i]["class_method"] == "MIASA":
-                pdf = method_dic_list[i]["fig"]
-                plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, r)
-            sub_list.append(acc_r)
-            
-        acc_list.append(sub_list)
-    
-    if repeat > 0:
-        pfunc = partial(one_classification, method_dic_list = method_dic_list, var_data = var_data)
-        acc_list = acc_list + (jb.Parallel(n_jobs = n_jobs, prefer="threads")(jb.delayed(pfunc)(r) for r in range(10, repeat)))  
-    
-        """
-        for r in range(repeat):
-        acc_list.append(one_classification(r, method_dic_list))
-        """
-    
-    acc_list = np.array(acc_list, dtype = float).T
-    return acc_list
 
 
 
 if __name__ == "__main__":
     from matplotlib.backends.backend_pdf import PdfPages
-    repeat = 500
+    repeat = 1000
     
     classifiers = ["MIASA", "MIASA", "non_MD"]#,["MIASA"]#, non_MD = "Non_Metric_Distance"]
     clust_methods = ["Kmeans", "Kmedoids", "Kmedoids"] #MIASA uses preferably metric-based clust method (e.g. K-means) and "non_MD" uses only non-metric-distance clust method (e.g. K-medoids)
