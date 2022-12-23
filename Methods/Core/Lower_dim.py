@@ -9,6 +9,7 @@ Created on Wed Oct 12 09:09:33 2022
 import numpy as np
 import sklearn.cluster as sklc
 import sklearn_extra.cluster as sklEc
+import skfda.ml.clustering as skfdac
 
 import sklearn.manifold as sklm
 import pdb
@@ -67,12 +68,18 @@ def get_clusters(Coords, num_clust, palette, method = "Kmeans", init = "k-means+
         else:
             embedding = sklEc.KMedoids(n_clusters = num_clust,init = init, random_state = rand).fit(Coords)
     
+    elif method[:13] == "Agglomerative":
+        if metric == "precomputed":
+            embedding = sklc.AgglomerativeClustering(n_clusters = num_clust, affinity = metric, linkage = method[14:]).fit(Coords)
+            # parameter affinity will be deprecated, replace with metric in future
+            #embedding = sklc.AgglomerativeClustering(n_clusters = num_clust, metric = metric, linkage = method[14:]).fit(Coords)
+        else:
+            embedding = sklc.AgglomerativeClustering(n_clusters = num_clust, linkage = method[14:]).fit(Coords)
+                
     labels = embedding.labels_
     unique_labs = np.unique(labels)
     colors = sns.color_palette(palette,  len(unique_labs))
-    #colors = sns.color_palette("Paired",  len(unique_labs))
     col_labs = np.zeros((len(labels), 3))
-    #col_labs = np.zeros(len(labels), dtype = str)
     for i in range(len(unique_labs)):
         """
         if np.all(np.array(colors[i])<=1):
@@ -128,6 +135,7 @@ def single_branching(progeny, anc_lab, n_clust = 3):
         prog_labels =  np.array(labels, dtype = str)
 
     return centroids, prog_labels
+
 
 def tree_emb(Coords, graph_type = "Agglomerative", linkage_type = "centroid", n_iter = 10, distance_threshold = 0):
     if graph_type == "Divisive":

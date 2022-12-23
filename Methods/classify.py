@@ -29,7 +29,7 @@ def one_classification(r, repeat, method_dic_list, var_data, generate_data):
 
 import joblib as jb
 from functools import partial
-def repeated_classifications(repeat, method_dic_list, generate_data, var_data = False, n_jobs = 50):
+def repeated_classifications(repeat, method_dic_list, generate_data, var_data = False, n_jobs = 25):
     if repeat < 10:
         repeat = 10 + repeat
         
@@ -137,12 +137,16 @@ def get_NMDclass(X, Y, Feature_X, Feature_Y, func, ftype, metric_method, dist_or
     N = Feature_Y.shape[0]
     
     DMat = Prox_Mat(DX, DY, UX = Orows, UY = Ocols, fXY = D_assoc)
-        
+    
     if clust_method == "Kmedoids":
         if num_clust == None:
             sys.exit("Kmedoids requires number of clusters parameter: num_clust")
         else:
-            clust_labels, color_clustered = get_clusters(DMat, num_clust, palette, method = "Kmedoids", metric = "precomputed")
+            clust_labels, color_clustered = get_clusters(DMat, num_clust, palette, method = clust_method, metric = "precomputed")
+    
+    elif clust_method[:13] == "Agglomerative":
+        clust_labels, color_clustered = get_clusters(DMat, num_clust, palette, method = clust_method, metric = "precomputed")
+        
     else:
         sys.exit("A non-metric distance clustering method is required for Non Metric Distance \n Available here is Kmedoids")
     

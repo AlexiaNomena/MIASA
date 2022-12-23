@@ -7,7 +7,7 @@ Created on Sun Dec 18 14:03:16 2022
 """
 
 from .Core.Generate_Distances import Similarity_Distance, Association_Distance
-from .Generate_Features import KS_v1, KS_v2, Sub_Eucl, covariance, corrcoeff
+from .Generate_Features import KS_v1, KS_v2, KS_v3, Sub_Eucl, covariance, corrcoeff
 from .Core.Lower_dim import get_clusters
 from .Core.qEmbedding import Euclidean_Embedding
 
@@ -16,7 +16,7 @@ import numpy as np
 import pdb
 
 
-def Miasa_Class(X, Y, num_clust, c_dic = None, dist_origin = True, metric_method = "KS-statistic", clust_method = "Kmeans", palette = "tab20"):
+def Miasa_Class(X, Y, num_clust, c_dic = None, dist_origin = True, metric_method = "KS-statistic", clust_method = "Kmeans", palette = "tab20", Feature_dic = None):
     """Compute features"""
     if metric_method == "KS-statistic":
        Feature_X, Feature_Y, func, ftype = KS_v1(X,Y)
@@ -24,14 +24,23 @@ def Miasa_Class(X, Y, num_clust, c_dic = None, dist_origin = True, metric_method
     elif metric_method == "KS-p_value":
         Feature_X, Feature_Y, func, ftype = KS_v2(X,Y)
         
+    elif metric_method == "KS-p_value2":
+        Feature_X, Feature_Y, func, ftype = KS_v3(X,Y)
+        
     elif metric_method == "Covariance":
         Fearture_X, Feature_Y, func, ftype = covariance(X, Y)
     
     elif metric_method == "CorrCoeff":
         Fearture_X, Feature_Y, func, ftype = corrcoeff(X, Y)
         
+    elif metric_method == "Sub_Eucl":
+        Feature_X, Feature_Y, func, ftype = Sub_Eucl(X, Y)
+       
     else:
-       Feature_X, Feature_Y, func, ftype = Sub_Eucl(X, Y)
+        try:
+            Feature_X, Feature_Y, func, ftype = Feature_dic["Feature_X"], Feature_dic["Feature_Y"], Feature_dic["Asssociation_function"], Feature_dic["assoc_func_type"]
+        except:
+            sys.exit("Parameter Feature_dic must be given: keys Feature_X (ndarray), Feature_Y (ndarray), Association_function (func), assoc_func_type(vectorized or not_vectorized)")
 
     Result = get_class(X, Y, Feature_X, Feature_Y, func, ftype, metric_method, c_dic, dist_origin, num_clust, clust_method, palette)
 
@@ -76,12 +85,17 @@ def get_class(X, Y, Feature_X, Feature_Y, func, ftype, metric_method, c_dic, dis
         if num_clust == None:
             sys.exit("Kmeans requires number of clusters parameter: num_clust")
         else:
-            clust_labels, color_clustered = get_clusters(Coords, num_clust, palette, method = "Kmeans")
+            clust_labels, color_clustered = get_clusters(Coords, num_clust, palette, method = clust_method)
+    
     elif clust_method == "Kmedoids":
         if num_clust == None:
             sys.exit("Kmedoids requires number of clusters parameter: num_clust")
         else:
-            clust_labels, color_clustered = get_clusters(Coords, num_clust, palette, method = "Kmedoids")
+            clust_labels, color_clustered = get_clusters(Coords, num_clust, palette, method = clust_method)
+            
+    elif clust_method[:13] == "Agglomerative": 
+        clust_labels, color_clustered = get_clusters(Coords, num_clust, palette, method = clust_method)
+        
         
     else:
         sys.exit("A metric-distance based clustering method is better for MIASA \n Available here is Kmeans")
