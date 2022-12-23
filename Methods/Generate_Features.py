@@ -32,7 +32,8 @@ def KS_v2(X,Y):
     interval = np.linspace(lbd, ubd, 500)
     Feature_X = EmpCDF(X, interval)
     Feature_Y = EmpCDF(Y, interval)
-    func = lambda Z: np.exp(-ks_2samp(Z[0], Z[1]).pvalue) #1e-3 + 1 - ks_2samp(Z[0], Z[1]).pvalue # use the KS statistic  added a constant to avoid zero everywhere
+    #func = lambda Z: np.exp(-ks_2samp(Z[0], Z[1]).pvalue) #1e-3 + 1 - ks_2samp(Z[0], Z[1]).pvalue # use the KS statistic  added a constant to avoid zero everywhere
+    func = lambda Z: np.exp(-500*ks_2samp(Z[0], Z[1]).pvalue)
     ftype = "not_vectorized"
     return Feature_X, Feature_Y, func, ftype
 

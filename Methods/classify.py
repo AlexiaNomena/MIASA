@@ -29,34 +29,39 @@ def one_classification(r, repeat, method_dic_list, var_data, generate_data):
 
 import joblib as jb
 from functools import partial
-def repeated_classifications(repeat, method_dic_list, generate_data, var_data = False, n_jobs = 25):
+def repeated_classifications(repeat, method_dic_list, generate_data, var_data = False, n_jobs = 25, plot = True):
+    
     if repeat < 10:
         repeat = 10 + repeat
         
     acc_list = []
     ### plot and save the first 10 classification runs
-    for r in range(10):
-        sub_list = []
-        for i in range(len(method_dic_list)):    
-            data_dic, class_dic, num_clust, dtp = generate_data(var_data)
-            Id_Class, X_vars, Y_vars, acc_r = Classify_general(data_dic, class_dic, num_clust, method_dic = method_dic_list[i])
-            print("method num %d/%d"%(i+1, len(method_dic_list)), "run %d/%d"%(r+1,repeat))
-
-            if method_dic_list[i]["class_method"] == "MIASA":
-                pdf = method_dic_list[i]["fig"]
-                plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, r)
-            sub_list.append(acc_r)
-            
-        acc_list.append(sub_list)
+    if plot:
+        start = 10
+        for r in range(10):
+            sub_list = []
+            for i in range(len(method_dic_list)):    
+                data_dic, class_dic, num_clust, dtp = generate_data(var_data)
+                Id_Class, X_vars, Y_vars, acc_r = Classify_general(data_dic, class_dic, num_clust, method_dic = method_dic_list[i])
+                print("method num %d/%d"%(i+1, len(method_dic_list)), "run %d/%d"%(r+1,repeat))
     
-    if repeat > 0:
+                if method_dic_list[i]["class_method"] == "MIASA":
+                    pdf = method_dic_list[i]["fig"]
+                    plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, r)
+                sub_list.append(acc_r)
+                
+            acc_list.append(sub_list)
+    else:
+        start = 0
+    
+    if repeat > 10:
         pfunc = partial(one_classification, repeat = repeat, method_dic_list = method_dic_list, var_data = var_data, generate_data = generate_data)
-        acc_list = acc_list + (jb.Parallel(n_jobs = n_jobs, prefer="threads")(jb.delayed(pfunc)(r) for r in range(10, repeat)))  
+        acc_list = acc_list + (jb.Parallel(n_jobs = n_jobs, prefer="threads")(jb.delayed(pfunc)(r) for r in range(start, repeat)))  
     
-        """
-        for r in range(repeat):
-        acc_list.append(one_classification(r, method_dic_list))
-        """
+    else:
+        for r in range(start, repeat):
+            acc_list.append(one_classification(r, method_dic_list))
+
     
     acc_list = np.array(acc_list, dtype = float).T
     return acc_list
