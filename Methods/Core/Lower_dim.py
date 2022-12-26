@@ -20,6 +20,8 @@ from functools import partial
 import umap
 import seaborn as sns
 
+from numba import njit
+
 
 def low_dim_coords(Coords, dim=2, method  = "MDS", n_neighbors = 15, min_dist = None):
     '''
@@ -75,8 +77,13 @@ def get_clusters(Coords, num_clust, palette, method = "Kmeans", init = "k-means+
             #embedding = sklc.AgglomerativeClustering(n_clusters = num_clust, metric = metric, linkage = method[14:]).fit(Coords)
         else:
             embedding = sklc.AgglomerativeClustering(n_clusters = num_clust, linkage = method[14:]).fit(Coords)
-                
+
     labels = embedding.labels_
+    col_labels = get_col_labs(labels, palette)
+    return labels, col_labels
+ 
+
+def get_col_labs(labels, palette):               
     unique_labs = np.unique(labels)
     colors = sns.color_palette(palette,  len(unique_labs))
     col_labs = np.zeros((len(labels), 3))
@@ -90,7 +97,7 @@ def get_clusters(Coords, num_clust, palette, method = "Kmeans", init = "k-means+
         """  
         col_labs[labels == unique_labs[i], :] = colors[i]
     
-    return labels, col_labs
+    return col_labs
                     
 
 def dist_error(tXflat, D, dim):

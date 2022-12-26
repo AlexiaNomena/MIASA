@@ -6,7 +6,7 @@ Created on Mon Dec 19 17:18:37 2022
 @author: raharinirina
 """
 from .miasa_class import Miasa_Class
-from .Generate_Features import KS_v1, KS_v2, Sub_Eucl
+from .Generate_Features import KS_v1, KS_v2, KS_v3, Sub_Eucl, covariance, corrcoeff
 from .Core.Generate_Distances import Similarity_Distance, Association_Distance
 from .Core.Lower_dim import get_clusters
 from .Core.CosLM import Prox_Mat
@@ -18,18 +18,19 @@ import sys
 
 """ Classification general setting """
 def one_classification(r, repeat, method_dic_list, var_data, generate_data):
+    data_dic, class_dic, num_clust, dtp = generate_data(var_data) # use the same dataset for all methods
+    
     acc_res = np.zeros(len(method_dic_list))
     for i in range(len(method_dic_list)):    
-        data_dic, class_dic, num_clust, dtp = generate_data(var_data)
         Id_Class, X_vars, Y_vars, acc_r = Classify_general(data_dic, class_dic, num_clust, method_dic = method_dic_list[i])
-        print("method num %d/%d"%(i+1, len(method_dic_list)), "run %d/%d"%(r+1,repeat))
+        print("Case %d -- method num %d/%d"%(var_data*1, i+1, len(method_dic_list)), "-- run %d/%d"%(r+1,repeat))
         acc_res[i] = acc_r
     return acc_res
 
 
 import joblib as jb
 from functools import partial
-def repeated_classifications(repeat, method_dic_list, generate_data, var_data = False, n_jobs = 25, plot = True):
+def repeated_classifications(repeat, method_dic_list, generate_data, var_data = False, n_jobs = -1, plot = True): 
     
     if repeat < 10:
         repeat = 10 + repeat
@@ -55,6 +56,7 @@ def repeated_classifications(repeat, method_dic_list, generate_data, var_data = 
         start = 0
     
     if repeat > 10:
+        # n_jobs = -1 means use all CPUs
         pfunc = partial(one_classification, repeat = repeat, method_dic_list = method_dic_list, var_data = var_data, generate_data = generate_data)
         acc_list = acc_list + (jb.Parallel(n_jobs = n_jobs, prefer="threads")(jb.delayed(pfunc)(r) for r in range(start, repeat)))  
     
@@ -65,7 +67,6 @@ def repeated_classifications(repeat, method_dic_list, generate_data, var_data = 
     
     acc_list = np.array(acc_list, dtype = float).T
     return acc_list
-
 
 
 """ Identification of Classes """
@@ -96,7 +97,7 @@ def Classify_general(data_dic, class_dic, num_clust, method_dic):
     
     elif class_method == "non_MD":
         Orows, Ocols = True, True
-        Id_Class = NonMetricDist_Class(X, Y, num_clust, dist_origin = Orows*Ocols, metric_method = metric_method, clust_method = clust_method)
+        Id_Class = NonMetric_Class(X, Y, num_clust, dist_origin = Orows*Ocols, metric_method = metric_method, clust_method = clust_method)
     
     """Compute accuracy metric = rand_index metric"""
     Class_pred = Id_Class["Class_pred"]
@@ -104,17 +105,27 @@ def Classify_general(data_dic, class_dic, num_clust, method_dic):
     return Id_Class, X_vars, Y_vars, acc_metric
     
 
-def NonMetricDist_Class(X, Y, num_clust, dist_origin = True, metric_method = "KS-statistic", clust_method = "Kmeans", palette = "tab20"):
+def NonMetric_Class(X, Y, num_clust, dist_origin = True, metric_method = "KS-statistic", clust_method = "Kmeans", palette = "tab20"):
     """Compute features"""
     if metric_method == "KS-statistic":
        Feature_X, Feature_Y, func, ftype = KS_v1(X,Y)
+       
     elif metric_method == "KS-p_value":
         Feature_X, Feature_Y, func, ftype = KS_v2(X,Y)
+        
+    elif metric_method == "KS-p_value2":
+        Feature_X, Feature_Y, func, ftype = KS_v3(X,Y)
+        
+    elif metric_method == "Covariance":
+        Fearture_X, Feature_Y, func, ftype = covariance(X, Y)
+    
+    elif metric_method == "CorrCoeff":
+        Fearture_X, Feature_Y, func, ftype = corrcoeff(X, Y)
+        
     else:
        Feature_X, Feature_Y, func, ftype = Sub_Eucl(X, Y)
 
     Result = get_NMDclass(X, Y, Feature_X, Feature_Y, func, ftype, metric_method, dist_origin, num_clust, clust_method, palette)
-
     return Result
 
     
@@ -241,7 +252,7 @@ def plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, run_num):
 import matplotlib.pyplot as plt    
 def BarPlotClass(data, method_name, pdf, stat_name = None):
     PreFig()
-    fig = plt.figure(figsize=(7,7))
+    fig = plt.figure(figsize=(10,10))
     ax = fig.add_subplot(111)
 
     data_list = []

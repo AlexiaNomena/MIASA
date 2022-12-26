@@ -18,7 +18,6 @@ def Similarity_Distance(Coords, method = "Euclidean"):
         sys.exit("Method is not suitable. Needed: Euclidean")   
     return D
 
-
 def Association_Distance(Coords, func, ftype = "vectorized"):
     if ftype == "vectorized":
         D = func(Coords)

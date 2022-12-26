@@ -12,35 +12,40 @@ from matplotlib.backends.backend_pdf import PdfPages
 
 
 """ Classification experiments for different data types """
-repeat = 10000 # Number of replicates of each experiments
+repeat = 100 # Number of replicates of each experiments
 var_data_list = [False, True]
 var_data_list_labs = ["False", "True"]
 
 """ Test method """
 #set_num = 0
 #classifiers = ["MIASA"]
-#clust_methods = ["Agglomerative_single"]
-#metric_methods = ["KS-p_value2"] 
+#clust_methods = ["Agglomerative_single"] # Must be of the same length as classifiers and with a one-to-one mapping i.e. classifiers[i] uses clust_method[i]
+#metric_methods = ["KS-p_value2"] # used by all couple (classifiers[i], clust_method[i])
 
-""" First methods set: Saved/meth_set_1/"""
-#set_num = 1
-#classifiers = ["MIASA", "MIASA", "non_MD"]#,["MIASA"]#, non_MD = "Non_Metric_Distance"]
-#clust_methods = ["Kmeans", "Kmedoids", "Kmedoids"] # MIASA uses preferably metric-based clust method (e.g. K-means) and "non_MD" uses only non-metric-distance clust method (e.g. K-medoids)
-#metric_methods = ["KS-statistic", "KS-p_value"] 
+""" First methods set"""
+set_num = 1
+save_at = "Class_Data/meth_set_1/"
+classifiers = ["MIASA"]*6 + ["non_MD"]*4 # non_MD = Non_Metric_Distance
+clust_methods = ["Kmeans", "Kmedoids", "Agglomerative_ward", "Agglomerative_complete", "Agglomerative_average", "Agglomerative_single"] # for MIASA
+clust_methods = clust_methods + ["Kmedoids", "Agglomerative_complete", "Agglomerative_average", "Agglomerative_single"] # for non_MD
+metric_methods = ["KS-statistic", "KS-p_value"] 
 
 """ Secod methods set: Saved/meth_set_2/"""
-
-set_num = 2
-classifiers = ["MIASA"]*4 + ["non_MD"]*3 # "Agglomerative_ward" ward can only work with Euclidean distance
-clust_methods = ["Agglomerative_ward", "Agglomerative_complete", "Agglomerative_average", "Agglomerative_single"]+["Agglomerative_complete", "Agglomerative_average", "Agglomerative_single"]
-metric_methods = ["KS-statistic", "KS-p_value"] 
+#set_num = 2
+#save_at = "Class_Data/meth_set_2/"
+#classifiers = ["MIASA"]*6 + ["non_MD"]*4 # non_MD = Non_Metric_Distance
+#clust_methods = ["Kmeans", "Kmedoids", "Agglomerative_ward", "Agglomerative_complete", "Agglomerative_average", "Agglomerative_single"] # for MIASA
+#clust_methods = clust_methods + ["Kmedoids", "Agglomerative_complete", "Agglomerative_average", "Agglomerative_single"] # for non_MD
+#metric_methods = ["Corr", "Corr_Moms"]  
 
 
 """ Third methods set: Saved/meth_set_3/"""
 #set_num = 3
-#classifiers = ...
-#clust_methods = ...
-#metric_methods = ...
+#save_at = "Class_Data/meth_set_3/"
+#classifiers = ["MIASA"]*6 + ["non_MD"]*4 # non_MD = Non_Metric_Distance
+#clust_methods = ["Kmeans", "Kmedoids", "Agglomerative_ward", "Agglomerative_complete", "Agglomerative_average", "Agglomerative_single"] # for MIASA
+#clust_methods = clust_methods + ["Kmedoids", "Agglomerative_complete", "Agglomerative_average", "Agglomerative_single"] # for non_MD
+#metric_methods = ["OR", "OR_Moms"] 
 
 
 """ Simulations """
@@ -55,15 +60,15 @@ for j in range(len(var_data_list)):
                 dic_meth["fig"] = PdfPages("Figures/miasa_set_%d_%s_var_%s.pdf"%(set_num, metric_methods[k], var_data_list_labs[j]))
                 
             method_dic_list.append(dic_meth)
-            method_name.append(classifiers[i]+"-"+metric_methods[k])
+            method_name.append(classifiers[i]+"-"+metric_methods[k]+"-"+clust_methods[i])
             
-    acc_list = repeated_classifications(repeat, method_dic_list, generate_data = generate_data_dist, var_data = var_data_list[j], n_jobs = 100, plot = False)    
+    acc_list = repeated_classifications(repeat, method_dic_list, generate_data = generate_data_dist, var_data = var_data_list[j], n_jobs = 25, plot = False)    
     for i in range(len(method_dic_list)):
         if method_dic_list[i]["class_method"] == "MIASA":
             method_dic_list[i]["fig"].close()
     
     import pickle
-    file = open("Accuracy_set_%d_%d_varS%s.pdf"%(set_num, repeat, var_data_list_labs[j]), "wb")
+    file = open(save_at + "Accuracy_set_%d_%d_varS%s.pck"%(set_num, repeat, var_data_list_labs[j]), "wb")
     pickle.dump({"method_name":method_name, "method_list":method_dic_list, "accuracy_list":acc_list}, file)
     file.close()
     

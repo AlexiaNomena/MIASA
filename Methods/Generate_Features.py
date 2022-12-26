@@ -58,14 +58,16 @@ def Sub_Eucl(X, Y):
 def covariance(X, Y):
     Feature_X = np.cov(X)
     Feature_Y = np.cov(Y)
-    func = lambda Z: np.exp(-(Z[0]- np.mean(Z[0], axis = 1)[np.newaxis, :]).dot((Z[1]- np.mean(Z[1], axis = 1)[np.newaxis, :]).T))
+    func = lambda Z: np.exp(-(Z[0] - np.mean(Z[0], axis = 1)[np.newaxis, :]).dot((Z[1]- np.mean(Z[1], axis = 1)[np.newaxis, :]).T))
     ftype = "vectorized"      
     return Feature_X, Feature_Y, func, ftype
         
 def corrcoeff(X, Y):
+    """np.cov computes sample covariance of equal number of observations per samples"""
     Feature_X = np.cov(X)/np.var(X, axis = 1)
     Feature_Y = np.cov(Y)/np.var(Y, axis = 1)
-    func = lambda Z: np.exp(-(Z[0]- np.mean(Z[0], axis = 1)[np.newaxis, :]).dot((Z[1]- np.mean(Z[1], axis = 1)[np.newaxis, :]).T)/np.std(Z[0], axis = 1)[:, np.newaxis]*np.std(Z[1], axis = 1)[np.newaxis, :])
+    """the corrcoeff formula bellow is only valid for equal number of observation in at the samples it is equal to np.cov(X,Y)/std(Y)std(Y)"""
+    func = lambda Z: (1/(Z[0].shape[1] - 1))*np.exp(-(Z[0] - np.mean(Z[0], axis = 1)[np.newaxis, :]).dot((Z[1]- np.mean(Z[1], axis = 1)[np.newaxis, :]).T)/np.std(Z[0], axis = 1)[:, np.newaxis]*np.std(Z[1], axis = 1)[np.newaxis, :])
     ftype = "vectorized"      
     return Feature_X, Feature_Y, func, ftype 
     
