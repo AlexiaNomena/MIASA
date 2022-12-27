@@ -7,6 +7,7 @@ Created on Fri Dec 23 20:04:14 2022
 """
 import numpy as np
 import scipy.stats as stats
+import pdb
 
 
 """ Classification Experiment on random samples from specific probability distributions """
@@ -39,7 +40,7 @@ def generate_data_dist(var_data = False, noise = False):
     # Number of samples per classes
     MaxNumVar = 25
     if var_data:
-        num_var_list = np.random.choice(np.arange(2, MaxNumVar), size = len(labs), replace = False)
+        num_var_list = np.random.choice(np.arange(2, MaxNumVar), size = len(labs))
         num_var = {labs[k]: num_var_list[k] for k in range(len(labs))}
     else:
         num_var = {labs[k]:MaxNumVar for k in range(len(labs))}
@@ -50,15 +51,15 @@ def generate_data_dist(var_data = False, noise = False):
     for i in range(3):
         lab = labs[k:k+4]
         for j in range(MaxNumVar + 1):
-            if j <= num_var[lab[0]]:
+            if j < num_var[lab[0]]:
                 data_dic[class_type1[i]+"%d"%(j+1)] = np.random.normal(val1[i][0], val1[i][1], size = per_spl)
                 class_dic[class_type1[i]+"%d"%(j+1)] = lab[0]
                 
-            if j <= num_var[lab[1]]:
+            if j < num_var[lab[1]]:
                 data_dic[class_type2[i]+"%d"%(j+1)] = np.random.uniform(val2[i][0], val2[i][1], size = per_spl)
                 class_dic[class_type2[i]+"%d"%(j+1)] = lab[1]
               
-            if j <= num_var[lab[2]]:
+            if j < num_var[lab[2]]:
                 data_dic[class_type3[i]+"%d"%(j+1)] = np.random.pareto(val3[i][0], size = per_spl)*val3[i][1]
                 class_dic[class_type3[i]+"%d"%(j+1)] = lab[2]
                 
@@ -79,14 +80,14 @@ def generate_data_correlated(var_data = False, noise = False):
     per_spl = 200 # Num of iid observation in each samples 
     data_dic = {}
     class_type1 = ["1a", "1b", "1c"] # bivariate Normal Dist
-    mean_list = np.random.choice(5, size = (len(class_type1), 2), relace = False) # not allowing repeating means
-    var1 = np.random.uniform(2, 5, size = (len(class_type1), 2))
+    mean_list = np.random.choice(10, size = (len(class_type1), 2), replace = False) # not allowing repeating means
+    var1 =  np.random.uniform(2, 5, size = (len(class_type1), 2)) # 2*np.ones((len(class_type1), 2)) # fix variance for stability of stimulations
     corr1 = np.random.uniform(-1, 1, size = len(class_type1)) # always has to be less than the variance for a PSD covariance matrix (Gershgorin)
     
     class_type2 = ["2a", "2b", "2c"] # bivariate t Dist
     #val1 = [(0, 1), (0, 5), (2, 1)]
-    loc_list = np.random.choice(5, size = (len(class_type1), 2), replace = False) # not allowing repeating means
-    var2 = np.random.uniform(2, 5, size = (len(class_type1), 2))
+    loc_list = np.random.choice(10, size = (len(class_type1), 2), replace = False) # not allowing repeating means
+    var2 = np.random.uniform(2, 5, size = (len(class_type1), 2)) # 2*np.ones((len(class_type1), 2)) # fix variance for stability of stimulations
     corr2 = np.random.uniform(-1, 1, size = len(class_type2))
     
     
@@ -96,7 +97,7 @@ def generate_data_correlated(var_data = False, noise = False):
     # Number of samples per classes
     MaxNumVar = 25
     if var_data:
-        num_var_list = np.random.choice(np.arange(2, MaxNumVar), size = len(labs), replace = False)
+        num_var_list = np.random.choice(np.arange(2, MaxNumVar), size = len(labs))
         num_var = {labs[k]: num_var_list[k] for k in range(len(labs))}
     else:
         num_var = {labs[k]:MaxNumVar for k in range(len(labs))}
@@ -107,7 +108,7 @@ def generate_data_correlated(var_data = False, noise = False):
     for i in range(3):
         lab = labs[k:k+2]
         for j in range(MaxNumVar + 1):
-            if j <= num_var[lab[0]]:
+            if j < num_var[lab[0]]:
                 cov_i = np.array([[0, corr1[i]], [corr1[i], 0]]) + np.diag(var1[i, :])
                 Z = np.random.multivariate_normal(mean_list[i, :], cov_i, size = per_spl)
                 data_dic[class_type1[i]+"%d_%d"%(j+1, 0)] = Z[:, 0]
@@ -116,16 +117,17 @@ def generate_data_correlated(var_data = False, noise = False):
                 data_dic[class_type1[i]+"%d_%d"%(j+1, 1)] = Z[:, 1]
                 class_dic[class_type1[i]+"%d_%d"%(j+1, 1)] = lab[0]
                 
-            if j <= num_var[lab[1]]:
+            if j < num_var[lab[1]]:
                 cov_i = np.array([[0, corr2[i]], [corr2[i], 0]]) + np.diag(var2[i, :])
-                Z = stats.multivariate_t(loc_list[i, :], cov_i, size = per_spl)
+                frozen_t = stats.multivariate_t(loc_list[i, :], cov_i)
+                Z = frozen_t.rvs(size = per_spl)
                 data_dic[class_type2[i]+"%d_%d"%(j+1, 0)] = Z[:, 0]
                 class_dic[class_type2[i]+"%d_%d"%(j+1, 0)] = lab[1]
+                
                 data_dic[class_type2[i]+"%d_%d"%(j+1, 1)] = Z[:, 1]
-                class_dic[class_type2[i]+"%d_%d"%(j+1, 0)] = lab[1]
+                class_dic[class_type2[i]+"%d_%d"%(j+1, 1)] = lab[1]
                
         k += 2    
-     
     dtp = ("<U4", "<U4") #This is the type of the labels checked from printing
     return data_dic, class_dic, num_clust, dtp
 
@@ -178,7 +180,7 @@ def generate_data_twoGRN(var_data = False, noise = False):
     for i in range(len(class_type1)):
         lab = labs[k]
         for j in range(MaxNumVar + 1):
-            if j <= num_var[lab[0]]:
+            if j < num_var[lab[0]]:
                 if class_type1[i] != "NoI":
                     ssa_i = ssa_func_list[i](Stochiometry = trans[i][0], Propensities = propens[i][0], X_0 = initial_state, T_Obs_Points = T)
                     Z = ssa_i[loc_mRNA, :]
