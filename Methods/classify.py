@@ -8,7 +8,7 @@ Created on Mon Dec 19 17:18:37 2022
 from .miasa_class import Miasa_Class
 from .Generate_Features import KS, KS_p1, KS_p2, Sub_Eucl, covariance, covariance_moms 
 from .Generate_Features import moms_covariance, corrcoeff, corrcoeff_moms, moms_corrcoeff, moms, moms_OR
-from .Core.Generate_Distances import Similarity_Distance, Association_Distance
+from .Core.Generate_Distances import Similarity_Distance, Association_Distance, KS_Distance, KS_Distance_Mixed
 from .Core.Lower_dim import get_clusters
 from .Core.CosLM import Prox_Mat
 
@@ -156,7 +156,10 @@ def NonMetric_Class(X, Y, num_clust, dist_origin = True, metric_method = "KS-sta
         
     elif metric_method == "Sub_Eucl":
        Feature_X, Feature_Y, func, ftype = Sub_Eucl(X, Y)
-      
+    
+    elif metric_method in ("KS-stat-stat", "KS-p1-p1", "KS-p1-stat", "KS-stat-p1"):
+       Feature_X, Feature_Y, func, ftype = X, Y, None, None
+       
     else:
         try:
             Feature_X, Feature_Y, func, ftype = Feature_dic["Feature_X"], Feature_dic["Feature_Y"], Feature_dic["Asssociation_function"], Feature_dic["assoc_func_type"]
@@ -169,27 +172,37 @@ def NonMetric_Class(X, Y, num_clust, dist_origin = True, metric_method = "KS-sta
 
     
 def get_NMDclass(X, Y, Feature_X, Feature_Y, func, ftype, metric_method, dist_origin = False, num_clust=None, clust_method = "Kmeans", palette = "tab20"):
-    """ Similarity metric """
-    DX = Similarity_Distance(Feature_X, method = "Euclidean")
-    DY = Similarity_Distance(Feature_Y, method = "Euclidean")
-    
-    """Association metric"""
-    Features = (X, Y)
-    
-    D_assoc = Association_Distance(Features, func, ftype)
-    """Distane to origin Optional but must be set to None if not used"""
-    if dist_origin:
-        Orows = np.linalg.norm(Feature_X, axis = 1)
-        Ocols = np.linalg.norm(Feature_Y, axis = 1)
-    else:
-        Orows = None
-        Ocols = None
     
     M = Feature_X.shape[0]
     N = Feature_Y.shape[0]
     
-    DMat = Prox_Mat(DX, DY, UX = Orows, UY = Ocols, fXY = D_assoc)
-
+    if metric_method not in ("KS-stat-stat", "KS-p1-p1", "KS-p1-stat", "KS-stat-p1"):
+        """ Similarity metric """
+        DX = Similarity_Distance(Feature_X, method = "Euclidean")
+        DY = Similarity_Distance(Feature_Y, method = "Euclidean")
+        
+        """Association metric"""
+        Features = (X, Y)
+        
+        D_assoc = Association_Distance(Features, func, ftype)
+        """Distane to origin Optional but must be set to None if not used"""
+        if dist_origin:
+            Orows = np.linalg.norm(Feature_X, axis = 1)
+            Ocols = np.linalg.norm(Feature_Y, axis = 1)
+        else:
+            Orows = None
+            Ocols = None
+        
+        DMat = Prox_Mat(DX, DY, UX = Orows, UY = Ocols, fXY = D_assoc)
+    
+    elif metric_method in ("KS-stat-stat", "KS-p1-p1"):
+        Z = np.concatenate((X, Y), axis = 0)
+        DMat = KS_Distance(Z, to_use = metric_method)
+    
+    else:
+        Z = (X, Y)
+        DMat = KS_Distance_Mixed(Z, to_use = metric_method)
+    
     try:        
         if clust_method == "Kmedoids":
             if num_clust == None:
@@ -203,7 +216,7 @@ def get_NMDclass(X, Y, Feature_X, Feature_Y, func, ftype, metric_method, dist_or
         else:
             sys.exit("A non-metric distance clustering method is required for Non Metric Distance \n Available here is Kmedoids")
         
-        if dist_origin:
+        if dist_origin and metric_method not in ("KS-stat-stat", "KS-p1-p1", "KS-p1-stat", "KS-stat-p1"):
             Class_pred = np.concatenate((clust_labels[:M], clust_labels[M+1:]), axis = 0)
             was_orig = True
         else:
@@ -211,6 +224,7 @@ def get_NMDclass(X, Y, Feature_X, Feature_Y, func, ftype, metric_method, dist_or
             was_orig = False
     except:
         pdb.set_trace()
+    
     return {"shape":(M, N), "was_orig":was_orig, "Class_pred":Class_pred, "clust_labels":clust_labels, "color_clustered":color_clustered}
     
 

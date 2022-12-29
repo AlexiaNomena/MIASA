@@ -60,25 +60,31 @@ def umap_reducer(Coords, dim, np, min_dist):
 
 def get_clusters(Coords, num_clust, palette, method = "Kmeans", init = "k-means++", metric = None):
     if method == "Kmeans":
-        embedding = sklc.KMeans(n_clusters = num_clust, init = init, random_state = rand).fit(Coords)
-        
+        clusters = sklc.KMeans(n_clusters = num_clust, init = init, random_state = rand).fit(Coords)
     elif method == "Kmedoids":
-        if init == "k-means++":
+        if init == "k-means++" or init == "k-means++":
             init = "k-medoids++"
+        
         if metric == "precomputed":
-            embedding = sklEc.KMedoids(n_clusters = num_clust, metric = "precomputed" ,init = init, random_state = rand).fit(Coords) # in this case coords it the proximity matrix
+            clusters = sklEc.KMedoids(n_clusters = num_clust, metric = "precomputed" ,init = init, random_state = rand).fit(Coords) # in this case coords it the proximity matrix
         else:
-            embedding = sklEc.KMedoids(n_clusters = num_clust,init = init, random_state = rand).fit(Coords)
-    
+            try:
+                clusters = sklEc.KMedoids(n_clusters = num_clust, metric = metric, init = init, random_state = rand).fit(Coords)
+            except:
+                clusters = sklEc.KMedoids(n_clusters = num_clust, init = init, random_state = rand).fit(Coords)
+                
     elif method[:13] == "Agglomerative":
         if metric == "precomputed":
-            embedding = sklc.AgglomerativeClustering(n_clusters = num_clust, affinity = metric, linkage = method[14:]).fit(Coords)
+            clusters = sklc.AgglomerativeClustering(n_clusters = num_clust, affinity = metric, linkage = method[14:]).fit(Coords)
             # parameter affinity will be deprecated, replace with metric in future
-            #embedding = sklc.AgglomerativeClustering(n_clusters = num_clust, metric = metric, linkage = method[14:]).fit(Coords)
+            #clusters = sklc.AgglomerativeClustering(n_clusters = num_clust, metric = metric, linkage = method[14:]).fit(Coords)
         else:
-            embedding = sklc.AgglomerativeClustering(n_clusters = num_clust, linkage = method[14:]).fit(Coords)
-
-    labels = embedding.labels_
+            clusters = sklc.AgglomerativeClustering(n_clusters = num_clust, linkage = method[14:]).fit(Coords)
+    
+    elif method == "Spectral":
+        clusters = sklc.SpectralClustering(n_clusters = num_clust).fit(Coords)
+        
+    labels = clusters.labels_
     col_labels = get_col_labs(labels, palette)
     return labels, col_labels
  
@@ -171,12 +177,12 @@ def tree_emb(Coords, graph_type = "Agglomerative", linkage_type = "centroid", n_
     elif graph_type == "Agglomerative":
         Tree = {"graph_type":graph_type}
         if linkage_type in ("ward", "average", "complete", "single"):
-            embedding = sklc.AgglomerativeClustering(compute_full_tree = True, distance_threshold = distance_threshold, linkage = linkage_type, n_clusters = None) 
-            embedding = embedding.fit(Coords)
+            clusters = sklc.AgglomerativeClustering(compute_full_tree = True, distance_threshold = distance_threshold, linkage = linkage_type, n_clusters = None) 
+            clusters = clusters.fit(Coords)
             # create the counts of samples under each node
-            counts = np.zeros(embedding.children_.shape[0])
-            n_samples = len(embedding.labels_)
-            for i, merge in enumerate(embedding.children_):
+            counts = np.zeros(clusters.children_.shape[0])
+            n_samples = len(clusters.labels_)
+            for i, merge in enumerate(clusters.children_):
                 current_count = 0
                 for child_idx in merge:
                     if child_idx < n_samples:
@@ -184,9 +190,9 @@ def tree_emb(Coords, graph_type = "Agglomerative", linkage_type = "centroid", n_
                     else:
                         current_count += counts[child_idx - n_samples]
                 counts[i] = current_count   
-            linkage_matrix = np.column_stack([embedding.children_, embedding.distances_, counts]).astype(float)
+            linkage_matrix = np.column_stack([clusters.children_, clusters.distances_, counts]).astype(float)
             Tree["linkage"] = linkage_matrix
-            Tree["cluster_labels"] = embedding.labels_
+            Tree["cluster_labels"] = clusters.labels_
             figtitle = "Agglomerative %s linkage"%linkage_type
         else:
             linkage_matrix = linkage(Coords, method = linkage_type) 

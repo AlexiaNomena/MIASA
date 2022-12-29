@@ -13,22 +13,25 @@ import pickle
 
 
 """ Classification experiments for different data types """
-repeat = 100 # Number of replicates of each experiments
+repeat = 10 # Number of replicates of each experiments
 var_data_list = [False, True]
 var_data_list_labs = ["False", "True"]
 
 """ Test method """
-#set_num = 0
-#classifiers = ["MIASA"]
-#clust_methods = ["Agglomerative_single"] # Must be of the same length as classifiers and with a one-to-one mapping i.e. classifiers[i] uses clust_method[i]
-#metric_methods = ["KS-p2"] # used by all couple (classifiers[i], clust_method[i])
-
+"""
+set_num = 0
+save_at = ""
+classifiers = ["MIASA"] + ["non_MD"]
+clust_methods = ["Spectral", "Spectral"] # Must be of the same length as classifiers and with a one-to-one mapping i.e. classifiers[i] uses clust_method[i]
+metric_methods = ["KS-statistics", "KS-p1"] # used by all couple (classifiers[i], clust_method[i])
 # Euclidean embedding pameters only usied in MIASA (includes a finite number of auto adjustements)
-#c_dic = "default" 
-#in_threads = True # avoid broken runs when using parallel jobs (repeat>10)
-#plotfew = True # plot 10 examples (umap visualization) saved in Figures/
-""" First methods set"""
+c_dic = "default" 
+in_threads = True # avoid broken runs when using parallel jobs (repeat>10)
+plotfew = True # plot 10 examples (umap visualization) saved in Figures/
+"""
 
+""" First methods set"""
+"""
 set_num = 1
 save_at = "Class_Data/meth_set_1/"
 classifiers = ["MIASA"]*6 + ["non_MD"]*4 # non_MD = Non_Metric_Distance
@@ -38,6 +41,19 @@ metric_methods = ["KS-statistic", "KS-p1"]
 generate_data = generate_data_dist
 # Euclidean embedding pameters only usied in MIASA (includes a finite number of auto adjustements)
 c_dic = "default" # seems no-auto adjustments was performed, default works well for this the datatype and distance measures
+in_threads = True # avoid broken runs when using parallel jobs (repeat>10)
+plotfew = False # plot 10 examples (umap visualization) saved in Figures/
+"""
+
+""" First methods set bis"""
+set_num = 1
+save_at = "Class_Data/meth_set_1bis/"
+classifiers = ["non_MD"]*4 # non_MD = Non_Metric_Distance
+clust_methods = ["Kmedoids", "Agglomerative_complete", "Agglomerative_average", "Agglomerative_single"] # for non_MD
+metric_methods = ["KS-stat-stat", "KS-p1-p1"] # purely non-metric approach, not appropriate for MIASA because Similarity distance is non-Euclidean
+generate_data = generate_data_dist
+# Euclidean embedding pameters only usied in MIASA (includes a finite number of auto adjustements)
+c_dic = "default" # just passed but unused
 in_threads = True # avoid broken runs when using parallel jobs (repeat>10)
 plotfew = False # plot 10 examples (umap visualization) saved in Figures/
 
@@ -103,7 +119,7 @@ for j in range(len(var_data_list)):
             method_dic_list.append(dic_meth)
             method_name.append(classifiers[i]+"-"+metric_methods[k]+"-"+clust_methods[i])
             
-    acc_list, adjusted_acc_list = repeated_classifications(repeat, method_dic_list, generate_data = generate_data, c_dic = c_dic, var_data = var_data_list[j], n_jobs = 20, plot = plotfew, in_threads = in_threads)    
+    acc_list, adjusted_acc_list = repeated_classifications(repeat, method_dic_list, generate_data = generate_data, c_dic = c_dic, var_data = var_data_list[j], n_jobs = 25, plot = plotfew, in_threads = in_threads)    
     
     if plotfew:
         for i in range(len(method_dic_list)):
