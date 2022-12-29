@@ -9,7 +9,6 @@ Created on Wed Oct 12 09:09:33 2022
 import numpy as np
 import sklearn.cluster as sklc
 import sklearn_extra.cluster as sklEc
-import skfda.ml.clustering as skfdac
 
 import sklearn.manifold as sklm
 import pdb
@@ -19,8 +18,6 @@ from sklearn.preprocessing import StandardScaler
 from functools import partial
 import umap
 import seaborn as sns
-
-from numba import njit
 
 
 def low_dim_coords(Coords, dim=2, method  = "MDS", n_neighbors = 15, min_dist = None):

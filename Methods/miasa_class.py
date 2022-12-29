@@ -7,7 +7,7 @@ Created on Sun Dec 18 14:03:16 2022
 """
 
 from .Core.Generate_Distances import Similarity_Distance, Association_Distance
-from .Generate_Features import KS, KS_p1, KS_p2, Sub_Eucl, covariance, covariance_moms, moms_covariance, corrcoeff, corrcoeff_moms, moms_corrcoeff, moms, moms_OR
+from .Generate_Features import eCDF, eCDF_KS_stat, eCDF_KS_p1, eCDF_KS_p2, Sub_Eucl, covariance, covariance_moms, moms_covariance, corrcoeff, corrcoeff_moms, moms_corrcoeff, moms, moms_OR
 from .Core.Lower_dim import get_clusters
 from .Core.qEmbedding import Euclidean_Embedding
 
@@ -16,17 +16,20 @@ import numpy as np
 import pdb
 
 
-def Miasa_Class(X, Y, num_clust, c_dic = None, dist_origin = True, metric_method = "KS-statistic", clust_method = "Kmeans", palette = "tab20", Feature_dic = None, in_threads = True):
+def Miasa_Class(X, Y, num_clust, c_dic = None, dist_origin = True, metric_method = "eCDF-KS-stat", clust_method = "Kmeans", palette = "tab20", Feature_dic = None, in_threads = True):
     """Compute features"""
     
-    if metric_method == "KS-statistic":
-       Feature_X, Feature_Y, func, ftype = KS(X,Y)
+    if metric_method == "eCDF-KS-stat":
+       Feature_X, Feature_Y, func, ftype = eCDF_KS_stat(X,Y)
        
-    elif metric_method == "KS-p1":
-        Feature_X, Feature_Y, func, ftype = KS_p1(X,Y)
+    elif metric_method == "eCDF-KS-p1":
+        Feature_X, Feature_Y, func, ftype = eCDF_KS_p1(X,Y)
         
-    elif metric_method == "KS-p2":
-        Feature_X, Feature_Y, func, ftype = KS_p2(X,Y)
+    elif metric_method == "eCDF-KS-p2":
+        Feature_X, Feature_Y, func, ftype = eCDF_KS_p2(X,Y)
+        
+    elif metric_method == "eCDF":
+        Feature_X, Feature_Y, func, ftype = eCDF(X,Y)
         
     elif metric_method == "Cov":
         Feature_X, Feature_Y, func, ftype = covariance(X, Y)

@@ -7,6 +7,7 @@ Created on Sun Dec 18 13:39:28 2022
 """
 import numpy as np
 from scipy.stats import ks_2samp, kurtosis, skew
+import scipy
 
 import pdb
 
@@ -14,7 +15,31 @@ def EmpCDF(X, interval):
     cdf = np.sum(X[:, :, np.newaxis]<= interval, axis = 1)/X.shape[1]
     return cdf
 
-def KS(X,Y):
+def eCDF(X,Y):
+    """ Empirical CDF similarity and Komogorov-Smirnov statistics association version 2 (test)"""
+    lbd = min(np.min(X), np.min(Y))
+    ubd = max(np.max(X), np.max(Y))
+    interval = np.linspace(lbd, ubd, 500)
+    Feature_X = EmpCDF(X, interval)
+    Feature_Y = EmpCDF(Y, interval)
+    func = dCDF
+    ftype = "vectorized"
+    return Feature_X, Feature_Y, func, ftype
+
+def dCDF(Z):
+    X, Y = Z
+    lbd = min(np.min(X), np.min(Y))
+    ubd = max(np.max(X), np.max(Y))
+    interval = np.linspace(lbd, ubd, 500)
+    eX = EmpCDF(X, interval)
+    eY = EmpCDF(Y, interval)
+    
+    D = scipy.spatial.distance.cdist(eX, eY)
+    return D
+    
+    
+
+def eCDF_KS_stat(X,Y):
     """ Empirical CDF similarity and Komogorov-Smirnov statistics association version 2 (test)"""
     lbd = min(np.min(X), np.min(Y))
     ubd = max(np.max(X), np.max(Y))
@@ -25,7 +50,7 @@ def KS(X,Y):
     ftype = "not_vectorized"
     return Feature_X, Feature_Y, func, ftype
 
-def KS_p1(X,Y):
+def eCDF_KS_p1(X,Y):
     """ Empirical CDF similarity and p_value association version 1"""
     lbd = min(np.min(X), np.min(Y))
     ubd = max(np.max(X), np.max(Y))
@@ -36,7 +61,7 @@ def KS_p1(X,Y):
     ftype = "not_vectorized"
     return Feature_X, Feature_Y, func, ftype
 
-def KS_p2(X,Y):
+def eCDF_KS_p2(X,Y):
     """ Empirical CDF similarity and p_value association version 2 (test)"""
     lbd = min(np.min(X), np.min(Y))
     ubd = max(np.max(X), np.max(Y))

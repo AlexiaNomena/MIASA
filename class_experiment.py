@@ -13,7 +13,7 @@ import pickle
 
 
 """ Classification experiments for different data types """
-repeat = 10 # Number of replicates of each experiments
+repeat = 1000 # Number of replicates of each experiments
 var_data_list = [False, True]
 var_data_list_labs = ["False", "True"]
 
@@ -23,7 +23,7 @@ set_num = 0
 save_at = ""
 classifiers = ["MIASA"] + ["non_MD"]
 clust_methods = ["Spectral", "Spectral"] # Must be of the same length as classifiers and with a one-to-one mapping i.e. classifiers[i] uses clust_method[i]
-metric_methods = ["KS-statistics", "KS-p1"] # used by all couple (classifiers[i], clust_method[i])
+metric_methods = ["eCDF-KS-stat", "eCDF-KS-p1"] # used by all couple (classifiers[i], clust_method[i])
 # Euclidean embedding pameters only usied in MIASA (includes a finite number of auto adjustements)
 c_dic = "default" 
 in_threads = True # avoid broken runs when using parallel jobs (repeat>10)
@@ -37,7 +37,7 @@ save_at = "Class_Data/meth_set_1/"
 classifiers = ["MIASA"]*6 + ["non_MD"]*4 # non_MD = Non_Metric_Distance
 clust_methods = ["Kmeans", "Kmedoids", "Agglomerative_ward", "Agglomerative_complete", "Agglomerative_average", "Agglomerative_single"] # for MIASA
 clust_methods = clust_methods + ["Kmedoids", "Agglomerative_complete", "Agglomerative_average", "Agglomerative_single"] # for non_MD
-metric_methods = ["KS-statistic", "KS-p1"] 
+metric_methods = ["eCDF", "eCDF-KS-stat", "eCDF-KS-p1"] 
 generate_data = generate_data_dist
 # Euclidean embedding pameters only usied in MIASA (includes a finite number of auto adjustements)
 c_dic = "default" # seems no-auto adjustments was performed, default works well for this the datatype and distance measures
@@ -50,7 +50,7 @@ set_num = 1
 save_at = "Class_Data/meth_set_1bis/"
 classifiers = ["non_MD"]*4 # non_MD = Non_Metric_Distance
 clust_methods = ["Kmedoids", "Agglomerative_complete", "Agglomerative_average", "Agglomerative_single"] # for non_MD
-metric_methods = ["KS-stat-stat", "KS-p1-p1"] # purely non-metric approach, not appropriate for MIASA because Similarity distance is non-Euclidean
+metric_methods = ["KS-stat-stat", "KS-p1-p1", "KS-p1-stat", "KS-stat-p1"] # purely non-metric approach, not appropriate for MIASA because Similarity distance is not necessarily Euclidean
 generate_data = generate_data_dist
 # Euclidean embedding pameters only usied in MIASA (includes a finite number of auto adjustements)
 c_dic = "default" # just passed but unused

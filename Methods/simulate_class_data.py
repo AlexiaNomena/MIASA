@@ -15,23 +15,23 @@ def generate_data_dist(var_data = False, noise = False):
     """Generate Artificial dinstinct distributions data"""
     per_spl = 200 # Num of iid observation in each samples 
     data_dic = {}
-    class_type1 = ["1a", "1b", "1c"] # Normal Dist
-    val1_mean = np.random.choice(5, size = len(class_type1), replace = False) # not allowing repeating means
-    val1_std = np.random.uniform(1, 5, size = len(class_type1)) 
+    class_type1 = ["1a", "1b", "1c", "1d", "1e", "1f", "1g", "1h", "1i", "1j", "1k"] # Normal Dist
+    val1_mean = np.random.choice(15, size = len(class_type1), replace = False) # not allowing repeating means
+    val1_std = np.random.uniform(1, 8, size = len(class_type1)) 
     val1 = [(val1_mean[k], val1_std[k]) for k in range(len(class_type1))]
     
-    class_type2 = ["2a", "2b", "2c"] # Uniform Dist
-    val2_a = np.random.choice(5, size = len(class_type2)) # allowing repeating start
-    val2_b = np.random.choice(5, size = len(class_type2), replace = False) # not allowing repeated end
+    class_type2 = ["2a", "2b", "2c", "2d", "2e", "2f", "2g", "2h", "2i", "2j", "2k"] # Uniform Dist
+    val2_a = np.random.choice(10, size = len(class_type2)) # allowing repeating start
+    val2_b = np.random.choice(15, size = len(class_type2), replace = False) # not allowing repeated end
     val2 = [(val2_a[k], val2_a[k] + val2_b[k]) for k in range(len(class_type2))]
     
-    class_type3 = ["3a", "3b", "3c"] # Pareto Dist
-    val3_shape = np.random.choice(np.arange(1, 5), size = len(class_type3), replace = False)
-    val3_scale = np.random.choice([1, 2, 3, 4, 5], size = len(class_type3), replace = False)
+    class_type3 = ["3a", "3b", "3c", "3d", "3e", "3f", "3g", "3h", "3i", "3j", "3k"] # Pareto Dist
+    val3_shape = np.random.choice(np.arange(1, 15), size = len(class_type3), replace = False)
+    val3_scale = np.random.choice(np.arange(1, 15), size = len(class_type3), replace = False)
     val3 = [(val3_shape[k], val3_scale[k]) for k in range(len(class_type3))]
     
-    class_type4 = ["4a", "4b", "4c"] # Poisson Dist
-    val4 = np.random.choice([1, 2, 3, 4, 5], size = len(class_type4), replace = False)
+    class_type4 = ["4a", "4b", "4c", "4d", "4e", "4f", "4g", "4h", "4i", "4j", "4k"] # Poisson Dist
+    val4 = np.random.choice(np.arange(1, 15), size = len(class_type4), replace = False)
     
     
     num_clust = len(class_type1) + len(class_type2) + len(class_type3) + len(class_type4)
@@ -48,7 +48,7 @@ def generate_data_dist(var_data = False, noise = False):
     
     class_dic = {}
     k = 0
-    for i in range(3):
+    for i in range(10):
         lab = labs[k:k+4]
         for j in range(MaxNumVar + 1):
             if j < num_var[lab[0]]:
@@ -67,7 +67,7 @@ def generate_data_dist(var_data = False, noise = False):
                 data_dic[class_type4[i]+"%d"%(j+1)] = np.random.poisson(val4[i], size = per_spl)
                 class_dic[class_type4[i]+"%d"%(j+1)] = lab[3]
         
-        k += 4    
+        k += 4   
     
     
     dtp = ("<U4", "<U4") #his is the type of the labels checked from printing

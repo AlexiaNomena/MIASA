@@ -39,21 +39,23 @@ def Association_Distance(Z, func, ftype = "vectorized"):
 
 
 def KS_Distance(Z, to_use = "KS-stat-stat"):
-    """@brief:  Purely Kolmogorove-Snirnov statitics to be used in Non-Metric clustering
+    """@brief:  Kolmogorov-Snirnov statitics/pvalue to be used in Non-Metric clustering
        @params: Z is a is a datasets (num sample, num realization)
-       @to_use: str ks_stat: KS statistics, str ks_p: KS pvalue
+       @to_use: str KS-stat-stat: KS statistics, str KS-p1-p1: KS pvalue
     """
     D = np.zeros((Z.shape[0], Z.shape[0]))
     for i in range(Z.shape[0]):
         for j in range(Z.shape[0]):
             if to_use == "KS-stat-stat":
                 D[i, j] = ks_2samp(Z[i, :], Z[j, :]).statistic
-            else:
-                D[i, j] = ks_2samp(Z[i, :], Z[j, :]).pvalue
+            else: #"KS-stat-stat"
+                D[i, j] = 1e-5 + 1 - ks_2samp(Z[i, :], Z[j, :]).pvalue
     return D
             
 def KS_Distance_Mixed(Z, to_use = "KS-p1-stat"):
-    """@params: Z is a tuple of two datasets, one dataset is an array (num samples, num realization)
+    """@brief:  Mixing Kolmogorov-Snirnov statitics/pvalue to be used in Non-Metric clustering
+       @params: Z is a tuple of two datasets, one dataset is an array (num samples, num realization)
+       @to_use: str KS-p1-stat: KS statistics, str KS-stat-p1: KS pvalue
     """
     X, Y = Z
     M = X.shape[0]
@@ -63,4 +65,24 @@ def KS_Distance_Mixed(Z, to_use = "KS-p1-stat"):
     if to_use == "KS-p1-stat":
         D[:M, :M] = KS_Distance(X, to_use = "KS-p1-p1")
         D[M:, M:] = KS_Distance(Y, to_use = "KS-p1-p1")
+        fXY = np.zeros((M, N))
+        for i in range(M):
+            for j in range(N):
+                fXY[i, j] = ks_2samp(X[i, :], Y[j, :]).statistic
+         
+        D[ :M, M:] = fXY
+        D[M:,  :M] = D[:M, M:].T
+        
+    else: #"KS-stat-p1":
+        D[:M, :M] = KS_Distance(X, to_use = "KS-stat-stat")
+        D[M:, M:] = KS_Distance(Y, to_use = "KS-stat-stat")
+        fXY = np.zeros((M, N))
+        for i in range(M):
+            for j in range(N):
+                fXY[i, j] = 1e-5 + 1 - ks_2samp(X[i, :], Y[j, :]).pvalue
+         
+        D[ :M, M:] = fXY
+        D[M:,  :M] = D[:M, M:].T
+    
+    return D
     
