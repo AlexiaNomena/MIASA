@@ -34,7 +34,7 @@ def dCDF(Z):
     eX = EmpCDF(X, interval)
     eY = EmpCDF(Y, interval)
     
-    D = scipy.spatial.distance.cdist(eX, eY)
+    D = 1e-5 + scipy.spatial.distance.cdist(eX, eY)
     return D
     
     
