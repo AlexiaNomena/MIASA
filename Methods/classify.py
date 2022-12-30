@@ -42,7 +42,6 @@ def split_data(data_dic, class_dic):
     
     X = np.array([data_dic[X_vars[i]] for i in range(M)])
     Y = np.array([data_dic[Y_vars[i]] for i in range(N)])
-   
     """ True Classes """
     Class_True = np.array([class_dic[samples[i]] for i in range(M+N)])
     
@@ -215,6 +214,9 @@ def get_NMDclass(X, Y, Feature_X, Feature_Y, func, ftype, metric_method, dist_or
         
         elif clust_method[:13] == "Agglomerative":
             clust_labels, color_clustered = get_clusters(DMat, num_clust, palette, method = clust_method, metric = "precomputed")
+        
+        elif clust_method == "Spectral":
+        	clust_labels, color_clustered = get_clusters(DMat, num_clust, palette, method = clust_method, metric = "precomputed")
             
         else:
             sys.exit("A non-metric distance clustering method is required for Non Metric Distance \n Available here is Kmedoids")

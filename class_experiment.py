@@ -10,10 +10,11 @@ from Methods.simulate_class_data import generate_data_dist, generate_data_correl
 import pdb
 from matplotlib.backends.backend_pdf import PdfPages
 import pickle
+import time
 
 
 """ Classification experiments for different data types """
-repeat = 1000 # Number of replicates of each experiments
+repeat = 1 # Number of replicates of each experiments
 var_data_list = [False, True]
 var_data_list_labs = ["False", "True"]
 
@@ -24,6 +25,7 @@ save_at = ""
 classifiers = ["MIASA"] + ["non_MD"]
 clust_methods = ["Spectral", "Spectral"] # Must be of the same length as classifiers and with a one-to-one mapping i.e. classifiers[i] uses clust_method[i]
 metric_methods = ["eCDF-KS-stat", "eCDF-KS-p1"] # used by all couple (classifiers[i], clust_method[i])
+generate_data = generate_data_dist
 # Euclidean embedding pameters only usied in MIASA (includes a finite number of auto adjustements)
 c_dic = "default" 
 in_threads = True # avoid broken runs when using parallel jobs (repeat>10)
@@ -31,40 +33,40 @@ plotfew = True # plot 10 examples (umap visualization) saved in Figures/
 """
 
 """ First methods set"""
-"""
 set_num = 1
 save_at = "Class_Data/meth_set_1/"
 classifiers = ["MIASA"]*6 + ["non_MD"]*4 # non_MD = Non_Metric_Distance
-clust_methods = ["Kmeans", "Kmedoids", "Agglomerative_ward", "Agglomerative_complete", "Agglomerative_average", "Agglomerative_single"] # for MIASA
-clust_methods = clust_methods + ["Kmedoids", "Agglomerative_complete", "Agglomerative_average", "Agglomerative_single"] # for non_MD
+clust_methods = ["Kmeans", "Kmedoids", "Agglomerative_ward", "Agglomerative_complete", "Agglomerative_average", "Agglomerative_single", "Spectral"] # for MIASA
+clust_methods = clust_methods + ["Kmedoids", "Agglomerative_complete", "Agglomerative_average", "Agglomerative_single", "Spectral"] # for non_MD
 metric_methods = ["eCDF", "eCDF-KS-stat", "eCDF-KS-p1"] 
 generate_data = generate_data_dist
 # Euclidean embedding pameters only usied in MIASA (includes a finite number of auto adjustements)
 c_dic = "default" # seems no-auto adjustments was performed, default works well for this the datatype and distance measures
 in_threads = True # avoid broken runs when using parallel jobs (repeat>10)
 plotfew = False # plot 10 examples (umap visualization) saved in Figures/
-"""
+
 
 """ First methods set bis"""
+"""
 set_num = 1
 save_at = "Class_Data/meth_set_1bis/"
 classifiers = ["non_MD"]*4 # non_MD = Non_Metric_Distance
-clust_methods = ["Kmedoids", "Agglomerative_complete", "Agglomerative_average", "Agglomerative_single"] # for non_MD
+clust_methods = ["Kmedoids", "Agglomerative_complete", "Agglomerative_average", "Agglomerative_single", "Spectral"] # for non_MD
 metric_methods = ["KS-stat-stat", "KS-p1-p1", "KS-p1-stat", "KS-stat-p1"] # purely non-metric approach, not appropriate for MIASA because Similarity distance is not necessarily Euclidean
 generate_data = generate_data_dist
 # Euclidean embedding pameters only usied in MIASA (includes a finite number of auto adjustements)
 c_dic = "default" # just passed but unused
 in_threads = True # avoid broken runs when using parallel jobs (repeat>10)
 plotfew = False # plot 10 examples (umap visualization) saved in Figures/
-
+"""
 
 """ Secod methods set: Saved/meth_set_2/"""
 """
 set_num = 2
 save_at = "Class_Data/meth_set_2/"
 classifiers = ["MIASA"]*6 + ["non_MD"]*4 # non_MD = Non_Metric_Distance
-clust_methods = ["Kmeans", "Kmedoids", "Agglomerative_ward", "Agglomerative_complete", "Agglomerative_average", "Agglomerative_single"] # for MIASA
-clust_methods = clust_methods + ["Kmedoids", "Agglomerative_complete", "Agglomerative_average", "Agglomerative_single"] # for non_MD
+clust_methods = ["Kmeans", "Kmedoids", "Agglomerative_ward", "Agglomerative_complete", "Agglomerative_average", "Agglomerative_single", "Spectral"] # for MIASA
+clust_methods = clust_methods + ["Kmedoids", "Agglomerative_complete", "Agglomerative_average", "Agglomerative_single", "Spectral"] # for non_MD
 metric_methods = ["Cov", "Moms", "Cov_Moms", "Moms_Cov"]  
 generate_data = generate_data_correlated
 # Euclidean embedding pameters only usied in MIASA (includes a finite number of auto adjustements)
@@ -79,8 +81,8 @@ plotfew = False # plot 10 examples (umap visualization) saved in Figures/
 set_num = 3
 save_at = "Class_Data/meth_set_3/"
 classifiers = ["MIASA"]*6 + ["non_MD"]*4 # non_MD = Non_Metric_Distance
-clust_methods = ["Kmeans", "Kmedoids", "Agglomerative_ward", "Agglomerative_complete", "Agglomerative_average", "Agglomerative_single"] # for MIASA
-clust_methods = clust_methods + ["Kmedoids", "Agglomerative_complete", "Agglomerative_average", "Agglomerative_single"] # for non_MD
+clust_methods = ["Kmeans", "Kmedoids", "Agglomerative_ward", "Agglomerative_complete", "Agglomerative_average", "Agglomerative_single", "Spectral"] # for MIASA
+clust_methods = clust_methods + ["Kmedoids", "Agglomerative_complete", "Agglomerative_average", "Agglomerative_single", "Spectral"] # for non_MD
 metric_methods = ["Corr", "Moms", "Corr_Moms", "Moms_Corr"]  
 generate_data = generate_data_correlated
 # Euclidean embedding pameters only usied in MIASA (includes a finite number of auto adjustements)
@@ -95,8 +97,8 @@ plotfew = False # plot 10 examples (umap visualization) saved in Figures/
 set_num = 4
 save_at = "Class_Data/meth_set_4/"
 classifiers = ["MIASA"]*6 + ["non_MD"]*4 # non_MD = Non_Metric_Distance
-clust_methods = ["Kmeans", "Kmedoids", "Agglomerative_ward", "Agglomerative_complete", "Agglomerative_average", "Agglomerative_single"] # for MIASA
-clust_methods = clust_methods + ["Kmedoids", "Agglomerative_complete", "Agglomerative_average", "Agglomerative_single"] # for non_MD
+clust_methods = ["Kmeans", "Kmedoids", "Agglomerative_ward", "Agglomerative_complete", "Agglomerative_average", "Agglomerative_single", "Spectral"] # for MIASA
+clust_methods = clust_methods + ["Kmedoids", "Agglomerative_complete", "Agglomerative_average", "Agglomerative_single", "Spectral"] # for non_MD
 metric_methods = ["Moms", "OR", "Moms_OR", "OR_Moms"] 
 generate_data = generate_data_twoGRN
 # Euclidean embedding pameters only usied in MIASA (includes a finite number of auto adjustements)
@@ -106,6 +108,7 @@ plotfew = False # plot 10 examples (umap visualization) saved in Figures/
 """
 
 """ Simulations """
+t0 = time.time()
 for j in range(len(var_data_list)):
     method_dic_list = []
     method_name = []
@@ -142,7 +145,9 @@ for j in range(len(var_data_list)):
     pdfb= PdfPages("Figures/ARI_set_%d_%d_varS%s.pdf"%(set_num, repeat, var_data_list_labs[j]))    
     BarPlotClass(adjusted_acc_list, method_name, pdfb, stat_name = "ARI scores")
     pdfb.close()
-    
+
+t1 = time.time()
+print("run time = ", t1 - t0, "s")
 
 
 

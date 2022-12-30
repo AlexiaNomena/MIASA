@@ -9,6 +9,7 @@ import scipy.spatial as scSp
 import numpy as np
 import sys
 from scipy.stats import ks_2samp
+import pdb
 
 def Similarity_Distance(Z, method = "Euclidean"):
     """@params: Coord is a datasets (num sample, num realization)
@@ -61,7 +62,6 @@ def KS_Distance_Mixed(Z, to_use = "KS-p1-stat"):
     M = X.shape[0]
     N = Y.shape[0]
     D = np.zeros((M+N, M+N))
-    
     if to_use == "KS-p1-stat":
         D[:M, :M] = KS_Distance(X, to_use = "KS-p1-p1")
         D[M:, M:] = KS_Distance(Y, to_use = "KS-p1-p1")

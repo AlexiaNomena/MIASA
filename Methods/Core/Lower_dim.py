@@ -79,7 +79,13 @@ def get_clusters(Coords, num_clust, palette, method = "Kmeans", init = "k-means+
             clusters = sklc.AgglomerativeClustering(n_clusters = num_clust, linkage = method[14:]).fit(Coords)
     
     elif method == "Spectral":
-        clusters = sklc.SpectralClustering(n_clusters = num_clust).fit(Coords)
+        if metric == "precomputed":
+            clusters = sklc.SpectralClustering(n_clusters = num_clust, affinity = metric).fit(Coords)
+        else:
+            try:
+                clusters = sklc.SpectralClustering(n_clusters = num_clust, affinity = metric).fit(Coords)
+            except:
+                clusters = sklc.SpectralClustering(n_clusters = num_clust).fit(Coords)
         
     labels = clusters.labels_
     col_labels = get_col_labs(labels, palette)
