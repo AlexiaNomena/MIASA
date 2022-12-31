@@ -206,15 +206,18 @@ def dOR(Z):
     p_in_Y = np.sum(dY > 0, axis = 1)/len(dY)
     p_out_Y = 1 - p_in_Y
     
-    OR_in_X = np.divide(p_in_X, p_out_X, out = 1e3, where = p_out_X != 0)[:, np.newaxis] # 1e3 replacing infinity
-    OR_in_Y = np.divide(p_in_Y, p_out_Y, out = 1e3, where = p_out_Y!=0)[np.newaxis, :]
+    OR_in_X = np.divide(p_in_X, p_out_X, out = 1e5*np.ones(len(p_in_X)), where = p_out_X != 0) # 1e5 replacing infinity
+    OR_in_Y = np.divide(p_in_Y, p_out_Y, out = 1e5*np.ones(len(p_in_Y)), where = p_out_Y!=0)
     
-    OR_in_XY = np.divide(OR_in_X, OR_in_Y, out = 1e3, where = OR_in_Y != 0)
-    OR_in_YX = np.divide(OR_in_Y, OR_in_X, out = 1e3, where = OR_in_X != 0)
+    M = len(OR_in_X)
+    N = len(OR_in_Y)
+    
+    OR_in_XY = np.divide(OR_in_X[:, np.newaxis], OR_in_Y[np.newaxis, :], out = 1e5*np.ones((M, N)), where = OR_in_Y != 0)
+    OR_in_YX = np.divide(OR_in_Y[np.newaxis, :], OR_in_X[:, np.newaxis], out = 1e5*np.ones((M, N)), where = OR_in_X != 0)
     
     dOR = np.exp(- (OR_in_XY + OR_in_YX) )
     
-    return dOR/np.max(dOR) + 1e-3 # added a small constant to avoid identically zero
+    return dOR + 1e-35# added a small constant to avoid identically zero
 
 def OR(X, Y):
     """ Fully Odd_ratio feature """
@@ -227,11 +230,14 @@ def OR(X, Y):
     p_in_Y = np.sum(dY > 0, axis = 1)/len(dY)
     p_out_Y = 1 - p_in_Y
     
-    OR_in_X = np.divide(p_in_X, p_out_X, out = 1e3, where = p_out_X != 0) # 1e3 replacing infinity
-    OR_in_Y = np.divide(p_in_Y, p_out_Y, out = 1e3, where = p_out_Y!=0)
+    OR_in_X = np.divide(p_in_X, p_out_X, out = 1e5*np.ones(len(p_in_X)), where = p_out_X != 0) # 1e5 replacing infinity
+    OR_in_Y = np.divide(p_in_Y, p_out_Y, out = 1e5*np.ones(len(p_in_Y)), where = p_out_Y!=0)
     
-    Feature_X = np.divide(OR_in_X[:, np.newaxis], OR_in_X[np.newaxis, :], out = 1e3, where = OR_in_X[np.newaxis, :] != 0)
-    Feature_Y = np.divide(OR_in_Y[:, np.newaxis], OR_in_Y[np.newaxis, :], out = 1e3, where = OR_in_Y[np.newaxis, :] != 0)
+    M = len(OR_in_X)
+    N = len(OR_in_Y)
+
+    Feature_X = np.divide(OR_in_X[:, np.newaxis], OR_in_X[np.newaxis, :], out = 1e5*np.ones((M, M)), where = OR_in_X[np.newaxis, :] != 0)
+    Feature_Y = np.divide(OR_in_Y[:, np.newaxis], OR_in_Y[np.newaxis, :], out = 1e5*np.ones((N, N)), where = OR_in_Y[np.newaxis, :] != 0)
     
     func = dOR
     ftype = "vectorized"
@@ -248,11 +254,14 @@ def OR_moms(X, Y):
     p_in_Y = np.sum(dY > 0, axis = 1)/len(dY)
     p_out_Y = 1 - p_in_Y
     
-    OR_in_X = np.divide(p_in_X, p_out_X, out = 1e3, where = p_out_X != 0) # 1e3 replacing infinity
-    OR_in_Y = np.divide(p_in_Y, p_out_Y, out = 1e3, where = p_out_Y!=0)
+    OR_in_X = np.divide(p_in_X, p_out_X, out = 1e5*np.ones(len(p_in_X)), where = p_out_X != 0) # 1e5 replacing infinity
+    OR_in_Y = np.divide(p_in_Y, p_out_Y, out = 1e5*np.ones(len(p_in_Y)), where = p_out_Y!=0)
     
-    Feature_X = np.divide(OR_in_X[:, np.newaxis], OR_in_X[np.newaxis, :], out = 1e3, where = OR_in_X[np.newaxis, :] != 0)
-    Feature_Y = np.divide(OR_in_Y[:, np.newaxis], OR_in_Y[np.newaxis, :], out = 1e3, where = OR_in_Y[np.newaxis, :] != 0)
+    M = len(OR_in_X)
+    N = len(OR_in_Y)
+    
+    Feature_X = np.divide(OR_in_X[:, np.newaxis], OR_in_X[np.newaxis, :], out = 1e5*np.ones((M, M)), where = OR_in_X[np.newaxis, :] != 0)
+    Feature_Y = np.divide(OR_in_Y[:, np.newaxis], OR_in_Y[np.newaxis, :], out = 1e5*np.ones((N, N)), where = OR_in_Y[np.newaxis, :] != 0)
     
     func = dMoments
     ftype = "vectorized"

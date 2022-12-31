@@ -14,7 +14,7 @@ import time
 
 
 """ Classification experiments for different data types """
-repeat = 1 # Number of replicates of each experiments
+repeat = 20 # Number of replicates of each experiments
 var_data_list = [False, True]
 var_data_list_labs = ["False", "True"]
 
@@ -29,10 +29,11 @@ generate_data = generate_data_dist
 # Euclidean embedding pameters only usied in MIASA (includes a finite number of auto adjustements)
 c_dic = "default" 
 in_threads = True # avoid broken runs when using parallel jobs (repeat>10)
-plotfew = True # plot 10 examples (umap visualization) saved in Figures/
+plotfew = True # plot 10 repeats (umap visualization) saved in Figures/
 """
 
 """ First methods set"""
+"""
 set_num = 1
 save_at = "Class_Data/meth_set_1/"
 classifiers = ["MIASA"]*6 + ["non_MD"]*4 # non_MD = Non_Metric_Distance
@@ -43,8 +44,8 @@ generate_data = generate_data_dist
 # Euclidean embedding pameters only usied in MIASA (includes a finite number of auto adjustements)
 c_dic = "default" # seems no-auto adjustments was performed, default works well for this the datatype and distance measures
 in_threads = True # avoid broken runs when using parallel jobs (repeat>10)
-plotfew = False # plot 10 examples (umap visualization) saved in Figures/
-
+plotfew = False # plot 10 repeats (umap visualization) saved in Figures/
+"""
 
 """ First methods set bis"""
 """
@@ -57,7 +58,7 @@ generate_data = generate_data_dist
 # Euclidean embedding pameters only usied in MIASA (includes a finite number of auto adjustements)
 c_dic = "default" # just passed but unused
 in_threads = True # avoid broken runs when using parallel jobs (repeat>10)
-plotfew = False # plot 10 examples (umap visualization) saved in Figures/
+plotfew = False # plot 10 repeats (umap visualization) saved in Figures/
 """
 
 """ Secod methods set: Saved/meth_set_2/"""
@@ -73,10 +74,10 @@ generate_data = generate_data_correlated
 c_dic = "default" 
 #c_dic = {"c1":35, "c2":1100, "c3":2+1100+35} ### This seems to give a good rate of success in Euclidean Embedding but c2, c3 are too large
 in_threads = True # avoid broken runs when using parallel jobs (repeat>10)
-plotfew = False # plot 10 examples (umap visualization) saved in Figures/
+plotfew = False # plot 10 repeats (umap visualization) saved in Figures/
 """
 
-""" Third methods set: Saved/meth_set_3/"""
+""" Third methods set"""
 """
 set_num = 3
 save_at = "Class_Data/meth_set_3/"
@@ -89,10 +90,10 @@ generate_data = generate_data_correlated
 c_dic = "default" 
 #c_dic = {"c1":35, "c2":1100, "c3":2+1100+35} ### This seems to give a good rate of success in Euclidean Embedding but c2, c3 are too large
 in_threads = True # avoid broken runs when using parallel jobs (repeat>10)
-plotfew = False # plot 10 examples (umap visualization) saved in Figures/
+plotfew = False # plot 10 repeats (umap visualization) saved in Figures/
 """
 
-""" Fourth methods set: Saved/meth_set_4/"""
+""" Fourth methods set"""
 """
 set_num = 4
 save_at = "Class_Data/meth_set_4/"
@@ -103,9 +104,22 @@ metric_methods = ["Moms", "OR", "Moms_OR", "OR_Moms"]
 generate_data = generate_data_twoGRN
 # Euclidean embedding pameters only usied in MIASA (includes a finite number of auto adjustements)
 c_dic = "default" 
-#in_threads = True # avoid broken runs when using parallel jobs (repeat>10)
-plotfew = False # plot 10 examples (umap visualization) saved in Figures/
+in_threads = True # avoid broken runs when using parallel jobs (repeat>10)
+plotfew = False # plot 10 repeats (umap visualization) saved in Figures/
 """
+
+""" Fourth methods set bis"""
+set_num = 4
+save_at = "Class_Data/meth_set_4bis/"
+classifiers = ["MIASA"]*6 + ["non_MD"]*4 # non_MD = Non_Metric_Distance
+clust_methods = ["Kmeans", "Kmedoids", "Agglomerative_ward", "Agglomerative_complete", "Agglomerative_average", "Agglomerative_single", "Spectral"] # for MIASA
+clust_methods = clust_methods + ["Kmedoids", "Agglomerative_complete", "Agglomerative_average", "Agglomerative_single", "Spectral"] # for non_MD
+metric_methods = ["Cov", "Moms", "Cov_Moms", "Moms_Cov"]  
+generate_data = generate_data_twoGRN
+# Euclidean embedding pameters only usied in MIASA (includes a finite number of auto adjustements)
+c_dic = "default" 
+in_threads = True # avoid broken runs when using parallel jobs (repeat>10)
+plotfew = False # plot 10 repeats (umap visualization) saved in Figures/
 
 """ Simulations """
 t0 = time.time()
@@ -122,7 +136,7 @@ for j in range(len(var_data_list)):
             method_dic_list.append(dic_meth)
             method_name.append(classifiers[i]+"-"+metric_methods[k]+"-"+clust_methods[i])
             
-    acc_list, adjusted_acc_list = repeated_classifications(repeat, method_dic_list, generate_data = generate_data, c_dic = c_dic, var_data = var_data_list[j], n_jobs = 25, plot = plotfew, in_threads = in_threads)    
+    acc_list, adjusted_acc_list = repeated_classifications(repeat, method_dic_list, generate_data = generate_data, c_dic = c_dic, var_data = var_data_list[j], n_jobs = 6, plot = plotfew, in_threads = in_threads)    
     
     if plotfew:
         for i in range(len(method_dic_list)):

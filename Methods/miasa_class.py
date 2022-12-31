@@ -7,7 +7,8 @@ Created on Sun Dec 18 14:03:16 2022
 """
 
 from .Core.Generate_Distances import Similarity_Distance, Association_Distance
-from .Generate_Features import eCDF, eCDF_KS_stat, eCDF_KS_p1, eCDF_KS_p2, Sub_Eucl, covariance, covariance_moms, moms_covariance, corrcoeff, corrcoeff_moms, moms_corrcoeff, moms, moms_OR
+from .Generate_Features import eCDF, eCDF_KS_stat, eCDF_KS_p1, eCDF_KS_p2, Sub_Eucl, covariance, covariance_moms, moms_covariance 
+from .Generate_Features import corrcoeff, corrcoeff_moms, moms_corrcoeff, moms, OR, moms_OR, OR_moms
 from .Core.Lower_dim import get_clusters
 from .Core.qEmbedding import Euclidean_Embedding
 
@@ -51,9 +52,15 @@ def Miasa_Class(X, Y, num_clust, c_dic = None, dist_origin = True, metric_method
         
     elif metric_method == "Moms":
         Feature_X, Feature_Y, func, ftype = moms(X, Y)
+    
+    elif metric_method == "OR":
+        Feature_X, Feature_Y, func, ftype = OR(X, Y)
         
     elif metric_method == "Moms_OR":
         Feature_X, Feature_Y, func, ftype = moms_OR(X, Y)
+    
+    elif metric_method == "OR_Moms":
+        Feature_X, Feature_Y, func, ftype = OR_moms(X, Y)
     
     elif metric_method == "Sub_Eucl":
        Feature_X, Feature_Y, func, ftype = Sub_Eucl(X, Y)
