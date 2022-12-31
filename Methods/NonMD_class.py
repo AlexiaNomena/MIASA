@@ -7,7 +7,7 @@ Created on Sat Dec 31 10:27:56 2022
 """
 import numpy as np
 from .Generate_Features import eCDF, eCDF_KS_stat, eCDF_KS_p1, eCDF_KS_p2, Sub_Eucl, covariance, covariance_moms 
-from .Generate_Features import moms_covariance, corrcoeff, corrcoeff_moms, moms_corrcoeff, moms, OR, moms_OR, OR_moms
+from .Generate_Features import moms_covariance, corrcoeff, corrcoeff_moms, moms_corrcoeff, moms, OR, moms_OR, OR_moms, Cond_proba_v1, Cond_proba_v2
 from .Core.Generate_Distances import Similarity_Distance, Association_Distance, KS_Distance, KS_Distance_Mixed
 
 from .Core.Lower_dim import get_clusters
@@ -61,6 +61,12 @@ def NonMetric_Class(X, Y, num_clust, dist_origin = True, metric_method = "eCDF-K
     
     elif metric_method == "Sub_Eucl":
        Feature_X, Feature_Y, func, ftype = Sub_Eucl(X, Y)
+     
+    elif metric_method == "Cond_proba_v1":
+       Feature_X, Feature_Y, func, ftype = Cond_proba_v1(X, Y) 
+       
+    elif metric_method == "Cond_proba_v2":
+        Feature_X, Feature_Y, func, ftype = Cond_proba_v2(X, Y) 
     
     elif metric_method in ("KS-stat-stat", "KS-p1-p1", "KS-p1-stat", "KS-stat-p1"):
        Feature_X, Feature_Y, func, ftype = X, Y, None, None

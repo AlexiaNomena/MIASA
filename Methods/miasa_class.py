@@ -8,7 +8,7 @@ Created on Sun Dec 18 14:03:16 2022
 
 from .Core.Generate_Distances import Similarity_Distance, Association_Distance
 from .Generate_Features import eCDF, eCDF_KS_stat, eCDF_KS_p1, eCDF_KS_p2, Sub_Eucl, covariance, covariance_moms, moms_covariance 
-from .Generate_Features import corrcoeff, corrcoeff_moms, moms_corrcoeff, moms, OR, moms_OR, OR_moms
+from .Generate_Features import corrcoeff, corrcoeff_moms, moms_corrcoeff, moms, OR, moms_OR, OR_moms, Cond_proba_v1, Cond_proba_v2
 from .Core.Lower_dim import get_clusters
 from .Core.qEmbedding import Euclidean_Embedding
 
@@ -64,6 +64,12 @@ def Miasa_Class(X, Y, num_clust, c_dic = None, dist_origin = True, metric_method
     
     elif metric_method == "Sub_Eucl":
        Feature_X, Feature_Y, func, ftype = Sub_Eucl(X, Y)
+       
+    elif metric_method == "Cond_proba_v1":
+       Feature_X, Feature_Y, func, ftype = Cond_proba_v1(X, Y) 
+       
+    elif metric_method == "Cond_proba_v2":
+        Feature_X, Feature_Y, func, ftype = Cond_proba_v2(X, Y) 
        
     else:
         try:

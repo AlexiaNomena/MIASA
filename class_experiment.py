@@ -37,8 +37,8 @@ plotfew = True # plot 10 repeats (umap visualization) saved in Figures/
 set_num = 1
 save_at = "Class_Data/meth_set_1/"
 classifiers = ["MIASA"]*6 + ["non_MD"]*4 # non_MD = Non_Metric_Distance
-clust_methods = ["Kmeans", "Kmedoids", "Agglomerative_ward", "Agglomerative_complete", "Agglomerative_average", "Agglomerative_single", "Spectral"] # for MIASA
-clust_methods = clust_methods + ["Kmedoids", "Agglomerative_complete", "Agglomerative_average", "Agglomerative_single", "Spectral"] # for non_MD
+clust_methods = ["Kmeans", "Kmedoids"] # for MIASA
+clust_methods = clust_methods + ["Kmedoids"] # for non_MD
 metric_methods = ["eCDF", "eCDF-KS-stat", "eCDF-KS-p1"] 
 generate_data = generate_data_dist
 # Euclidean embedding pameters only usied in MIASA (includes a finite number of auto adjustements)
@@ -52,7 +52,7 @@ plotfew = False # plot 10 repeats (umap visualization) saved in Figures/
 set_num = 1
 save_at = "Class_Data/meth_set_1bis/"
 classifiers = ["non_MD"]*4 # non_MD = Non_Metric_Distance
-clust_methods = ["Kmedoids", "Agglomerative_complete", "Agglomerative_average", "Agglomerative_single", "Spectral"] # for non_MD
+clust_methods = ["Kmedoids"] # for non_MD
 metric_methods = ["KS-stat-stat", "KS-p1-p1", "KS-p1-stat", "KS-stat-p1"] # purely non-metric approach, not appropriate for MIASA because Similarity distance is not necessarily Euclidean
 generate_data = generate_data_dist
 # Euclidean embedding pameters only usied in MIASA (includes a finite number of auto adjustements)
@@ -66,8 +66,8 @@ plotfew = False # plot 10 repeats (umap visualization) saved in Figures/
 set_num = 2
 save_at = "Class_Data/meth_set_2/"
 classifiers = ["MIASA"]*6 + ["non_MD"]*4 # non_MD = Non_Metric_Distance
-clust_methods = ["Kmeans", "Kmedoids", "Agglomerative_ward", "Agglomerative_complete", "Agglomerative_average", "Agglomerative_single", "Spectral"] # for MIASA
-clust_methods = clust_methods + ["Kmedoids", "Agglomerative_complete", "Agglomerative_average", "Agglomerative_single", "Spectral"] # for non_MD
+clust_methods = ["Kmeans", "Kmedoids"] # for MIASA
+clust_methods = clust_methods + ["Kmedoids"] # for non_MD
 metric_methods = ["Cov", "Moms", "Cov_Moms", "Moms_Cov"]  
 generate_data = generate_data_correlated
 # Euclidean embedding pameters only usied in MIASA (includes a finite number of auto adjustements)
@@ -82,8 +82,8 @@ plotfew = False # plot 10 repeats (umap visualization) saved in Figures/
 set_num = 3
 save_at = "Class_Data/meth_set_3/"
 classifiers = ["MIASA"]*6 + ["non_MD"]*4 # non_MD = Non_Metric_Distance
-clust_methods = ["Kmeans", "Kmedoids", "Agglomerative_ward", "Agglomerative_complete", "Agglomerative_average", "Agglomerative_single", "Spectral"] # for MIASA
-clust_methods = clust_methods + ["Kmedoids", "Agglomerative_complete", "Agglomerative_average", "Agglomerative_single", "Spectral"] # for non_MD
+clust_methods = ["Kmeans", "Kmedoids"] # for MIASA
+clust_methods = clust_methods + ["Kmedoids"] # for non_MD
 metric_methods = ["Corr", "Moms", "Corr_Moms", "Moms_Corr"]  
 generate_data = generate_data_correlated
 # Euclidean embedding pameters only usied in MIASA (includes a finite number of auto adjustements)
@@ -98,8 +98,8 @@ plotfew = False # plot 10 repeats (umap visualization) saved in Figures/
 set_num = 4
 save_at = "Class_Data/meth_set_4/"
 classifiers = ["MIASA"]*6 + ["non_MD"]*4 # non_MD = Non_Metric_Distance
-clust_methods = ["Kmeans", "Kmedoids", "Agglomerative_ward", "Agglomerative_complete", "Agglomerative_average", "Agglomerative_single", "Spectral"] # for MIASA
-clust_methods = clust_methods + ["Kmedoids", "Agglomerative_complete", "Agglomerative_average", "Agglomerative_single", "Spectral"] # for non_MD
+clust_methods = ["Kmeans", "Kmedoids"] # for MIASA
+clust_methods = clust_methods + ["Kmedoids"] # for non_MD
 metric_methods = ["Moms", "OR", "Moms_OR", "OR_Moms"] 
 generate_data = generate_data_twoGRN
 # Euclidean embedding pameters only usied in MIASA (includes a finite number of auto adjustements)
@@ -112,9 +112,9 @@ plotfew = False # plot 10 repeats (umap visualization) saved in Figures/
 set_num = 4
 save_at = "Class_Data/meth_set_4bis/"
 classifiers = ["MIASA"]*6 + ["non_MD"]*4 # non_MD = Non_Metric_Distance
-clust_methods = ["Kmeans", "Kmedoids", "Agglomerative_ward", "Agglomerative_complete", "Agglomerative_average", "Agglomerative_single", "Spectral"] # for MIASA
-clust_methods = clust_methods + ["Kmedoids", "Agglomerative_complete", "Agglomerative_average", "Agglomerative_single", "Spectral"] # for non_MD
-metric_methods = ["Cov", "Moms", "Cov_Moms", "Moms_Cov"]  
+clust_methods = ["Kmeans", "Kmedoids"] # for MIASA
+clust_methods = clust_methods + ["Kmedoids"] # for non_MD
+metric_methods = ["Cond_proba_v1", "Cond_proba_v2"]
 generate_data = generate_data_twoGRN
 # Euclidean embedding pameters only usied in MIASA (includes a finite number of auto adjustements)
 c_dic = "default" 

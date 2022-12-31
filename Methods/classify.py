@@ -115,8 +115,6 @@ def Classify_general(data_dic, class_dic, num_clust, method_dic, c_dic = "defaul
     
 
 
-
-
 """Visualization of classes"""
 from .figure_settings import Display, PreFig
 from .Core.Lower_dim import low_dim_coords

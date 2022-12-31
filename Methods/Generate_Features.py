@@ -93,7 +93,7 @@ def dcov(Z):
     """the empirical covariance formula bellow is only valid for equal number of observations in each samples it is equal to np.cov(X,Y)"""
     scov = (1/(Z[0].shape[1] - 1))*np.dot(Z[0] - np.mean(Z[0], axis = 1)[:, np.newaxis], (Z[1]- np.mean(Z[1], axis = 1)[:, np.newaxis]).T)
     
-    U1 = np.abs(scov) - np.var(Z[0], axis = 1)
+    U1 = np.abs(scov) - np.var(Z[0], axis = 1) ### if cov = var then the variables might belong to the same dristribution so they are not associated in the sense that they are not correlated variables
     U2 = np.abs(scov) - np.var(Z[1], axis = 1)
     
     U1 = U1/np.max(U1)
@@ -116,7 +116,7 @@ def dcorr(Z):
     """the empirical corrcoeff formula bellow is only valid for equal number of observations in each samples it is equal to np.cov(X,Y)/std(Y)std(Y)"""
     scov = (1/(Z[0].shape[1] - 1))*np.dot(Z[0] - np.mean(Z[0], axis = 1)[:, np.newaxis], (Z[1]- np.mean(Z[1], axis = 1)[:, np.newaxis]).T)
     scorr = scov/np.std(Z[0], axis = 1)[:, np.newaxis]*np.std(Z[1], axis = 1)[np.newaxis, :]
-    res = np.exp(- (np.abs(scorr) - 1)**2)
+    res = np.exp(- (np.abs(scorr) - 1)**2) ### if corr = 1 then the variables are not correlated thus they they are not associated in the sense that they are not correlated variables
     return 1e-5 + res  # added a small constant to avoid identically zero
 
 def covariance_moms(X, Y):
@@ -215,13 +215,14 @@ def dOR(Z):
     OR_in_XY = np.divide(OR_in_X[:, np.newaxis], OR_in_Y[np.newaxis, :], out = 1e5*np.ones((M, N)), where = OR_in_Y != 0)
     OR_in_YX = np.divide(OR_in_Y[np.newaxis, :], OR_in_X[:, np.newaxis], out = 1e5*np.ones((M, N)), where = OR_in_X != 0)
     
-    dOR = np.exp(- (OR_in_XY + OR_in_YX) )
+    dOR_xy = np.exp(-(OR_in_XY - 1)**2) ### we are interested in both Y increases the odds of increments events in X (OR>1) and Y decreases the odds of increments events in X (OR<1)
+    dOR_yx = np.exp(-(OR_in_YX - 1)**2) ### vis versa
     
-    return dOR + 1e-35# added a small constant to avoid identically zero
+    return dOR_xy*dOR_yx + 1e-35# added a small constant to avoid identically zero
 
 def OR(X, Y):
-    """ Fully Odd_ratio feature """
-    dX = X[:, 1:] - X[:, :-1]
+    """ Fully Odd_ratio feature using increments and decrements """
+    dX = X[:, 1:] - X[:, :-1] 
     dY = Y[:, 1:] - Y[:, :-1]
     
     p_in_X = np.sum(dX > 0, axis = 1)/len(dX)
@@ -238,7 +239,7 @@ def OR(X, Y):
 
     Feature_X = np.divide(OR_in_X[:, np.newaxis], OR_in_X[np.newaxis, :], out = 1e5*np.ones((M, M)), where = OR_in_X[np.newaxis, :] != 0)
     Feature_Y = np.divide(OR_in_Y[:, np.newaxis], OR_in_Y[np.newaxis, :], out = 1e5*np.ones((N, N)), where = OR_in_Y[np.newaxis, :] != 0)
-    
+        
     func = dOR
     ftype = "vectorized"
     return Feature_X, Feature_Y, func, ftype
@@ -266,5 +267,113 @@ def OR_moms(X, Y):
     func = dMoments
     ftype = "vectorized"
     return Feature_X, Feature_Y, func, ftype
+ 
+
+def Cond_proba_v1(X, Y):
+    """ Conditional proba of increments and decrements"""
+    dX = X[:, 1:] - X[:, :-1] 
+    dY = Y[:, 1:] - Y[:, :-1]
+
+    ### All important interaction types in X
+    cpX_in_in, cpX_in_in = getCond(dX > 0, dX > 0)
+    cpX_out_out, cpX_out_out = getCond(dX < 0, dX < 0)
+    cpX_in_out, cpX_in_out = getCond(dX > 0, dX < 0)
+    cpX_out_in, cpX_out_in = getCond(dX < 0, dX > 0)
+    cpX_No_No, cpX_No_No = getCond(dX == 0, dX == 0)
+    
+    Feature_X = np.column_stack((cpX_in_in, cpX_out_out, cpX_in_out, cpX_out_in, cpX_No_No))
+    
+    ### All important interaction types in Y
+    cpY_in_in, cpY_in_in = getCond(dY > 0, dY > 0)
+    cpY_out_out, cpY_out_out = getCond(dY < 0, dY < 0)
+    cpY_in_out, cpY_in_out = getCond(dY > 0, dY < 0)
+    cpY_out_in, cpY_out_in = getCond(dY < 0, dY > 0)
+    cpY_No_No, cpY_No_No = getCond(dY == 0, dY == 0)
+    
+    Feature_Y = np.column_stack((cpY_in_in, cpY_out_out, cpY_in_out, cpY_out_in, cpY_No_No))
+    
+    func = dCond
+    ftype = "vectorized"
+    return Feature_X, Feature_Y, func, ftype
+
+def dCond(Z):
+    """ Associatiom measure based on conditional proba of increments and decrements Version 1"""
+    X, Y = Z
+    dX = (X[:, 1:] - X[:, :-1])
+    dY = (Y[:, 1:] - Y[:, :-1])
+    
+    ### All important interaction types
+    cpX_in_in, cpY_in_in = getCond(dX > 0, dY > 0)
+    cpX_out_out, cpY_out_out = getCond(dX < 0, dY < 0)
+    cpX_in_out, cpY_in_out = getCond(dX > 0, dY < 0)
+    cpX_out_in, cpY_out_in = getCond(dX < 0, dY > 0)
+    cpX_No_No, cpY_No_No = getCond(dX == 0, dY == 0)
+    
+    X_new = np.column_stack((cpX_in_in, cpX_out_out, cpX_in_out, cpX_out_in, cpX_No_No))
+    Y_new = np.column_stack((cpY_in_in, cpY_out_out, cpY_in_out, cpY_out_in, cpY_No_No))
+    
+    D = 1e-5 + scipy.spatial.distance.cdist(X_new, Y_new)
+    return D
+
+   
+def Cond_proba_v2(X, Y):
+    """ Conditional proba of increments and decrements"""
+    dX = X[:, 1:] - X[:, :-1] 
+    dY = Y[:, 1:] - Y[:, :-1]
+
+    ### All important interaction types in X
+    cpX_in_in, cpX_in_in = getCond(dX > 0, dX > 0)
+    cpX_out_out, cpX_out_out = getCond(dX < 0, dX < 0)
+    cpX_in_out, cpX_in_out = getCond(dX > 0, dX < 0)
+    cpX_out_in, cpX_out_in = getCond(dX < 0, dX > 0)
+    cpX_No_No, cpX_No_No = getCond(dX == 0, dX == 0)
+    
+    Feature_X = np.column_stack((cpX_in_in, cpX_out_out, cpX_in_out, cpX_out_in, cpX_No_No))
+    
+    ### All important interaction types in Y
+    cpY_in_in, cpY_in_in = getCond(dY > 0, dY > 0)
+    cpY_out_out, cpY_out_out = getCond(dY < 0, dY < 0)
+    cpY_in_out, cpY_in_out = getCond(dY > 0, dY < 0)
+    cpY_out_in, cpY_out_in = getCond(dY < 0, dY > 0)
+    cpY_No_No, cpY_No_No = getCond(dY == 0, dY == 0)
+    
+    Feature_Y = np.column_stack((cpY_in_in, cpY_out_out, cpY_in_out, cpY_out_in, cpY_No_No))
+    
+    func = dCond_special
+    ftype = "vectorized"
+    return Feature_X, Feature_Y, func, ftype
+
+def getCond(boolX,boolY):
+    pXY = np.dot(boolX, boolY.T)/(boolX.shape[0]*boolY.shape[0])
+    mrj_X = np.sum(pXY, axis = 1)
+    
+    pXY2 = pXY.T
+    mrj_Y = np.sum(pXY2, axis = 1)
+    
+    # Conditional proba features (Centred around independence model, e.g. = 1)
+    cpX = np.divide(pXY, mrj_X[:, np.newaxis], out = np.zeros(pXY.shape), where = mrj_X[:, np.newaxis]!= 0) - 1
+    cpY = np.divide(pXY2, mrj_Y[:, np.newaxis], out = np.zeros(pXY2.shape), where = mrj_Y[:, np.newaxis]!= 0) - 1
+    
+    return cpX, cpY
+
+def dCond_special(Z):
+    """ Associatiom measure based on conditional proba of increments and decrements Version 2"""
+    X, Y = Z
+    dX = (X[:, 1:] - X[:, :-1])
+    dY = (Y[:, 1:] - Y[:, :-1])
+    
+    ### All important interaction types
+    cpX_in_in, cpY_in_in = getCond(dX > 0, dY > 0)
+    cpX_out_out, cpY_out_out = getCond(dX < 0, dY < 0)
+    cpX_in_out, cpY_in_out = getCond(dX > 0, dY < 0)
+    cpX_out_in, cpY_out_in = getCond(dX < 0, dY > 0)
+    cpX_No_No, cpY_No_No = getCond(dX == 0, dY == 0)
+
+    # sum the effects of each interactions because they are all important
+    total_interaction = cpX_in_in + cpY_in_in + cpX_out_out + cpY_out_out + cpX_in_out + cpY_in_out + cpX_out_in + cpY_out_in + cpX_No_No + cpY_No_No
+    
+    return np.exp(-total_interaction)
+
     
     
+   
