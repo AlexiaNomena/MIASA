@@ -48,9 +48,9 @@ def KS_Distance(Z, to_use = "KS-stat-stat"):
     for i in range(Z.shape[0]):
         for j in range(Z.shape[0]):
             if to_use == "KS-stat-stat":
-                D[i, j] = ks_2samp(Z[i, :], Z[j, :]).statistic
+                D[i, j] = np.abs(ks_2samp(Z[i, :], Z[j, :]).statistic)
             else: #"KS-stat-stat"
-                D[i, j] = 1e-5 + 1 - ks_2samp(Z[i, :], Z[j, :]).pvalue
+                D[i, j] = 1 - ks_2samp(Z[i, :], Z[j, :]).pvalue
     return D
             
 def KS_Distance_Mixed(Z, to_use = "KS-p1-stat"):
@@ -79,10 +79,12 @@ def KS_Distance_Mixed(Z, to_use = "KS-p1-stat"):
         fXY = np.zeros((M, N))
         for i in range(M):
             for j in range(N):
-                fXY[i, j] = 1e-5 + 1 - ks_2samp(X[i, :], Y[j, :]).pvalue
+                fXY[i, j] = 1 - ks_2samp(X[i, :], Y[j, :]).pvalue
          
         D[ :M, M:] = fXY
         D[M:,  :M] = D[:M, M:].T
     
     return D
+
+
     

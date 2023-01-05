@@ -6,8 +6,8 @@ Created on Sat Dec 31 10:27:56 2022
 @author: raharinirina
 """
 import numpy as np
-from .Generate_Features import eCDF, eCDF_KS_stat, eCDF_KS_p1, eCDF_KS_p2, Sub_Eucl, covariance, covariance_moms 
-from .Generate_Features import moms_covariance, corrcoeff, corrcoeff_moms, moms_corrcoeff, moms, OR, moms_OR, OR_moms, Cond_proba_v1, Cond_proba_v2
+from .Generate_Features import eCDF, Eucl, covariance, get_assoc_func
+from .Generate_Features import corrcoeff, moms, OR, Cond_proba
 from .Core.Generate_Distances import Similarity_Distance, Association_Distance, KS_Distance, KS_Distance_Mixed
 
 from .Core.Lower_dim import get_clusters
@@ -17,56 +17,33 @@ import pdb
 
 def NonMetric_Class(X, Y, num_clust, dist_origin = True, metric_method = "eCDF-KS-stat", clust_method = "Kmeans", palette = "tab20", Feature_dic = None, in_threads = True):
     """Compute features"""
-    if metric_method == "eCDF-KS-stat":
-       Feature_X, Feature_Y, func, ftype = eCDF_KS_stat(X,Y)
-       
-    elif metric_method == "eCDF-KS-p1":
-        Feature_X, Feature_Y, func, ftype = eCDF_KS_p1(X,Y)
+    if metric_method[0] == "eCDF":
+       Feature_X, Feature_Y = eCDF(X,Y)
+       func, ftype = get_assoc_func(assoc_type = metric_method[1])
+    
+    elif metric_method[0] == "Cov":
+        Feature_X, Feature_Y = covariance(X, Y)
+        func, ftype = get_assoc_func(assoc_type = metric_method[1])
+    
+    elif metric_method[0] == "Corr":
+        Feature_X, Feature_Y= corrcoeff(X, Y)
+        func, ftype = get_assoc_func(assoc_type = metric_method[1])
         
-    elif metric_method == "eCDF-KS-p2":
-        Feature_X, Feature_Y, func, ftype = eCDF_KS_p2(X,Y)
+    elif metric_method[0] == "Moms":
+        Feature_X, Feature_Y = moms(X, Y)
+        func, ftype = get_assoc_func(assoc_type = metric_method[1])
+
+    elif metric_method[0] == "OR":
+        Feature_X, Feature_Y = OR(X, Y)
+        func, ftype = get_assoc_func(assoc_type = metric_method[1])
     
-    elif metric_method == "eCDF":
-        Feature_X, Feature_Y, func, ftype = eCDF(X,Y)
-        
-    elif metric_method == "Cov":
-        Feature_X, Feature_Y, func, ftype = covariance(X, Y)
-    
-    elif metric_method == "Cov_Moms":
-       Feature_X, Feature_Y, func, ftype = covariance_moms(X, Y)
-       
-    elif metric_method == "Moms_Cov":
-       Feature_X, Feature_Y, func, ftype = moms_covariance(X, Y)
-   
-    elif metric_method == "Corr":
-       Feature_X, Feature_Y, func, ftype = corrcoeff(X, Y)
-   
-    elif metric_method == "Corr_Moms":
-       Feature_X, Feature_Y, func, ftype = corrcoeff_moms(X, Y)
-   
-    elif metric_method == "Moms_Corr":
-       Feature_X, Feature_Y, func, ftype = moms_corrcoeff(X, Y)
-       
-    elif metric_method == "Moms":
-        Feature_X, Feature_Y, func, ftype = moms(X, Y)
-    
-    elif metric_method == "OR":
-        Feature_X, Feature_Y, func, ftype = OR(X, Y)
-        
-    elif metric_method == "Moms_OR":
-        Feature_X, Feature_Y, func, ftype = moms_OR(X, Y)
-    
-    elif metric_method == "OR_Moms":
-        Feature_X, Feature_Y, func, ftype = OR_moms(X, Y)
-    
-    elif metric_method == "Sub_Eucl":
-       Feature_X, Feature_Y, func, ftype = Sub_Eucl(X, Y)
-     
-    elif metric_method == "Cond_proba_v1":
-       Feature_X, Feature_Y, func, ftype = Cond_proba_v1(X, Y) 
-       
-    elif metric_method == "Cond_proba_v2":
-        Feature_X, Feature_Y, func, ftype = Cond_proba_v2(X, Y) 
+    elif metric_method[0] == "Eucl":
+       Feature_X, Feature_Y= Eucl(X, Y)
+       func, ftype = get_assoc_func(assoc_type = metric_method[1])
+
+    elif metric_method[0] == "Cond_proba":
+       Feature_X, Feature_Y= Cond_proba(X, Y) 
+       func, ftype = get_assoc_func(assoc_type = metric_method[1])
     
     elif metric_method in ("KS-stat-stat", "KS-p1-p1", "KS-p1-stat", "KS-stat-p1"):
        Feature_X, Feature_Y, func, ftype = X, Y, None, None
@@ -75,7 +52,7 @@ def NonMetric_Class(X, Y, num_clust, dist_origin = True, metric_method = "eCDF-K
         try:
             Feature_X, Feature_Y, func, ftype = Feature_dic["Feature_X"], Feature_dic["Feature_Y"], Feature_dic["Asssociation_function"], Feature_dic["assoc_func_type"]
         except:
-            sys.exit("Check implemented metric_methods or give a parameter Feature_dic must be given: keys Feature_X (ndarray), Feature_Y (ndarray), Association_function (func), assoc_func_type(str vectorized or str not_vectorized)")
+            sys.exit("Check implemented metric_methods or give a parameter Feature_dic must be given: keys Feature_X (ndarray), Feature_Y (ndarray), Association_function (func) with tuple argument (X, Y), assoc_func_type (str vectorized or str not_vectorized)")
             
             
     Result = get_NMDclass(X, Y, Feature_X, Feature_Y, func, ftype, metric_method, dist_origin, num_clust, clust_method, palette)

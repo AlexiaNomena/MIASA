@@ -150,9 +150,9 @@ from .GRN_Models.MRNA_Double_UpRegulation import propensities as prop_Up_G1G2 # 
 
 def generate_data_twoGRN(var_data = False, noise = False):
     """Generate Artificial data from SSA of two Gene Regulation Network """
-    per_spl = 200 #200 # Num of iid observation in each samples 
-    #T = np.linspace(0.0, 80.0, per_spl)
-    T = np.linspace(0.0, 5, per_spl)
+    per_spl = 100 #200 # Num of iid observation in each samples 
+    T = np.linspace(0.0, 60.0, per_spl)
+    #T = np.linspace(0.0, 5, per_spl)
     initial_state = np.array([0,0,0,0,0,0]) # ssa functions return trajectories of species in the order ('G1','G2','P1','P2', 'M1','M2'), 
     loc_mRNA = np.array([4, 5]) # M1, M2 are the simulated mRNA counts
     
@@ -166,7 +166,7 @@ def generate_data_twoGRN(var_data = False, noise = False):
     labs = np.cumsum(np.ones(num_clust)) - 1
     
     # Number of samples per classes
-    MaxNumVar = 100
+    MaxNumVar = 25
     if var_data:
         num_var_list = np.random.choice(np.arange(2, MaxNumVar), size = len(labs), replace = False)
         num_var = {labs[k]: num_var_list[k] for k in range(len(labs))}
