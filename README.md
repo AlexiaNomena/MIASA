@@ -10,9 +10,9 @@ python version: 3.10 or +
 pakages: [scikit-learn](https://scikit-learn.org/stable/), [umap](https://umap-learn.readthedocs.io/en/latest/), [numpy](https://numpy.org/), [scipy](https://scipy.org/), ... (find missing ones from the code run error logs)
 
 ### Description
-`Helper.py`: python code to guide through the framework.
+`miasa_guided.py`: python code to guide through the framework.
 
-`Helper.ipynb`: jupyter notebook to guide through the framework.
+`miasa_guided.ipynb`: jupyter notebook to guide through the framework.
 
 ### License
 The following modules are under [GNU GPLv3](https://www.gnu.org/licenses/gpl-3.0.html): `Methods/Core/CosLM.py` ([source](https://github.com/AlexiaNomena/PSD_cosine_law_matrix)), `Methods/Core/qEmbedding.py`
