@@ -10,9 +10,13 @@ python version: 3.10 or +
 pakages: [scikit-learn](https://scikit-learn.org/stable/), [umap](https://umap-learn.readthedocs.io/en/latest/), [numpy](https://numpy.org/), [scipy](https://scipy.org/), ... (find missing ones from the code run error logs)
 
 ### Description
-`miasa_guided.py`: python code to guide through the framework.
+`miasa_guided.py`: python code for a step by step guidance through the MIASA framework.
 
-`miasa_guided.ipynb`: jupyter notebook to guide through the framework.
+`miasa_guided.ipynb`: jupyter notebook for a step by step guidance through the MIASA framework.
+
+`miasa_blackbox.py`: python code for using MIASA as a blackbox.
+
+`miasa_blackbox.ipynb`: jupyter notebook for using MIASA as a blackbox.
 
 `class_experiment.py`: python code for classification experiments when the true clusters are known and included in the data generating function which must return data in a specific format (e.g. function `generate_data_dist` in module `Methods/simulate_class_data.py`)
 
