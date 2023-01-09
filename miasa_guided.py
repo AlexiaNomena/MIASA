@@ -24,7 +24,7 @@ D_assoc = Association_Distance(Coords, func)
 """Distane to origin Optional but must be set to None if not used"""
 Orow = np.linalg.norm(Coords_Rows, axis = 1)
 Ocols = np.linalg.norm(Coords_Cols, axis = 1)
-"""If Distance to origin is set to None, then norms of vectors pointing to the axes origin is not interpretable"""
+"""If Distance to origin is set to None, then the corresponding norms of vectors pointing to the axes origin is not interpretable"""
 #Orow = None
 #Ocols = None
 
