@@ -1,5 +1,5 @@
 ### MIASA framework
-**M**etric-based **I**dentification of **S**imilarity and **A**ssociation patterns in multivariate datasets
+**M**etricized **I**dentification and **A**nalysis of **S**imilarity and **A**ssociation patterns in multivariate datasets
 
 ### Theory 
 TBA
