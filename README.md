@@ -16,7 +16,7 @@ pakages: [scikit-learn](https://scikit-learn.org/stable/), [umap](https://umap-l
 
 `class_experiment.py`: python code for classification experiments when the true clusters are known and included in the data generating function which must return data in a specific format (e.g. function `generate_data_dist` in module `Methods/simulate_class_data.py`)
 
-`class_experiment_extended.py`: extended classification experiments including more options for clustering algorithm and distance models 
+`class_experiment_extended.py`: same as above but extended by including more options for clustering algorithm and distance models 
 
 
 ### License
