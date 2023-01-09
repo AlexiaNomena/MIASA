@@ -19,15 +19,17 @@ from Methods.simulate_class_data import generate_data_dist
 # type c_dic = {"c1":float, "c2":float, "c3":float} 
 c_dic = "default" 
 
-
 """ Load or Generate data: 
     
-    Needed:
+    Required:
     X and Y are the required separated datasets with M, N samples respectively and K realizations on the rows
-    X.shape = (M, K) Y.shape = (N, K)
+    X.shape = (M, K) 
+    Y.shape = (N, K)
+    num_clust = number of clusters
     dtp : tuple (datatype X_vars , datatype Y_vars) is needed for visualization only
+    
 
-    Not Needed:
+    Not Required:
     X_vars, Y_vars = Labels of X and Y samples
     Class_True = True cluster labels of samples
     
@@ -42,9 +44,9 @@ Parameters of MIASA
 
 metric_method = ("eCDF", "KS-stat") # (Similarity, Association) distance models
 clust_method = "Kmeans" # clustering aglorithm to use
+palette = "tab20" # seaborn color palette
 dist_origin = (True,False) # for datasets (X, Y) decide if the distance to the origin of the axes is interpretable as the norm of the feature representations of the samples
 in_threads = False # True to avoid broken runs when using parallel jobs (relevant only for class_experiments)
-
 
 """
 If desired custom similarity feature representation (defining Euclidean similarity distance) 
@@ -72,12 +74,17 @@ Feature_dic["Asssociation_function"], Feature_dic["assoc_func_type"] = get_assoc
 """
 Feature_dic = None
 
-
 """ 
 Perform MIASA Classification of samples
 
 """
-Id_Class = Miasa_Class(X, Y, num_clust, dist_origin = dist_origin, metric_method = metric_method, clust_method = clust_method, c_dic = c_dic, Feature_dic = Feature_dic, in_threads = in_threads)
+Id_Class = Miasa_Class(X, Y, num_clust, 
+                       dist_origin = dist_origin, 
+                       metric_method = metric_method, 
+                       clust_method = clust_method, 
+                       c_dic = c_dic, Feature_dic = Feature_dic,
+                       in_threads = in_threads,
+                       palette = palette)
 
 
 """Lower Dimensional visualization of clusters (UMAP visualization)"""
