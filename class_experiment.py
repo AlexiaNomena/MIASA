@@ -40,7 +40,7 @@ clust_methods = ["Kmeans", "Kmedoids"] # for MIASA
 clust_methods = clust_methods + ["Kmedoids"] # for non_MD
 metric_methods = [("eCDF", "eCDF"), ("eCDF", "KS-stat"), ("eCDF", "KS-p1")] 
 generate_data = generate_data_dist
-# Euclidean embedding pameters only usied in MIASA (includes a finite number of auto adjustements)
+# Euclidean embedding pameters only used in MIASA (includes a finite number of auto adjustements)
 c_dic = "default" # seems no-auto adjustments was performed, default works well for this the datatype and distance measures
 in_threads = True # avoid broken runs when using parallel jobs (repeat>10)
 plotfew = False # first run and plot 10 repeats (umap visualization) saved in Figures/
@@ -55,7 +55,7 @@ clust_methods = ["Kmeans", "Kmedoids"] # for MIASA
 clust_methods = clust_methods + ["Kmedoids"] # for non_MD
 metric_methods = [("Corr", "Corr"), ("Cov", "Cov"), ("Cov", "Corr"), ("Corr", "Cov")]  
 generate_data = generate_data_correlated
-# Euclidean embedding pameters only usied in MIASA (includes a finite number of auto adjustements)
+# Euclidean embedding pameters only used in MIASA (includes a finite number of auto adjustements)
 c_dic = "default" 
 in_threads = True # avoid broken runs when using parallel jobs (repeat>10)
 plotfew = False # first run and plot 10 repeats (umap visualization) saved in Figures/
@@ -70,7 +70,7 @@ clust_methods = ["Kmeans", "Kmedoids"] # for MIASA
 clust_methods = clust_methods + ["Kmedoids"] # for non_MD
 metric_methods = [("Corr", "Corr"), ("Cov", "Cov"), ("Cov", "Corr"), ("Corr", "Cov")]  
 generate_data = generate_data_twoGRN
-# Euclidean embedding pameters only usied in MIASA (includes a finite number of auto adjustements)
+# Euclidean embedding pameters only used in MIASA (includes a finite number of auto adjustements)
 c_dic = "default" 
 in_threads = True # avoid broken runs when using parallel jobs (repeat>10)
 plotfew = False # first run and plot 10 repeats (umap visualization) saved in Figures/
@@ -85,7 +85,7 @@ clust_methods = ["Kmeans", "Kmedoids"] # for MIASA
 clust_methods = clust_methods + ["Kmedoids"] # for non_MD
 metric_methods = [("OR", "dOR"), ("OR", "dCond"), ("Cond_proba", "dCond"), ("Cond_proba", "dOR")] 
 generate_data = generate_data_twoGRN
-# Euclidean embedding pameters only usied in MIASA (includes a finite number of auto adjustements)
+# Euclidean embedding pameters only used in MIASA (includes a finite number of auto adjustements)
 c_dic = "default" 
 in_threads = True # avoid broken runs when using parallel jobs (repeat>10)
 plotfew = False # first run and plot 10 repeats (umap visualization) saved in Figures/

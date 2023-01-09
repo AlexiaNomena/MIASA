@@ -26,7 +26,7 @@ classifiers = ["MIASA"] + ["non_MD"]
 clust_methods = ["Spectral", "Spectral"] # Must be of the same length as classifiers and with a one-to-one mapping i.e. classifiers[i] uses clust_method[i]
 metric_methods = [("eCDF", "KS-stat"), ("eCDF", "KS-stat")] # (similarity, association) used by all couple (classifiers[i], clust_method[i])
 generate_data = generate_data_dist
-# Euclidean embedding pameters only usied in MIASA (includes a finite number of auto adjustements)
+# Euclidean embedding pameters only used in MIASA (includes a finite number of auto adjustements)
 c_dic = "default" 
 in_threads = True # avoid broken runs when using parallel jobs (repeat>10)
 plotfew = True # first run and plot 10 repeats (umap visualization) saved in Figures/
@@ -41,7 +41,7 @@ clust_methods = ["Kmeans", "Kmedoids", "Agglomerative_ward", "Agglomerative_comp
 clust_methods = clust_methods + ["Kmedoids", "Agglomerative_complete", "Agglomerative_average", "Agglomerative_single", "Spectral"] # for non_MD
 metric_methods = [("eCDF", "eCDF"), ("eCDF", "KS-stat"), ("eCDF", "KS-p1")] 
 generate_data = generate_data_dist
-# Euclidean embedding pameters only usied in MIASA (includes a finite number of auto adjustements)
+# Euclidean embedding pameters only used in MIASA (includes a finite number of auto adjustements)
 c_dic = "default" # seems no-auto adjustments was performed, default works well for this the datatype and distance measures
 in_threads = True # avoid broken runs when using parallel jobs (repeat>10)
 plotfew = False # first run and plot 10 repeats (umap visualization) saved in Figures/
@@ -55,7 +55,7 @@ classifiers = ["non_MD"]*4 # non_MD = Non_Metric_Distance
 clust_methods = ["Kmedoids", "Agglomerative_complete", "Agglomerative_average", "Agglomerative_single", "Spectral"] # for non_MD
 metric_methods = ["KS-stat-stat", "KS-p1-p1", "KS-p1-stat", "KS-stat-p1"] # purely non-metric approach, not appropriate for MIASA because Similarity distance is not necessarily Euclidean
 generate_data = generate_data_dist
-# Euclidean embedding pameters only usied in MIASA (includes a finite number of auto adjustements)
+# Euclidean embedding pameters only used in MIASA (includes a finite number of auto adjustements)
 c_dic = "default" # just passed but unused
 in_threads = True # avoid broken runs when using parallel jobs (repeat>10)
 plotfew = False # first run and plot 10 repeats (umap visualization) saved in Figures/
@@ -70,7 +70,7 @@ clust_methods = ["Kmeans", "Kmedoids", "Agglomerative_ward", "Agglomerative_comp
 clust_methods = clust_methods + ["Kmedoids", "Agglomerative_complete", "Agglomerative_average", "Agglomerative_single", "Spectral"] # for non_MD
 metric_methods = [("Corr", "Corr"), ("Cov", "Cov"), ("Cov", "Corr"), ("Corr", "Cov")]  
 generate_data = generate_data_correlated
-# Euclidean embedding pameters only usied in MIASA (includes a finite number of auto adjustements)
+# Euclidean embedding pameters only used in MIASA (includes a finite number of auto adjustements)
 c_dic = "default" 
 #c_dic = {"c1":35, "c2":1100, "c3":2+1100+35} ### This seems to give a good rate of success in Euclidean Embedding but c2, c3 are too large
 in_threads = True # avoid broken runs when using parallel jobs (repeat>10)
@@ -86,7 +86,7 @@ clust_methods = ["Kmeans", "Kmedoids", "Agglomerative_ward", "Agglomerative_comp
 clust_methods = clust_methods + ["Kmedoids", "Agglomerative_complete", "Agglomerative_average", "Agglomerative_single", "Spectral"] # for non_MD
 metric_methods = [("Corr", "Corr"), ("Cov", "Cov"), ("Cov", "Corr"), ("Corr", "Cov")]  
 generate_data = generate_data_twoGRN
-# Euclidean embedding pameters only usied in MIASA (includes a finite number of auto adjustements)
+# Euclidean embedding pameters only used in MIASA (includes a finite number of auto adjustements)
 c_dic = "default" 
 in_threads = True # avoid broken runs when using parallel jobs (repeat>10)
 plotfew = False # first run and plot 10 repeats (umap visualization) saved in Figures/
