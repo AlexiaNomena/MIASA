@@ -15,14 +15,17 @@ from Methods.miasa_class import Miasa_Class
 DataName = "Distribution_data"
 from Methods.simulate_class_data import generate_data_dist
 
-""" Euclidean embedding pameters only used in MIASA (includes a finite number of auto adjustements)"""
-# type c_dic = {"c1":float, "c2":float, "c3":float} 
+""" Euclidean embedding pameters only used in MIASA (includes a finite number of auto adjustements)
+    
+    if custom, then type dictionary 
+    c_dic = {"c1":float, "c2":float, "c3":float} 
+"""
 c_dic = "default" 
 
 """ Load or Generate data: 
     
     Required:
-    X and Y are the required separated datasets with M, N samples respectively and K realizations on the rows
+    X and Y are separated datasets with M, N samples, respectively, with each samples containing K realizations
     X.shape = (M, K) 
     Y.shape = (N, K)
     num_clust = number of clusters
