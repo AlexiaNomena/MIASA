@@ -15,7 +15,7 @@ from .Core.CosLM import Prox_Mat
 import sys
 import pdb
 
-def NonMetric_Class(X, Y, num_clust, dist_origin = True, metric_method = "eCDF-KS-stat", clust_method = "Kmeans", palette = "tab20", Feature_dic = None, in_threads = True):
+def NonMetric_Class(X, Y, num_clust, dist_origin = (True, True), metric_method = ("eCDF", "KS-stat"), clust_method = "Kmeans", palette = "tab20", Feature_dic = None, in_threads = True):
     """Compute features"""
     if metric_method[0] == "eCDF":
        Feature_X, Feature_Y = eCDF(X,Y)
@@ -59,7 +59,7 @@ def NonMetric_Class(X, Y, num_clust, dist_origin = True, metric_method = "eCDF-K
     return Result
 
     
-def get_NMDclass(X, Y, Feature_X, Feature_Y, func, ftype, metric_method, dist_origin = False, num_clust=None, clust_method = "Kmeans", palette = "tab20"):
+def get_NMDclass(X, Y, Feature_X, Feature_Y, func, ftype, metric_method, dist_origin = (True, True), num_clust=None, clust_method = "Kmeans", palette = "tab20"):
     
     M = Feature_X.shape[0]
     N = Feature_Y.shape[0]
@@ -74,9 +74,14 @@ def get_NMDclass(X, Y, Feature_X, Feature_Y, func, ftype, metric_method, dist_or
         
         D_assoc = Association_Distance(Features, func, ftype)
         """Distane to origin Optional but must be set to None if not used"""
-        if dist_origin:
-            Orows = np.linalg.norm(Feature_X, axis = 1)
-            Ocols = np.linalg.norm(Feature_Y, axis = 1)
+        if dist_origin[0] or dist_origin[1]:
+            Orows = np.zeros(Feature_X.shape[0])
+            Ocols = np.zeros(Feature_Y.shape[0])
+            
+            if dist_origin[0]:
+                Orows = np.linalg.norm(Feature_X, axis = 1)
+            if dist_origin[1]:
+                Ocols = np.linalg.norm(Feature_Y, axis = 1)
         else:
             Orows = None
             Ocols = None
@@ -107,7 +112,7 @@ def get_NMDclass(X, Y, Feature_X, Feature_Y, func, ftype, metric_method, dist_or
         else:
             sys.exit("A non-metric distance clustering method is required for Non Metric Distance \n Available here is Kmedoids")
         
-        if dist_origin and metric_method not in ("KS-stat-stat", "KS-p1-p1", "KS-p1-stat", "KS-stat-p1"):
+        if (dist_origin[0] or dist_origin[1]) and metric_method not in ("KS-stat-stat", "KS-p1-p1", "KS-p1-stat", "KS-stat-p1"):
             Class_pred = np.concatenate((clust_labels[:M], clust_labels[M+1:]), axis = 0)
             was_orig = True
         else:

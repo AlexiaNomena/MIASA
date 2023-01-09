@@ -89,7 +89,7 @@ def repeated_classifications(repeat, method_dic_list, generate_data, var_data = 
 
 
 """ Identification of Classes """
-def Classify_general(data_dic, class_dic, num_clust, method_dic, c_dic = "default", in_threads = True):
+def Classify_general(data_dic, class_dic, num_clust, method_dic, c_dic = "default", in_threads = True, Feature_dic = None):
     class_method = method_dic["class_method"]
     clust_method = method_dic["clust_method"]
     metric_method = method_dic["metric_method"]
@@ -99,11 +99,11 @@ def Classify_general(data_dic, class_dic, num_clust, method_dic, c_dic = "defaul
     """ Identify Class using MIASA framework """
     if class_method == "MIASA":
         Orows, Ocols = True, True
-        Id_Class = Miasa_Class(X, Y, num_clust, dist_origin = Orows*Ocols, metric_method = metric_method, clust_method = clust_method, c_dic = c_dic, in_threads = in_threads)
+        Id_Class = Miasa_Class(X, Y, num_clust, dist_origin = (Orows,Ocols), metric_method = metric_method, clust_method = clust_method, c_dic = c_dic, Feature_dic = Feature_dic, in_threads = in_threads)
     
     elif class_method == "non_MD":
         Orows, Ocols = True, True
-        Id_Class = NonMetric_Class(X, Y, num_clust, dist_origin = Orows*Ocols, metric_method = metric_method, clust_method = clust_method, in_threads = in_threads)
+        Id_Class = NonMetric_Class(X, Y, num_clust, dist_origin = (Orows,Ocols), metric_method = metric_method, clust_method = clust_method, Feature_dic = Feature_dic, in_threads = in_threads)
     
     """Compute accuracy metric = rand_index metric"""
     if Id_Class is not None:
@@ -119,15 +119,13 @@ def Classify_general(data_dic, class_dic, num_clust, method_dic, c_dic = "defaul
 from .figure_settings import Display, PreFig
 from .Core.Lower_dim import low_dim_coords
 import pandas as pd
-def plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, run_num):   
+def plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, run_num, n_neighbors = 2, min_dist = 0.99):   
     """@brief Plot and Save class figures"""
     
     Coords = Id_Class["Coords"]
     """Lower Dimensional visualization of clusters"""
-    nb = 2 ### 
     low_meth = "umap" # or sklearn.manifols methods: MDS, Isomap, 
-    md = 0.99
-    Coords_manifold = low_dim_coords(Coords, dim=2, method  = low_meth, n_neighbors = nb, min_dist = md) 
+    Coords_manifold = low_dim_coords(Coords, dim=2, method  = low_meth, n_neighbors = n_neighbors, min_dist = min_dist) 
     """
     Kmeans and UMAP are already parameterized for reproducibility (random_state = 0 for both).
     However, slight changes could still happen due to the optimization procedure and versions of these packages.
@@ -223,7 +221,7 @@ def BarPlotClass(data, method_name, pdf, stat_name = None):
         plt.xlabel(stat_name, fontsize = 20)
     
     pdf.savefig(fig, bbox_inches = "tight")
-        
+    return fig
    
 import seaborn as sns    
 def BarPlotClass_sns(data, method_name, pdf, stat_name = None):

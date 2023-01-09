@@ -17,7 +17,7 @@ import numpy as np
 import pdb
 
 
-def Miasa_Class(X, Y, num_clust, c_dic = None, dist_origin = True, metric_method = "eCDF-KS-stat", clust_method = "Kmeans", palette = "tab20", Feature_dic = None, in_threads = True):
+def Miasa_Class(X, Y, num_clust, c_dic = None, dist_origin = (True, True), metric_method = ("eCDF", "KS-stat"), clust_method = "Kmeans", palette = "tab20", Feature_dic = None, in_threads = True):
     """Compute features"""
     
     if metric_method[0] == "eCDF":
@@ -59,7 +59,7 @@ def Miasa_Class(X, Y, num_clust, c_dic = None, dist_origin = True, metric_method
     return Result
     
 
-def get_class(X, Y, Feature_X, Feature_Y, func, ftype, metric_method, c_dic, dist_origin = False, num_clust=None, clust_method = "Kmeans", palette = "tab20", in_threads = True):
+def get_class(X, Y, Feature_X, Feature_Y, func, ftype, metric_method, c_dic, dist_origin = (True, True), num_clust=None, clust_method = "Kmeans", palette = "tab20", in_threads = True):
     """ Similarity metric """
     DX = Similarity_Distance(Feature_X, method = "Euclidean")
     DY = Similarity_Distance(Feature_Y, method = "Euclidean")
@@ -70,9 +70,14 @@ def get_class(X, Y, Feature_X, Feature_Y, func, ftype, metric_method, c_dic, dis
     
     D_assoc = Association_Distance(Z, func, ftype)
     """Distane to origin Optional but must be set to None if not used"""
-    if dist_origin:
-        Orows = np.linalg.norm(Feature_X, axis = 1)
-        Ocols = np.linalg.norm(Feature_Y, axis = 1)
+    if dist_origin[0] or dist_origin[1]:
+        Orows = np.zeros(Feature_X.shape[0])
+        Ocols = np.zeros(Feature_Y.shape[0])
+        
+        if dist_origin[0]:
+            Orows = np.linalg.norm(Feature_X, axis = 1)
+        if dist_origin[1]:
+            Ocols = np.linalg.norm(Feature_Y, axis = 1)
     else:
         Orows = None
         Ocols = None
@@ -115,7 +120,7 @@ def get_class(X, Y, Feature_X, Feature_Y, func, ftype, metric_method, c_dic, dis
         else:
             sys.exit("A metric-distance based clustering method is better for MIASA \n Available here is Kmeans")
         
-        if dist_origin:
+        if dist_origin[0] or dist_origin[1]:
             Coords = Coords - Coords[M, :][np.newaxis, :]
             Class_pred = np.concatenate((clust_labels[:M], clust_labels[M+1:]), axis = 0)
             was_orig = True
