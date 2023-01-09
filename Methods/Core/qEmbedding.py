@@ -74,6 +74,7 @@ def Euclidean_Embedding(DX, DY, UX, UY, fXY, c_dic, in_threads = False):
                 sys.exit("Theorem was not satified \n Check if c1, c2, c3 are chosen correctly")
     
     except:
+        print("failed Euclidean embedding")
         Coords = None
         c3 = 0
         zeta_f = 0

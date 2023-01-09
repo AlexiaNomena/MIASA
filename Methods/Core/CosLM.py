@@ -35,7 +35,10 @@ def CosLM(DX, DY, UX = None, UY = None, fXY = None, c = None):
     if (UX is not None) or (UY is not None):
         # only pick the components involving f(X,Y) 
         CC[:M, M+1:] = CL_Mat0[:M, M+1:] 
-        CC[M+1:,:M] = CL_Mat0[M+1: , :M] 
+        CC[M+1:,:M] = CL_Mat0[M+1: , :M]
+    else:
+        CC[:M, M:] = CL_Mat0[:M, M:] 
+        CC[M:,:M] = CL_Mat0[M:,:M]
     
     #pdb.set_trace()
     Ri = np.sum(np.abs(CC), axis = 1)

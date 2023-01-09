@@ -24,7 +24,7 @@ D_assoc = Association_Distance(Coords, func)
 """Distane to origin Optional but must be set to None if not used"""
 Orow = np.linalg.norm(Coords_Rows, axis = 1)
 Ocols = np.linalg.norm(Coords_Cols, axis = 1)
-"""If Distance to origin is set to None, then distance to Origin is not interpretable"""
+"""If Distance to origin is set to None, then norms of vectors pointing to the axes origin is not interpretable"""
 #Orow = None
 #Ocols = None
 
@@ -36,11 +36,11 @@ N = D_col_var.shape[0]
 ### Parameters needed for Euclidean Embedding (See Paper) ####
 c1, c2 = 1/4, 1/2 # Parameters for text graphs in MATH+ day cluster 2022
 c3 = (2*c1 + M*c2 - 1)/M # choose this because this is the only one that works for Form = "SP", "PI"
-c = {"c1":c1, "c2":c2, "c3":c3} 
-Coords, vareps = Euclidean_Embedding(D_row_var, D_col_var, Orow, Ocols, D_assoc, c) 
+c_dic = {"c1":c1, "c2":c2, "c3":c3} 
+Coords, vareps = Euclidean_Embedding(D_row_var, D_col_var, Orow, Ocols, D_assoc, c_dic) 
 
 """Coordinate system for regular projection on principal axes"""
-if (Orow is not None)&(Ocols is not None):
+if (Orow is not None) or (Ocols is not None):
     Emb_Rows = Coords[:M, :]
     Emb_Cols = Coords[M+1:, :]
     Origin = Coords[M, :] 
@@ -69,7 +69,7 @@ However, slight changes could still happen due to the optimization procedure and
 
 
 """Coordinate system for regular projection on principal axes"""
-if (Orow is not None)&(Ocols is not None):
+if (Orow is not None) or (Ocols is not None):
     Rows_manifold = Coords_manifold[:M, :]
     Cols_manifold = Coords_manifold[M+1:, :]
     Origin_manifold = Coords_manifold[M, :] 
@@ -83,8 +83,15 @@ from Methods.figure_settings import Display
 Inertia = np.array([0, 1]) # not relevant for manifold
 AllCols = ContDataFrame.columns
 AllRows = ContDataFrame.index
+
 col_rows = {rows_labels[ContDataFrame.index[i]]:color_clustered[i] for i in range(M)}
-col_cols = {columns_labels[ContDataFrame.columns[i]]:color_clustered[i+M+1] for i in range(N)}
+
+if (Orow is not None) or (Ocols is not None):
+    col_cols = {columns_labels[ContDataFrame.columns[i]]:color_clustered[i+M+1] for i in range(N)}
+else:
+    col_cols = {columns_labels[ContDataFrame.columns[i]]:color_clustered[i+M] for i in range(N)}
+    Origin_manifold = None # Not interpretable thus not plotted
+    
 col_to_use = (col_rows, col_cols)
 marker_to_use = [("o",20),("o",20)]
 fig, xy_rows, xy_cols, gs, center = Display(Rows_manifold, 
