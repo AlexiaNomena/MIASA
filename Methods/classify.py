@@ -119,7 +119,7 @@ def Classify_general(data_dic, class_dic, num_clust, method_dic, c_dic = "defaul
 from .figure_settings import Display, PreFig
 from .Core.Lower_dim import low_dim_coords
 import pandas as pd
-def plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, run_num, n_neighbors = 2, min_dist = 0.99):   
+def plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neighbors = 2, min_dist = 0.99):   
     """@brief Plot and Save class figures"""
     
     Coords = Id_Class["Coords"]
