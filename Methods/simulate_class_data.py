@@ -134,6 +134,7 @@ def generate_data_correlated(var_data = False, noise = False):
 
 
 """ Classification Experiment on random samples from SSA of two Gene Regulation Network """
+""" GRN_Models folder containing all modules Can be downloaded from https://github.com/vikramsunkara/ScRNAseqMoments"""
 
 from .GRN_Models.SSA import SSA_Fixed_Width_Trajectory as ssa_func
 
