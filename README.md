@@ -14,6 +14,11 @@ pakages: [scikit-learn](https://scikit-learn.org/stable/), [umap](https://umap-l
 
 `miasa_guided.ipynb`: jupyter notebook to guide through the framework.
 
+`class_experiment.py`: python code for classification experiments when the true clusters are known and included in the data generating function which must return data in a specific format (e.g. function `generate_data_dist` in module `Methods/simulate_class_data.py`)
+
+`class_experiment_extended.py`: extended classification experiments including more options for clustering algorithm and distance models 
+
+
 ### License
 The following modules are under [GNU GPLv3](https://www.gnu.org/licenses/gpl-3.0.html): `Methods/Core/CosLM.py` ([source](https://github.com/AlexiaNomena/PSD_cosine_law_matrix)), `Methods/Core/qEmbedding.py`
 
