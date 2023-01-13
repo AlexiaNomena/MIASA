@@ -8,6 +8,7 @@ Created on Sun Dec 18 13:39:28 2022
 import numpy as np
 from scipy.stats import ks_2samp, kurtosis, skew
 import scipy.spatial as scSp
+from statsmodels.tsa.stattools import grangercausalitytests as GrCausTest
 
 import pdb
 import sys
@@ -30,26 +31,27 @@ def Eucl(X, Y):
 
 def covariance(X, Y):
     """Fully covariance feature"""
+    """np.cov computes sample covariance of equal number of observations per samples"""
     Feature_X = np.cov(X)
     Feature_Y = np.cov(Y)     
     return Feature_X, Feature_Y
 
 def corrcoeff(X, Y):
     """Corrcoef feature"""
-    """np.cov computes sample covariance of equal number of observations per samples"""
+    """np.corrcoef computes sample covariance of equal number of observations per samples"""
     Feature_X = np.corrcoef(X) #np.cov(X)/np.var(X, axis = 1)
     Feature_Y = np.corrcoef(Y)#np.cov(Y)/np.var(Y, axis = 1)
     return Feature_X, Feature_Y
 
 def moms(X, Y):
     """Moments similarity and covariance associations"""
-    Feature_X = Moments_feature(X)
+    Feature_X = Moments_feature(X)## same as np.diff
     Feature_Y = Moments_feature(Y)
     return Feature_X, Feature_Y
 
 def OR(X, Y):
     """ Fully Odd_ratio feature using increments and decrements """
-    dX = X[:, 1:] - X[:, :-1] 
+    dX = X[:, 1:] - X[:, :-1] # same as np.diff
     dY = Y[:, 1:] - Y[:, :-1]
     
     p_in_X = np.sum(dX > 0, axis = 1)/len(dX)
@@ -85,7 +87,7 @@ def OR(X, Y):
 
 def Cond_proba(X, Y):
     """ Conditional proba of increments and decrements"""
-    dX = X[:, 1:] - X[:, :-1] 
+    dX = X[:, 1:] - X[:, :-1] ## same as np.diff
     dY = Y[:, 1:] - Y[:, :-1]
 
     ### All important interaction types in X
@@ -121,7 +123,7 @@ def get_assoc_func(assoc_type):
         func, ftype = lambda Z: 1e-5 + np.abs(ks_2samp(Z[0], Z[1]).statistic), "not_vectorized"
         
     elif assoc_type == "KS-p1":
-        func, ftype = lambda Z: 1e-5 + 1 - ks_2samp(Z[0], Z[1]).pvalue, "not_vectorized"
+        func, ftype = lambda Z: 1e-5 + 1 - ks_2samp(Z[0], Z[1]).pvalue, "not_vectorized" # H0: dist are equal, small p_value = reject the null, we do not want to reject the null by definition of association, thus we take 1 - p_val
         
     elif assoc_type == "KS-p2":
         func, ftype = lambda Z: np.exp(-500*ks_2samp(Z[0], Z[1]).pvalue), "not_vectorized"
@@ -143,11 +145,33 @@ def get_assoc_func(assoc_type):
         
     elif assoc_type == "dCond":
         func, ftype = dCond, "vectorized"
+        
+    elif assoc_type == "Granger-Cause-orig":
+        func, ftype = lambda Z: 1e-5 + GrCaus_Test_p_val(Z, diff = False) , "not_vectorized" # H0: Z[1] does NOT granger cause Z[0] and vis versa,small p_value = reject the null, we want to reject the null by definition of association, thus we take p_val
+    
+    elif assoc_type == "Granger-Cause-diff":
+        func, ftype = lambda Z: 1e-5 + GrCaus_Test_p_val(Z, diff = False), "not_vectorized"
     
     else:
         sys.exit("Association type is not implemented: available are str: eCDF, KS-stat, KS-p1, KS-p2, Sub_Eucl, Cov, Corr, Moms, dOR, Cond_proba_v1, Cond_proba_v2")
     
     return func, ftype
+
+def GrCaus_Test_p_val(Z, maxlag = 5, diff = False, test = "ssr_chi2test"):
+    if diff:
+        Z[0] = np.diff(Z[0])
+        Z[1] = np.diff(Z[1])
+    
+    # test Z[1] does not Granger Cause Z[0]
+    test_res_1 = GrCausTest(np.column_stack(Z[0], Z[1]), maxlag = maxlag, verbose = False)
+    p_values_1 = [test_res_1[i+1][0][test][1] for i in range(maxlag)]
+    p_mes_1 = np.prod(np.array(p_values_1))
+    
+    # test Z[0] does not Granger Cause Z[1]
+    test_res_2 = GrCausTest(np.column_stack(Z[1], Z[0]), maxlag = maxlag, verbose = False)
+    p_values_2 = [test_res_2[i+1][0][test][1] for i in range(maxlag)]
+    p_mes_2 = np.prod(np.array(p_values_2))
+    return np.mean([p_mes_1, p_mes_2])
 
 def dOR(Z):
     X, Y = Z
@@ -225,6 +249,7 @@ def dCond(Z):
     total_interaction = cpXY_in_in + cpXY_out_out + cpXY_in_out + cpXY_out_in + cpXY_No_No + cpXY_in_No + cpXY_out_No + cpXY_No_in + cpXY_No_out
     
     return np.exp(-total_interaction)
+
 
 def EmpCDF(X, interval):
     cdf = np.sum(X[:, :, np.newaxis]<= interval, axis = 1)/X.shape[1]

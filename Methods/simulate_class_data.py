@@ -7,6 +7,8 @@ Created on Fri Dec 23 20:04:14 2022
 """
 import numpy as np
 import scipy.stats as stats
+import joblib as jb
+from functools import partial 
 import pdb
 
 
@@ -177,6 +179,7 @@ def generate_data_twoGRN(var_data = False, noise = False):
     
     class_dic = {}
     k = 0
+    
     for i in range(len(class_type1)):
         lab = [labs[k]]
         for j in range(MaxNumVar + 1):
@@ -195,8 +198,36 @@ def generate_data_twoGRN(var_data = False, noise = False):
                     ssa_i_1 = ssa_func_list[i](Stochiometry = trans[i][1], Propensities = propens[i][1], X_0 = initial_state, T_Obs_Points = T)
                     data_dic[class_type1[i]+"%d_%d"%(j+1, 1)] = ssa_i_1[loc_mRNA[1], :]
                     class_dic[class_type1[i]+"%d_%d"%(j+1, 0)] = lab[0]
-                    class_dic[class_type1[i]+"%d_%d"%(j+1, 1)] = len(labs) # separate label for non-interacting species
+                    class_dic[class_type1[i]+"%d_%d"%(j+1, 1)] = max(labs)+1+lab[0] # separate label for non-interacting species
         k += 1    
-     
+    
+    """
+    for i in range(len(class_type1)):
+        lab = [labs[k]]
+        GRN_sub_p = partial(GRN_sub, i=i, class_type1=class_type1, data_dic=data_dic, class_dic=class_dic, lab=lab, labs = labs, num_var=num_var, ssa_func_list=ssa_func_list, trans=trans, initial_state=initial_state, T=T, propens = propens, loc_mRNA = loc_mRNA)
+        jb.Parallel(n_jobs = 6)(jb.delayed(GRN_sub_p)(j) for j in range(MaxNumVar + 1))
+        k += 1    
+    """
+    pdb.set_trace()
     dtp = ("<U4", "<U4") #This is the type of the labels checked from printing
     return data_dic, class_dic, num_clust, dtp
+
+def GRN_sub(j, i, class_type1, data_dic, class_dic, lab, labs, num_var, ssa_func_list, trans, initial_state, T, propens, loc_mRNA):
+    if j < num_var[lab[0]]:
+        if class_type1[i] != "NoI":
+            ssa_i = ssa_func_list[i](Stochiometry = trans[i][0], Propensities = propens[i][0], X_0 = initial_state, T_Obs_Points = T)
+            Z = ssa_i[loc_mRNA, :]
+            data_dic[class_type1[i]+"%d_%d"%(j+1, 0)] = Z[0, :]
+            data_dic[class_type1[i]+"%d_%d"%(j+1, 1)] = Z[1, :]
+            class_dic[class_type1[i]+"%d_%d"%(j+1, 0)] = lab[0]
+            class_dic[class_type1[i]+"%d_%d"%(j+1, 1)] = lab[0]
+            
+        else:
+            ssa_i_0 = ssa_func_list[i](Stochiometry = trans[i][0], Propensities = propens[i][0], X_0 = initial_state, T_Obs_Points = T)
+            data_dic[class_type1[i]+"%d_%d"%(j+1, 0)] = ssa_i_0[loc_mRNA[0], :]
+            ssa_i_1 = ssa_func_list[i](Stochiometry = trans[i][1], Propensities = propens[i][1], X_0 = initial_state, T_Obs_Points = T)
+            data_dic[class_type1[i]+"%d_%d"%(j+1, 1)] = ssa_i_1[loc_mRNA[1], :]
+            class_dic[class_type1[i]+"%d_%d"%(j+1, 0)] = lab[0]
+            class_dic[class_type1[i]+"%d_%d"%(j+1, 1)] = max(labs)+1+lab[0] # separate label for non-interacting species
+    
+    
