@@ -7,7 +7,7 @@ Created on Sat Dec 31 10:27:56 2022
 """
 import numpy as np
 from .Generate_Features import eCDF, Eucl, covariance, get_assoc_func
-from .Generate_Features import corrcoeff, moms, OR, Cond_proba
+from .Generate_Features import corrcoeff, moms, OR, Cond_proba, Granger_Cause
 from .Core.Generate_Distances import Similarity_Distance, Association_Distance, KS_Distance, KS_Distance_Mixed
 
 from .Core.Lower_dim import get_clusters
@@ -43,6 +43,13 @@ def NonMetric_Class(X, Y, num_clust, dist_origin = (True, True), metric_method =
 
     elif metric_method[0] == "Cond_proba":
        Feature_X, Feature_Y= Cond_proba(X, Y) 
+       func, ftype = get_assoc_func(assoc_type = metric_method[1])
+    elif metric_method[0][:-5] == "Granger-Cause":
+       if metric_method[0][:-4] == "orig":
+           diff = False
+       else:
+           diff = True
+       Feature_X, Feature_Y= Granger_Cause(X, Y, diff = diff) 
        func, ftype = get_assoc_func(assoc_type = metric_method[1])
     
     elif metric_method in ("KS-stat-stat", "KS-p1-p1", "KS-p1-stat", "KS-stat-p1"):

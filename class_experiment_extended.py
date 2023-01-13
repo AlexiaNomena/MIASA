@@ -68,7 +68,7 @@ save_at = "Class_Data_Extended/meth_set_2/"
 classifiers = ["MIASA"]*6 + ["non_MD"]*4 # non_MD = Non_Metric_Distance
 clust_methods = ["Kmeans", "Kmedoids", "Agglomerative_ward", "Agglomerative_complete", "Agglomerative_average", "Agglomerative_single", "Spectral"] # for MIASA
 clust_methods = clust_methods + ["Kmedoids", "Agglomerative_complete", "Agglomerative_average", "Agglomerative_single", "Spectral"] # for non_MD
-metric_methods = [("Corr", "Corr"), ("Cov", "Cov"), ("Cov", "Corr"), ("Corr", "Cov")]  
+metric_methods = [("Corr", "dCorr"), ("Cov", "dCov"), ("Cov", "dCorr"), ("Corr", "dCov")]  
 generate_data = generate_data_correlated
 # Euclidean embedding pameters only used in MIASA (includes a finite number of auto adjustements)
 c_dic = "default" 
@@ -84,7 +84,7 @@ save_at = "Class_Data_Extended/meth_set_3/"
 classifiers = ["MIASA"]*6 + ["non_MD"]*4 # non_MD = Non_Metric_Distance
 clust_methods = ["Kmeans", "Kmedoids", "Agglomerative_ward", "Agglomerative_complete", "Agglomerative_average", "Agglomerative_single", "Spectral"] # for MIASA
 clust_methods = clust_methods + ["Kmedoids", "Agglomerative_complete", "Agglomerative_average", "Agglomerative_single", "Spectral"] # for non_MD
-metric_methods = [("Corr", "Corr"), ("Cov", "Cov"), ("Cov", "Corr"), ("Corr", "Cov")]  
+metric_methods = [("Corr", "dCorr"), ("Cov", "dCov"), ("Cov", "dCorr"), ("Corr", "dCov")]  
 generate_data = generate_data_twoGRN
 # Euclidean embedding pameters only used in MIASA (includes a finite number of auto adjustements)
 c_dic = "default" 

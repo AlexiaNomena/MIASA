@@ -8,7 +8,7 @@ Created on Sun Dec 18 14:03:16 2022
 
 from .Core.Generate_Distances import Similarity_Distance, Association_Distance
 from .Generate_Features import eCDF, Eucl, covariance, get_assoc_func
-from .Generate_Features import corrcoeff, moms, OR, Cond_proba
+from .Generate_Features import corrcoeff, moms, OR, Cond_proba, Granger_Cause
 from .Core.Lower_dim import get_clusters
 from .Core.qEmbedding import Euclidean_Embedding
 
@@ -47,6 +47,13 @@ def Miasa_Class(X, Y, num_clust, c_dic = None, dist_origin = (True, True), metri
     elif metric_method[0] == "Cond_proba":
        Feature_X, Feature_Y = Cond_proba(X, Y) 
        func, ftype = get_assoc_func(assoc_type = metric_method[1])
+    elif metric_method[0][:-5] == "Granger-Cause":
+      if metric_method[0][:-4] == "orig":
+          diff = False
+      else:
+          diff = True
+      Feature_X, Feature_Y= Granger_Cause(X, Y, diff = diff) 
+      func, ftype = get_assoc_func(assoc_type = metric_method[1])
 
     else:
         try:

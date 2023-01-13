@@ -114,6 +114,18 @@ def Cond_proba(X, Y):
       
     return Feature_X, Feature_Y
 
+def Granger_Cause(X, Y, diff = False):
+    Feature_X = np.zeros((X.shape[0], X.shape[0]))
+    Feature_Y = np.zeros((Y.shape[0], Y.shape[0]))
+    for i in range(max(X.shape[0], Y.shape[0])):
+        if i < X.shape[0] :
+            for j in range(X.shape[0]):
+                Feature_X[i, j] =  GrCaus_Test_p_val((X[i, :],X[j, :]), diff = diff)
+        if i < Y.shape[0] :
+            for j in range(Y.shape[0]):
+                Feature_Y[i, j] = GrCaus_Test_p_val((Y[i, :],Y[j, :]), diff = diff)
+    return Feature_X, Feature_Y
+        
 
 def get_assoc_func(assoc_type):
     if assoc_type == "eCDF":
@@ -131,10 +143,10 @@ def get_assoc_func(assoc_type):
     elif assoc_type == "Sub_Eucl":
         func, ftype = lambda Z: np.max(np.abs(Z[0][:, np.newaxis] - Z[1][np.newaxis, :])), "vectorized"
         
-    elif assoc_type == "Cov":
+    elif assoc_type == "dCov":
         func, ftype = dcov, "vectorized"
         
-    elif assoc_type == "Corr":
+    elif assoc_type == "dCorr":
         func, ftype = dcorr, "vectorized"
         
     elif assoc_type == "Moms":
@@ -150,7 +162,7 @@ def get_assoc_func(assoc_type):
         func, ftype = lambda Z: 1e-5 + GrCaus_Test_p_val(Z, diff = False) , "not_vectorized" # H0: Z[1] does NOT granger cause Z[0] and vis versa,small p_value = reject the null, we want to reject the null by definition of association, thus we take p_val
     
     elif assoc_type == "Granger-Cause-diff":
-        func, ftype = lambda Z: 1e-5 + GrCaus_Test_p_val(Z, diff = False), "not_vectorized"
+        func, ftype = lambda Z: 1e-5 + GrCaus_Test_p_val(Z, diff = True), "not_vectorized"
     
     else:
         sys.exit("Association type is not implemented: available are str: eCDF, KS-stat, KS-p1, KS-p2, Sub_Eucl, Cov, Corr, Moms, dOR, Cond_proba_v1, Cond_proba_v2")
@@ -159,18 +171,21 @@ def get_assoc_func(assoc_type):
 
 def GrCaus_Test_p_val(Z, maxlag = 5, diff = False, test = "ssr_chi2test"):
     if diff:
-        Z[0] = np.diff(Z[0])
-        Z[1] = np.diff(Z[1])
+        Z1 = np.diff(Z[0])
+        Z2 = np.diff(Z[1])
+    else:
+        Z1 = Z[0]
+        Z2 = Z[1]
     
     # test Z[1] does not Granger Cause Z[0]
-    test_res_1 = GrCausTest(np.column_stack(Z[0], Z[1]), maxlag = maxlag, verbose = False)
+    test_res_1 = GrCausTest(np.column_stack((Z1, Z2)), maxlag = maxlag, verbose = False)
     p_values_1 = [test_res_1[i+1][0][test][1] for i in range(maxlag)]
-    p_mes_1 = np.prod(np.array(p_values_1))
+    p_mes_1 = np.max(np.array(p_values_1))
     
     # test Z[0] does not Granger Cause Z[1]
-    test_res_2 = GrCausTest(np.column_stack(Z[1], Z[0]), maxlag = maxlag, verbose = False)
+    test_res_2 = GrCausTest(np.column_stack((Z2, Z1)), maxlag = maxlag, verbose = False)
     p_values_2 = [test_res_2[i+1][0][test][1] for i in range(maxlag)]
-    p_mes_2 = np.prod(np.array(p_values_2))
+    p_mes_2 = np.max(np.array(p_values_2))
     return np.mean([p_mes_1, p_mes_2])
 
 def dOR(Z):

@@ -14,7 +14,7 @@ import time
 
 
 """ Classification experiments for different data types """
-repeat = 5 # Number of replicates of each experiments used for the barplots
+repeat = 1 # Number of replicates of each experiments used for the barplots
 var_data_list = [False, True]
 var_data_list_labs = ["False", "True"]
 
@@ -54,7 +54,7 @@ save_at = "Class_Data/meth_set_2/"
 classifiers = ["MIASA"]*2 + ["non_MD"]*1 # non_MD = Non_Metric_Distance
 clust_methods = ["Kmeans", "Kmedoids"] # for MIASA
 clust_methods = clust_methods + ["Kmedoids"] # for non_MD
-metric_methods = [("Corr", "Corr"), ("Cov", "Cov"), ("Cov", "Corr"), ("Corr", "Cov")]  
+metric_methods = [("Corr", "dCorr"), ("Cov", "dCov"), ("Cov", "dCorr"), ("Corr", "dCov")]  
 generate_data = generate_data_correlated
 # Euclidean embedding pameters only used in MIASA (includes a finite number of auto adjustements)
 c_dic = "default" 
@@ -68,7 +68,10 @@ save_at = "Class_Data_Extended/meth_set_3/"
 classifiers = ["MIASA"]*2 + ["non_MD"]*1 # non_MD = Non_Metric_Distance
 clust_methods = ["Kmeans", "Kmedoids"] # for MIASA
 clust_methods = clust_methods + ["Kmedoids"] # for non_MD
-metric_methods = [("Corr", "Corr"), ("Corr", "Granger-Cause-orig"), ("Corr", "Granger-Cause-diff"), ("OR", "dOR"), ("OR", "dCond"), ("Cond_proba", "dCond"), ("Cond_proba", "dOR")]  
+#metric_methods = [("Corr", "dCorr"), ("Corr", "Granger-Cause-orig"), ("Corr", "Granger-Cause-diff"), ("Granger-Cause-orig", "Granger-Cause-orig"), ("Granger-Cause-diff", "Granger-Cause-diff")] 
+metric_methods = [("Granger-Cause-orig", "Granger-Cause-orig"), ("Granger-Cause-diff", "Granger-Cause-diff")] 
+
+
 generate_data = generate_data_twoGRN
 # Euclidean embedding pameters only used in MIASA (includes a finite number of auto adjustements)
 c_dic = "default" 
