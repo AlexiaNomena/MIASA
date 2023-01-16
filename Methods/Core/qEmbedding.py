@@ -79,5 +79,5 @@ def Euclidean_Embedding(DX, DY, UX, UY, fXY, c_dic, in_threads = False):
         c3 = 0
         zeta_f = 0
         
-    vareps = c3*zeta_f  
+    vareps = c3*zeta_f
     return Coords, vareps

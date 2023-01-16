@@ -20,9 +20,18 @@ def one_classification(r, repeat, method_dic_list, var_data, generate_data, c_di
     X, Y, Class_True, X_vars, Y_vars = split_data(data_dic, class_dic)
     data_dic2 = {"X":X, "Y":Y, "Class_True":Class_True, "X_vars":X_vars, "Y_vars":Y_vars}
     acc_res = []
+    DMat = None
     for i in range(len(method_dic_list)):    
-        Id_Class, X_vars, Y_vars, acc_r = Classify_general(data_dic2, class_dic, num_clust, method_dic = method_dic_list[i], c_dic = c_dic, in_threads = in_threads)
+        Id_Class, X_vars, Y_vars, acc_r = Classify_general(data_dic2, class_dic, num_clust, method_dic = method_dic_list[i], DMat = DMat, c_dic = c_dic, in_threads = in_threads)
         print("Case %d -- method num %d/%d"%(var_data*1, i+1, len(method_dic_list)), "-- run %d/%d"%(r+1,repeat))
+        
+        # since this is the same dataset, if the metric_method is the same, then pass DMat directly to avoid recomputing it everytime for method with MIASA and Non_MD
+        if i>0:
+            if method_dic_list[i]["metric_method"] != method_dic_list[i-1]["metric_method"]:
+                DMat = None
+            else:
+                DMat = Id_Class["DMat"]
+        
         acc_res.append(acc_r)
     return acc_res
 
@@ -58,7 +67,7 @@ def repeated_classifications(repeat, method_dic_list, generate_data, var_data = 
             X, Y, Class_True, X_vars, Y_vars = split_data(data_dic, class_dic)
             data_dic2 = {"X":X, "Y":Y, "Class_True":Class_True, "X_vars":X_vars, "Y_vars":Y_vars}
             for i in range(len(method_dic_list)):    
-                Id_Class, X_vars, Y_vars, acc_r = Classify_general(data_dic2, class_dic, num_clust, method_dic = method_dic_list[i], c_dic = c_dic, in_threads = in_threads)
+                Id_Class, X_vars, Y_vars, acc_r = Classify_general(data_dic2, class_dic, num_clust, method_dic = method_dic_list[i], DMat = None, c_dic = c_dic, in_threads = in_threads)
                 print("method num %d/%d"%(i+1, len(method_dic_list)), "run %d/%d"%(r+1,repeat))
     
                 if method_dic_list[i]["class_method"] == "MIASA":
@@ -89,7 +98,7 @@ def repeated_classifications(repeat, method_dic_list, generate_data, var_data = 
 
 
 """ Identification of Classes """
-def Classify_general(data_dic, class_dic, num_clust, method_dic, c_dic = "default", in_threads = True, Feature_dic = None):
+def Classify_general(data_dic, class_dic, num_clust, method_dic, DMat = None, c_dic = "default", in_threads = True, Feature_dic = None):
     class_method = method_dic["class_method"]
     clust_method = method_dic["clust_method"]
     metric_method = method_dic["metric_method"]
@@ -99,12 +108,12 @@ def Classify_general(data_dic, class_dic, num_clust, method_dic, c_dic = "defaul
     """ Identify Class using MIASA framework """
     if class_method == "MIASA":
         Orows, Ocols = True, True
-        Id_Class = Miasa_Class(X, Y, num_clust, dist_origin = (Orows,Ocols), metric_method = metric_method, clust_method = clust_method, c_dic = c_dic, Feature_dic = Feature_dic, in_threads = in_threads)
-    
+        Id_Class = Miasa_Class(X, Y, num_clust, DMat = DMat, dist_origin = (Orows,Ocols), metric_method = metric_method, clust_method = clust_method, c_dic = c_dic, Feature_dic = Feature_dic, in_threads = in_threads)
+        
     elif class_method == "non_MD":
         Orows, Ocols = True, True
-        Id_Class = NonMetric_Class(X, Y, num_clust, dist_origin = (Orows,Ocols), metric_method = metric_method, clust_method = clust_method, Feature_dic = Feature_dic, in_threads = in_threads)
-    
+        Id_Class = NonMetric_Class(X, Y, num_clust, DMat = DMat, dist_origin = (Orows,Ocols), metric_method = metric_method, clust_method = clust_method, Feature_dic = Feature_dic, in_threads = in_threads)
+        
     """Compute accuracy metric = rand_index metric"""
     if Id_Class is not None:
         Class_pred = Id_Class["Class_pred"]

@@ -127,7 +127,7 @@ def Granger_Cause(X, Y, diff = False):
     return Feature_X, Feature_Y
         
 
-def get_assoc_func(assoc_type):
+def get_assoc_func(assoc_type, in_threads = False):
     if assoc_type == "eCDF":
         func, ftype = dCDF, "vectorized"
         
@@ -171,9 +171,12 @@ def get_assoc_func(assoc_type):
         func, ftype = lambda Z: 1e-5 + GrCaus_Test_p_val(Z, diff = True, test="params_ftest"), "not_vectorized"
     
     else:
-        sys.exit("Association type is not implemented: available are str: eCDF, KS-stat, KS-p1, KS-p2, Sub_Eucl, Cov, Corr, Moms, dOR, Cond_proba_v1, Cond_proba_v2")
+        if in_threads:
+            print(assoc_type)
+            sys.exit("Association type is not implemented")
     
     return func, ftype
+
 
 def GrCaus_Test_p_val(Z, maxlag = 10, diff = False, test = "ssr_chi2test"):
     if diff:
@@ -310,7 +313,7 @@ def dcov_v2(Z):
     scov = (1/(Z[0].shape[1] - 1))*np.dot(Z[0] - np.mean(Z[0], axis = 1)[:, np.newaxis], (Z[1]- np.mean(Z[1], axis = 1)[:, np.newaxis]).T)
     U1 = scov - np.var(Z[0], axis = 1)[:, np.newaxis] ### if cov = var then the variables might belong to the same axis so they are not associated in the sense that they are not correlated variables
     U2 = scov - np.var(Z[1], axis = 1)[np.newaxis, :]
-    res = np.exp(-100*(U1)**2)*np.exp(-100*(U2)**2)
+    res = np.exp(-50*(U1)**2)*np.exp(-50*(U2)**2)
     
     return 1e-5 + res # added a small constant to avoid identically zero
 
@@ -319,7 +322,7 @@ def dcorr_v2(Z):
     """the empirical corrcoeff formula bellow is only valid for equal number of observations in each samples it is equal to np.cov(X,Y)/std(Y)std(Y)"""
     scov = (1/(Z[0].shape[1] - 1))*np.dot(Z[0] - np.mean(Z[0], axis = 1)[:, np.newaxis], (Z[1]- np.mean(Z[1], axis = 1)[:, np.newaxis]).T)
     scorr = scov/(np.std(Z[0], axis = 1)[:, np.newaxis]*np.std(Z[1], axis = 1)[np.newaxis, :])
-    res = np.exp(- 100*(scorr - 1)**2) ### if corr = 1 then the variables are not correlated thus they they are not associated in the sense that they are not correlated variables
+    res = np.exp(- 50*(scorr - 1)**2) ### if corr = 1 then the variables are not correlated thus they they are not associated in the sense that they are not correlated variables
     return 1e-5 + res  # added a small constant to avoid identically zero
 
 def dMoments(Z):

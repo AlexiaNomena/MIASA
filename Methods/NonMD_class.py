@@ -15,42 +15,42 @@ from .Core.CosLM import Prox_Mat
 import sys
 import pdb
 
-def NonMetric_Class(X, Y, num_clust, dist_origin = (True, True), metric_method = ("eCDF", "KS-stat"), clust_method = "Kmeans", palette = "tab20", Feature_dic = None, in_threads = True):
+def NonMetric_Class(X, Y, num_clust, DMat = None, dist_origin = (True, True), metric_method = ("eCDF", "KS-stat"), clust_method = "Kmeans", palette = "tab20", Feature_dic = None, in_threads = True):
     """Compute features"""
     if metric_method[0] == "eCDF":
        Feature_X, Feature_Y = eCDF(X,Y)
-       func, ftype = get_assoc_func(assoc_type = metric_method[1])
+       func, ftype = get_assoc_func(assoc_type = metric_method[1], in_threads = in_threads)
     
     elif metric_method[0] == "Cov":
         Feature_X, Feature_Y = covariance(X, Y)
-        func, ftype = get_assoc_func(assoc_type = metric_method[1])
+        func, ftype = get_assoc_func(assoc_type = metric_method[1], in_threads = in_threads)
     
     elif metric_method[0] == "Corr":
         Feature_X, Feature_Y= corrcoeff(X, Y)
-        func, ftype = get_assoc_func(assoc_type = metric_method[1])
+        func, ftype = get_assoc_func(assoc_type = metric_method[1], in_threads = in_threads)
         
     elif metric_method[0] == "Moms":
         Feature_X, Feature_Y = moms(X, Y)
-        func, ftype = get_assoc_func(assoc_type = metric_method[1])
+        func, ftype = get_assoc_func(assoc_type = metric_method[1], in_threads = in_threads)
 
     elif metric_method[0] == "OR":
         Feature_X, Feature_Y = OR(X, Y)
-        func, ftype = get_assoc_func(assoc_type = metric_method[1])
+        func, ftype = get_assoc_func(assoc_type = metric_method[1], in_threads = in_threads)
     
     elif metric_method[0] == "Eucl":
        Feature_X, Feature_Y= Eucl(X, Y)
-       func, ftype = get_assoc_func(assoc_type = metric_method[1])
+       func, ftype = get_assoc_func(assoc_type = metric_method[1], in_threads = in_threads)
 
     elif metric_method[0] == "Cond_proba":
        Feature_X, Feature_Y= Cond_proba(X, Y) 
-       func, ftype = get_assoc_func(assoc_type = metric_method[1])
+       func, ftype = get_assoc_func(assoc_type = metric_method[1], in_threads = in_threads)
     elif metric_method[0][:-5] == "Granger-Cause":
        if metric_method[0][:-4] == "orig":
            diff = False
        else:
            diff = True
        Feature_X, Feature_Y= Granger_Cause(X, Y, diff = diff) 
-       func, ftype = get_assoc_func(assoc_type = metric_method[1])
+       func, ftype = get_assoc_func(assoc_type = metric_method[1], in_threads = in_threads)
     
     elif metric_method in ("KS-stat-stat", "KS-p1-p1", "KS-p1-stat", "KS-stat-p1"):
        Feature_X, Feature_Y, func, ftype = X, Y, None, None
@@ -62,47 +62,51 @@ def NonMetric_Class(X, Y, num_clust, dist_origin = (True, True), metric_method =
             sys.exit("Check implemented metric_methods or give a parameter Feature_dic must be given: keys Feature_X (ndarray), Feature_Y (ndarray), Association_function (func) with tuple argument (X, Y), assoc_func_type (str vectorized or str not_vectorized)")
             
             
-    Result = get_NMDclass(X, Y, Feature_X, Feature_Y, func, ftype, metric_method, dist_origin, num_clust, clust_method, palette, in_threads)
+    Result = get_NMDclass(X, Y, Feature_X, Feature_Y, func, ftype, metric_method, DMat, dist_origin, num_clust, clust_method, palette, in_threads)
     return Result
 
     
-def get_NMDclass(X, Y, Feature_X, Feature_Y, func, ftype, metric_method, dist_origin = (True, True), num_clust=None, clust_method = "Kmeans", palette = "tab20", in_threads = False):
+def get_NMDclass(X, Y, Feature_X, Feature_Y, func, ftype, metric_method, DMat = None, dist_origin = (True, True), num_clust=None, clust_method = "Kmeans", palette = "tab20", in_threads = False):
     
     M = Feature_X.shape[0]
     N = Feature_Y.shape[0]
     
     if metric_method not in ("KS-stat-stat", "KS-p1-p1", "KS-p1-stat", "KS-stat-p1"):
-        """ Similarity metric """
-        DX = Similarity_Distance(Feature_X, method = "Euclidean")
-        DY = Similarity_Distance(Feature_Y, method = "Euclidean")
-        
-        """Association metric"""
-        Features = (X, Y)
-        
-        D_assoc = Association_Distance(Features, func, ftype)
-        """Distane to origin Optional but must be set to None if not used"""
-        if dist_origin[0] or dist_origin[1]:
-            Orows = np.zeros(Feature_X.shape[0])
-            Ocols = np.zeros(Feature_Y.shape[0])
+        if DMat is None:
+
+            """ Similarity metric """
+            DX = Similarity_Distance(Feature_X, method = "Euclidean")
+            DY = Similarity_Distance(Feature_Y, method = "Euclidean")
             
-            if dist_origin[0]:
-                Orows = np.linalg.norm(Feature_X, axis = 1)
-            if dist_origin[1]:
-                Ocols = np.linalg.norm(Feature_Y, axis = 1)
-        else:
-            Orows = None
-            Ocols = None
+            """Association metric"""
+            Features = (X, Y)
+            
+            D_assoc = Association_Distance(Features, func, ftype)
+            """Distane to origin Optional but must be set to None if not used"""
+            if dist_origin[0] or dist_origin[1]:
+                Orows = np.zeros(Feature_X.shape[0])
+                Ocols = np.zeros(Feature_Y.shape[0])
+                
+                if dist_origin[0]:
+                    Orows = np.linalg.norm(Feature_X, axis = 1)
+                if dist_origin[1]:
+                    Ocols = np.linalg.norm(Feature_Y, axis = 1)
+            else:
+                Orows = None
+                Ocols = None
+            
+            DMat = Prox_Mat(DX, DY, UX = Orows, UY = Ocols, fXY = D_assoc)
         
-        DMat = Prox_Mat(DX, DY, UX = Orows, UY = Ocols, fXY = D_assoc)
-    
     elif metric_method in ("KS-stat-stat", "KS-p1-p1"):
-        Z = np.concatenate((X, Y), axis = 0)
-        DMat = KS_Distance(Z, to_use = metric_method)
+        if DMat is None:
+            Z = np.concatenate((X, Y), axis = 0)
+            DMat = KS_Distance(Z, to_use = metric_method)
     
     else:
-        Z = (X, Y)
-        DMat = KS_Distance_Mixed(Z, to_use = metric_method)
-    
+        if DMat is None:
+            Z = (X, Y)
+            DMat = KS_Distance_Mixed(Z, to_use = metric_method)
+
     try:        
         if clust_method == "Kmedoids":
             if num_clust == None:
@@ -125,7 +129,7 @@ def get_NMDclass(X, Y, Feature_X, Feature_Y, func, ftype, metric_method, dist_or
         else:
             Class_pred = clust_labels
             was_orig = False
-        Result = {"shape":(M, N), "was_orig":was_orig, "Class_pred":Class_pred, "clust_labels":clust_labels, "color_clustered":color_clustered}
+        Result = {"shape":(M, N), "was_orig":was_orig, "Class_pred":Class_pred, "clust_labels":clust_labels, "color_clustered":color_clustered, "DMat":DMat, "X":X, "Y":Y}
     except:
         if not in_threads:
             pdb.set_trace()
