@@ -176,12 +176,13 @@ def generate_data_twoGRN(var_data = False, noise = False):
     else:
         num_var = {labs[k]:MaxNumVar for k in range(len(labs))}
     
-    
     class_dic = {}
     k = 0
+    """
     for i in range(len(class_type1)):
         lab = [labs[k]]
         for j in range(MaxNumVar + 1):
+            print(i, j)
             if j < num_var[lab[0]]:
                 if class_type1[i] != "NoI":
                     ssa_i = ssa_func_list[i](Stochiometry = trans[i][0], Propensities = propens[i][0], X_0 = initial_state, T_Obs_Points = T)
@@ -199,7 +200,108 @@ def generate_data_twoGRN(var_data = False, noise = False):
                     class_dic[class_type1[i]+"%d_%d"%(j+1, 0)] = lab[0]
                     class_dic[class_type1[i]+"%d_%d"%(j+1, 1)] = max(labs)+1+lab[0] # separate label for non-interacting species
         k += 1    
-
+    """
+    for i in range(len(class_type1)):
+        lab = [labs[k]]
+        ## Run SSA separately with Joblib because each of then is slow
+        GRN_sub_p = partial(GRN_sub, i=i, num_var=num_var, lab=lab, 
+                            class_type = class_type1, ssa_func_list=ssa_func_list, 
+                            loc_mRNA = loc_mRNA, trans = trans, propens = propens, 
+                            initial_state = initial_state, T = T)
+        
+        res_list = jb.Parallel(n_jobs = 8)(jb.delayed(GRN_sub_p)(j) for j in range(MaxNumVar + 1))
+        ## place the runs into the data_dic 
+        for j in range(MaxNumVar + 1):
+            if j < num_var[lab[0]]:
+                Z = res_list[j]
+                if class_type1[i] != "NoI":
+                    data_dic[class_type1[i]+"%d_%d"%(j+1, 0)] = Z[0, :]
+                    data_dic[class_type1[i]+"%d_%d"%(j+1, 1)] = Z[1, :]
+                    class_dic[class_type1[i]+"%d_%d"%(j+1, 0)] = lab[0]
+                    class_dic[class_type1[i]+"%d_%d"%(j+1, 1)] = lab[0]
+                    
+                else:
+                    data_dic[class_type1[i]+"%d_%d"%(j+1, 0)] = Z[0]
+                    data_dic[class_type1[i]+"%d_%d"%(j+1, 1)] = Z[1]
+                    class_dic[class_type1[i]+"%d_%d"%(j+1, 0)] = lab[0]
+                    class_dic[class_type1[i]+"%d_%d"%(j+1, 1)] = max(labs)+1+lab[0] # separate label for non-interacting species
+    
+    num_clust = num_clust + 1 # the 2 Genes in the NoI was assigned to different classes
     dtp = ("<U4", "<U4") #This is the type of the labels checked from printing
     return data_dic, class_dic, num_clust, dtp
 
+
+def GRN_sub(j, i, num_var, lab, class_type, ssa_func_list, loc_mRNA, trans, propens, initial_state, T):
+    if j < num_var[lab[0]]:
+
+        if class_type[i] != "NoI":
+            ssa_i = ssa_func_list[i](Stochiometry = trans[i][0], Propensities = propens[i][0], X_0 = initial_state, T_Obs_Points = T)
+            Z = ssa_i[loc_mRNA, :]
+            
+        else:
+            ssa_i_0 = ssa_func_list[i](Stochiometry = trans[i][0], Propensities = propens[i][0], X_0 = initial_state, T_Obs_Points = T)
+            ssa_i_1 = ssa_func_list[i](Stochiometry = trans[i][1], Propensities = propens[i][1], X_0 = initial_state, T_Obs_Points = T)
+            Z = (ssa_i_0[loc_mRNA[0], :], ssa_i_1[loc_mRNA[1], :])
+          
+            
+        return Z
+    
+
+def load_data_twoGRN(var_data = False, noise = False):
+    loc_mRNA = np.array([4, 5]) # M1, M2 are the simulated mRNA counts
+    
+    data_dic = {}
+    class_type1 = ["NoI", "Up_G1", "Up_G1G2"] # bivariate Normal Dist
+    files = ["Data/2mRNA_100000/two_MRNA_No_Up_data_100000.pck", "Data/2mRNA_100000/two_MRNA_Single_Up_data_100000.pck", "Data/2mRNA_100000/two_MRNA_Double_Up_data_100000.pck"]
+    
+    num_clust = len(class_type1)
+    labs = np.cumsum(np.ones(num_clust)) - 1
+    
+    # Number of samples per classes
+    MaxNumVar = 25
+    if var_data:
+        num_var_list = np.random.choice(np.arange(2, MaxNumVar), size = len(labs), replace = False)
+        num_var = {labs[k]: num_var_list[k] for k in range(len(labs))}
+    else:
+        num_var = {labs[k]:MaxNumVar for k in range(len(labs))}
+    
+    class_dic = {}
+    
+    k = 0
+    for i in range(len(class_type1)):
+        lab = [labs[k]]
+        ## Load relevant datafiles        
+        Z = GRN_load(num_var[lab[0]], filename = files[i], loc_species = loc_mRNA) 
+        ## place the runs into the data_dic 
+        for j in range(MaxNumVar + 1):
+            if j < num_var[lab[0]]:
+                data_dic[class_type1[i]+"%d_%d"%(j+1, 0)] = Z[:, 0, j]
+                data_dic[class_type1[i]+"%d_%d"%(j+1, 1)] = Z[:, 1, j]
+                
+                if class_type1[i] != "NoI":
+                    class_dic[class_type1[i]+"%d_%d"%(j+1, 0)] = lab[0]
+                    class_dic[class_type1[i]+"%d_%d"%(j+1, 1)] = lab[0]
+                    
+                else:
+                    class_dic[class_type1[i]+"%d_%d"%(j+1, 0)] = lab[0]
+                    class_dic[class_type1[i]+"%d_%d"%(j+1, 1)] = max(labs)+1+lab[0] # separate label for non-interacting species
+        k += 1    
+
+    num_clust = num_clust + 1 # the 2 Genes in the NoI was assigned to different classes
+    dtp = ("<U4", "<U4") #This is the type of the labels checked from printing
+    return data_dic, class_dic, num_clust, dtp
+ 
+import pickle        
+def GRN_load(sample_size, filename, loc_species):
+    f = open(filename,'rb')
+    input_dic = pickle.load(f)
+    f.close()
+    
+    Sim_data = input_dic['Obs'] # -> numpy array           (#Time, #Dim, #Repeats)
+    inds = np.arange(0,Sim_data.shape[-1],1,dtype=np.int) # repeats indexes, i.e., different cells
+    sampled_inds = np.random.choice(inds, size=sample_size, replace=False) # No repeating samples
+    Z = Sim_data[:, loc_species][:, :, sampled_inds]
+    
+    return Z
+
+ 

@@ -193,27 +193,29 @@ def BarPlotClass(data, method_name, pdf, stat_name = None):
     data_list = []
     colors = []
     for i in range(data.shape[0]):
-        data_list.append(data[i, :])
+        try:
+            data_list.append(data[i, :].compressed()) # sometimes ax.boxplot fails to properly identify the masked values
+        except:
+            data_list.append(data[i, :])
+            
         if method_name[i][:5] == "MIASA":
             colors.append("orange")
         else:
             colors.append("blue")
-    
     vert = True
     if vert:
-        fig = plt.figure(figsize=(30,10))
+        fig = plt.figure(figsize=(10,10))
         ax = fig.add_subplot(111)
-        bplot = ax.boxplot(data_list, notch = False, vert=vert, patch_artist = True, showfliers=False) # showfliers = False remove outliers
+        bplot = ax.boxplot(data_list, notch = False, vert=vert, patch_artist = True, widths = .5, showfliers=False) # showfliers = False remove outliers
         for patch, color in zip(bplot['boxes'], colors):
             patch.set_facecolor(color)
             
         plt.xticks(np.cumsum(np.ones(len(method_name))), method_name, rotation = 90)
         plt.ylabel(stat_name, fontsize = 20)
-    
     else:
-        fig = plt.figure(figsize=(10,30))
+        fig = plt.figure(figsize=(10,10))
         ax = fig.add_subplot(111)
-        bplot = ax.boxplot(data_list, notch = False, vert=vert, patch_artist = True, showfliers=False) # showfliers = False remove outliers
+        bplot = ax.boxplot(data_list, notch = False, vert=vert, patch_artist = True, widths = .5, showfliers=False) # showfliers = False remove outliers
         for patch, color in zip(bplot['boxes'], colors):
             patch.set_facecolor(color)
             
@@ -232,7 +234,7 @@ def BarPlotClass_sns(data, method_name, pdf, stat_name = None):
     data_dic = {}
     colors = []
     for i in range(data.shape[0]):
-        data_dic[method_name[i]] = data[i, :]
+        data_dic[method_name[i]] = data[i, :].compressed()
         if method_name[i][:5] == "MIASA":
             colors.append("orange")
         else:

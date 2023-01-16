@@ -149,6 +149,12 @@ def get_assoc_func(assoc_type):
     elif assoc_type == "dCorr":
         func, ftype = dcorr, "vectorized"
         
+    elif assoc_type == "dCov_v2":
+        func, ftype = dcov_v2, "vectorized"
+            
+    elif assoc_type == "dCorr_v2":
+        func, ftype = dcorr_v2, "vectorized"
+        
     elif assoc_type == "Moms":
         func, ftype = dMoments, "vectorized"
     
@@ -159,24 +165,23 @@ def get_assoc_func(assoc_type):
         func, ftype = dCond, "vectorized"
         
     elif assoc_type == "Granger-Cause-orig":
-        func, ftype = lambda Z: 1e-5 + GrCaus_Test_p_val(Z, diff = False) , "not_vectorized" # H0: Z[1] does NOT granger cause Z[0] and vis versa,small p_value = reject the null, we want to reject the null by definition of association, thus we take p_val
+        func, ftype = lambda Z: 1e-5 + GrCaus_Test_p_val(Z, diff = False, test="params_ftest") , "not_vectorized" # H0: Z[1] does NOT granger cause Z[0] and vis versa,small p_value = reject the null, we want to reject the null by definition of association, thus we take p_val
     
     elif assoc_type == "Granger-Cause-diff":
-        func, ftype = lambda Z: 1e-5 + GrCaus_Test_p_val(Z, diff = True), "not_vectorized"
+        func, ftype = lambda Z: 1e-5 + GrCaus_Test_p_val(Z, diff = True, test="params_ftest"), "not_vectorized"
     
     else:
         sys.exit("Association type is not implemented: available are str: eCDF, KS-stat, KS-p1, KS-p2, Sub_Eucl, Cov, Corr, Moms, dOR, Cond_proba_v1, Cond_proba_v2")
     
     return func, ftype
 
-def GrCaus_Test_p_val(Z, maxlag = 5, diff = False, test = "ssr_chi2test"):
+def GrCaus_Test_p_val(Z, maxlag = 10, diff = False, test = "ssr_chi2test"):
     if diff:
         Z1 = np.diff(Z[0])
         Z2 = np.diff(Z[1])
     else:
         Z1 = Z[0]
         Z2 = Z[1]
-    
     # test Z[1] does not Granger Cause Z[0]
     test_res_1 = GrCausTest(np.column_stack((Z1, Z2)), maxlag = maxlag, verbose = False)
     p_values_1 = [test_res_1[i+1][0][test][1] for i in range(maxlag)]
@@ -186,7 +191,8 @@ def GrCaus_Test_p_val(Z, maxlag = 5, diff = False, test = "ssr_chi2test"):
     test_res_2 = GrCausTest(np.column_stack((Z2, Z1)), maxlag = maxlag, verbose = False)
     p_values_2 = [test_res_2[i+1][0][test][1] for i in range(maxlag)]
     p_mes_2 = np.max(np.array(p_values_2))
-    return np.mean([p_mes_1, p_mes_2])
+    res = np.mean([p_mes_1, p_mes_2])
+    return res
 
 def dOR(Z):
     X, Y = Z
@@ -236,9 +242,11 @@ def getCond(boolX,boolY):
     mrj_Y = np.sum(boolY, axis = 1)/boolY.shape[1]
     
     # Conditional proba features (Centred around independence model, e.g. = 1)
-    cpX = np.divide(pXY, mrj_X[:, np.newaxis]*mrj_Y[np.newaxis, :], out = np.zeros(pXY.shape), where = mrj_X[:, np.newaxis]!= 0) - 1
+    if not np.all(pXY == 0.):
+        cpX = np.divide(pXY, mrj_X[:, np.newaxis]*mrj_Y[np.newaxis, :], out = np.zeros(pXY.shape), where = mrj_X[:, np.newaxis]!= 0) - 1
+    else:
+        cpX = np.zeros(pXY.shape)
     cpY = cpX.T
-    
     return cpX, cpY
 
 
@@ -270,6 +278,7 @@ def EmpCDF(X, interval):
     cdf = np.sum(X[:, :, np.newaxis]<= interval, axis = 1)/X.shape[1]
     return cdf
 
+
 def dCDF(Z):
     "Association distance based on Empirical CDF"
     X, Y = Z
@@ -285,19 +294,33 @@ def dCDF(Z):
 def dcov(Z):
     """the empirical covariance formula bellow is only valid for equal number of observations in each samples it is equal to np.cov(X,Y)"""
     scov = (1/(Z[0].shape[1] - 1))*np.dot(Z[0] - np.mean(Z[0], axis = 1)[:, np.newaxis], (Z[1]- np.mean(Z[1], axis = 1)[:, np.newaxis]).T)
-    U1 = np.abs(scov) - np.var(Z[0], axis = 1)[:, np.newaxis] ### if cov = var then the variables might belong to the same dristribution so they are not associated in the sense that they are not correlated variables
-    U2 = np.abs(scov) - np.var(Z[1], axis = 1)[np.newaxis, :]
-    res = np.exp(-(U1)**2)*np.exp(-(U2)**2)
+    res = np.exp(-np.abs(scov)) 
     return 1e-5 + res # added a small constant to avoid identically zero
 
         
 def dcorr(Z):
     """the empirical corrcoeff formula bellow is only valid for equal number of observations in each samples it is equal to np.cov(X,Y)/std(Y)std(Y)"""
     scov = (1/(Z[0].shape[1] - 1))*np.dot(Z[0] - np.mean(Z[0], axis = 1)[:, np.newaxis], (Z[1]- np.mean(Z[1], axis = 1)[:, np.newaxis]).T)
-    scorr = scov/np.std(Z[0], axis = 1)[:, np.newaxis]*np.std(Z[1], axis = 1)[np.newaxis, :]
-    res = np.exp(- (np.abs(scorr) - 1)**2) ### if corr = 1 then the variables are not correlated thus they they are not associated in the sense that they are not correlated variables
+    scorr = scov/(np.std(Z[0], axis = 1)[:, np.newaxis]*np.std(Z[1], axis = 1)[np.newaxis, :])
+    res = np.exp(-np.abs(scorr))
     return 1e-5 + res  # added a small constant to avoid identically zero
 
+def dcov_v2(Z):
+    """the empirical covariance formula bellow is only valid for equal number of observations in each samples it is equal to np.cov(X,Y)"""
+    scov = (1/(Z[0].shape[1] - 1))*np.dot(Z[0] - np.mean(Z[0], axis = 1)[:, np.newaxis], (Z[1]- np.mean(Z[1], axis = 1)[:, np.newaxis]).T)
+    U1 = scov - np.var(Z[0], axis = 1)[:, np.newaxis] ### if cov = var then the variables might belong to the same axis so they are not associated in the sense that they are not correlated variables
+    U2 = scov - np.var(Z[1], axis = 1)[np.newaxis, :]
+    res = np.exp(-100*(U1)**2)*np.exp(-100*(U2)**2)
+    
+    return 1e-5 + res # added a small constant to avoid identically zero
+
+        
+def dcorr_v2(Z):
+    """the empirical corrcoeff formula bellow is only valid for equal number of observations in each samples it is equal to np.cov(X,Y)/std(Y)std(Y)"""
+    scov = (1/(Z[0].shape[1] - 1))*np.dot(Z[0] - np.mean(Z[0], axis = 1)[:, np.newaxis], (Z[1]- np.mean(Z[1], axis = 1)[:, np.newaxis]).T)
+    scorr = scov/(np.std(Z[0], axis = 1)[:, np.newaxis]*np.std(Z[1], axis = 1)[np.newaxis, :])
+    res = np.exp(- 100*(scorr - 1)**2) ### if corr = 1 then the variables are not correlated thus they they are not associated in the sense that they are not correlated variables
+    return 1e-5 + res  # added a small constant to avoid identically zero
 
 def dMoments(Z):
     X, Y = Z

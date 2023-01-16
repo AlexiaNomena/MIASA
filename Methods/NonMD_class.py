@@ -62,11 +62,11 @@ def NonMetric_Class(X, Y, num_clust, dist_origin = (True, True), metric_method =
             sys.exit("Check implemented metric_methods or give a parameter Feature_dic must be given: keys Feature_X (ndarray), Feature_Y (ndarray), Association_function (func) with tuple argument (X, Y), assoc_func_type (str vectorized or str not_vectorized)")
             
             
-    Result = get_NMDclass(X, Y, Feature_X, Feature_Y, func, ftype, metric_method, dist_origin, num_clust, clust_method, palette)
+    Result = get_NMDclass(X, Y, Feature_X, Feature_Y, func, ftype, metric_method, dist_origin, num_clust, clust_method, palette, in_threads)
     return Result
 
     
-def get_NMDclass(X, Y, Feature_X, Feature_Y, func, ftype, metric_method, dist_origin = (True, True), num_clust=None, clust_method = "Kmeans", palette = "tab20"):
+def get_NMDclass(X, Y, Feature_X, Feature_Y, func, ftype, metric_method, dist_origin = (True, True), num_clust=None, clust_method = "Kmeans", palette = "tab20", in_threads = False):
     
     M = Feature_X.shape[0]
     N = Feature_Y.shape[0]
@@ -125,8 +125,12 @@ def get_NMDclass(X, Y, Feature_X, Feature_Y, func, ftype, metric_method, dist_or
         else:
             Class_pred = clust_labels
             was_orig = False
+        Result = {"shape":(M, N), "was_orig":was_orig, "Class_pred":Class_pred, "clust_labels":clust_labels, "color_clustered":color_clustered}
     except:
-        pdb.set_trace()
+        if not in_threads:
+            pdb.set_trace()
+        
+        Result = None
     
-    return {"shape":(M, N), "was_orig":was_orig, "Class_pred":Class_pred, "clust_labels":clust_labels, "color_clustered":color_clustered}
+    return Result
     
