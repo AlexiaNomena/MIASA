@@ -40,7 +40,7 @@ def split_data(data_dic, class_dic):
     """Split data in two random groups of the same size"""
     samples = np.array(list(data_dic.keys()))
     np.random.shuffle(samples)
-    X_vars = samples[:len(samples)//2]
+    X_vars = samples[:len(samples)//3]
     Y_vars = samples[len(X_vars):]
     M = len(X_vars)
     N = len(Y_vars)

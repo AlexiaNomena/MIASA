@@ -14,7 +14,7 @@ import time
 
 
 """ Classification experiments for different data types """
-repeat = 2004 # Number of replicates of each experiments used for the barplots
+repeat = 1 # Number of replicates of each experiments used for the barplots
 var_data_list = [False, True]
 var_data_list_labs = ["False", "True"]
 
@@ -48,7 +48,7 @@ plotfew = False # first run and plot 10 repeats (umap visualization) saved in Fi
 """
 
 """ Secod methods set: Saved/meth_set_2/"""
-
+"""
 set_num = 2
 save_at = "Class_Data/meth_set_2/"
 classifiers = ["MIASA"]*2 + ["non_MD"]*1 # non_MD = Non_Metric_Distance
@@ -64,9 +64,9 @@ generate_data = generate_data_correlated
 c_dic = "default" 
 in_threads = True # avoid broken runs when using parallel jobs (repeat>10)
 plotfew = False # first run and plot 10 repeats (umap visualization) saved in Figures/
-
-""" Third methods set"""
 """
+""" Third methods set"""
+
 set_num = 3
 save_at = "Class_Data/meth_set_3/"
 classifiers = ["MIASA"]*2 + ["non_MD"]*1 # non_MD = Non_Metric_Distance
@@ -79,7 +79,6 @@ generate_data = load_data_twoGRN
 c_dic = "default" 
 in_threads = True # avoid broken runs when using parallel jobs (repeat>10)
 plotfew = False # first run and plot 10 repeats (umap visualization) saved in Figures/
-"""
 
 """ Simulations """
 t0 = time.time()

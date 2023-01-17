@@ -9,6 +9,8 @@ import numpy as np
 from scipy.stats import ks_2samp, kurtosis, skew
 import scipy.spatial as scSp
 from statsmodels.tsa.stattools import grangercausalitytests as GrCausTest
+import joblib as jb
+from functools import partial 
 
 import pdb
 import sys
@@ -165,11 +167,18 @@ def get_assoc_func(assoc_type, in_threads = False):
         func, ftype = dCond, "vectorized"
         
     elif assoc_type[:18] == "Granger-Cause-orig":
-        func, ftype = lambda Z: 1e-5 + GrCaus_Test_p_val(Z, diff = False, test = assoc_type[18:]) , "not_vectorized" # H0: Z[1] does NOT granger cause Z[0] and vis versa,small p_value = reject the null, we want to reject the null by definition of association, thus we take p_val
-    
+        #func, ftype = lambda Z: 1e-5 + GrCaus_Test_p_val(Z, diff = False, test = assoc_type[18:]) , "not_vectorized" # H0: Z[1] does NOT granger cause Z[0] and vis versa,small p_value = reject the null, we want to reject the null by definition of association, thus we take p_val
+        if not in_threads:
+            func, ftype = lambda Z: 1e-5 + vect_GrCaus_Test_p_val(Z, diff = False, test = assoc_type[18:]), "vectorized"
+        else:
+            func, ftype = lambda Z: 1e-5 + GrCaus_Test_p_val(Z, diff = False, test = assoc_type[18:]), "not_vectorized"
+
     elif assoc_type[:18] == "Granger-Cause-diff":
-        func, ftype = lambda Z: 1e-5 + GrCaus_Test_p_val(Z, diff = True, test = assoc_type[18:]), "not_vectorized"
-    
+        #func, ftype = lambda Z: 1e-5 + GrCaus_Test_p_val(Z, diff = True, test = assoc_type[18:]), "not_vectorized"
+        if not in_threads:
+            func, ftype = lambda Z: 1e-5 + vect_GrCaus_Test_p_val(Z, diff = True, test = assoc_type[18:]), "vectorized"
+        else:
+            func, ftype = lambda Z: 1e-5 + GrCaus_Test_p_val(Z, diff = True, test = assoc_type[18:]), "not_vectorized"
     else:
         if in_threads:
             print(assoc_type)
@@ -204,6 +213,42 @@ def GrCaus_Test_p_val(Z, maxlag = 10, diff = False, test = "chi2"):
     p_mes_2 = np.max(np.array(p_values_2))
     res = np.mean([p_mes_1, p_mes_2])
     return res
+
+def vect_GrCaus_Test_p_val(Z, diff = False, test = "chi2"):
+    X, Y = Z
+    func1 = lambda i, x, y : GrCaus_Test_p_val((x[i, :], y), diff = diff, test = test)
+    func2 = lambda j, x, y: jb.Parallel(n_jobs = 8)(jb.delayed(partial(func1, x = x, y = y[j, :]))(i) for i in range(x.shape[0]))
+    
+    res = jb.Parallel(n_jobs = 8)(jb.delayed(partial(func2, x = X, y = Y))(j) for j in range(Y.shape[0]))
+    res = np.array(res).T
+    return res
+
+
+"""
+#from numba import njit, float64, boolean, void, types
+#from numba.pycc import CC
+#cc = CC('foo_extensionlib')
+# https://numba.discourse.group/t/how-to-pass-string-argument-to-numba-njit-python-function-from-inside-another-whilst-specifying-signature-type/663/2
+#@cc.export("GC_p_1", void(types.unicode_type))
+@njit(types.Array(float64, 2, "C")(types.Array(float64, 2, "C"), types.Array(float64, 2, "C"), boolean))#, void(types.unicode_type)))
+def GC_p_1(X, y, diff = False):#, test = "chi2"):
+    res = np.zeros(X.shape[0])
+    for i in range(X.shape[0]):
+        res[i] = GrCaus_Test_p_val((X[i, :], y), diff = diff)#, test = test)
+    return res
+
+def GC_p_2(Y, X, diff = False, test = "chi2"):
+    res = np.zeros((X.shape[0], Y.shape[0]))
+    for j in range(Y.shape[0]):
+        res[:, j] = GC_p_1(X, Y[j, :], diff, test)
+    return res
+
+def vect2_GrCaus_Test_p_val(Z, diff = False, test = "chi2"):
+    X, Y = Z
+    res = GC_p_2(Y, X, diff, test)
+    return res
+
+"""
 
 def dOR(Z):
     X, Y = Z
