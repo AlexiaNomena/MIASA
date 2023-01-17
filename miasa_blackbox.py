@@ -66,7 +66,11 @@ and association measures then
                                     option 1: str vectorized     : argument full datasets (X, Y) => return directly the Asscociation distance matrix of shape (M, N) 
                                     option 2: str not_vectorized : argument samples (X_i, Y_j)   => return a scalar = Associaiton distance between sample X_i and sample Y_j
 
-        
+    Feature_dic["DMat"]  : array distance function, then Feature_dic["Asssociation_function"] Feature_dic["assoc_func_type"]   
+    Feature_dic["dist_origin"]: bool tuple (X?, Y?) deciding if the distance to the origin of the axes is interpretable as the norm of the feature representations of the samples
+                                Must be in aggreement with given Feature_dic["DMat"]
+                                if any (X?, Y?) then shape Feature_dic["DMat"].shape = (M+N+1, M+N+1) and distance to origin is placed at the M+1-th row (see function Methods.Core.CosLM.Prox_Mat)
+
 example:
     
 from Methods.Generate_Features import eCDF, get_assoc_func
@@ -74,7 +78,10 @@ metric_method = "precomputed"
 Feature_dic = {} 
 Feature_dic["Feature_X"], Feature_dic["Feature_Y"] = eCDF(X,Y)
 Feature_dic["Asssociation_function"], Feature_dic["assoc_func_type"] = get_assoc_func("KS-stat")
+Feature_dic["DMat"] = None 
+Feature_dic["dist_origin"] = (True,False) ## Only used if DMat is not None and contain distance to origin setting 
 """
+
 Feature_dic = None
 
 """ 

@@ -164,11 +164,11 @@ def get_assoc_func(assoc_type, in_threads = False):
     elif assoc_type == "dCond":
         func, ftype = dCond, "vectorized"
         
-    elif assoc_type == "Granger-Cause-orig":
-        func, ftype = lambda Z: 1e-5 + GrCaus_Test_p_val(Z, diff = False, test="params_ftest") , "not_vectorized" # H0: Z[1] does NOT granger cause Z[0] and vis versa,small p_value = reject the null, we want to reject the null by definition of association, thus we take p_val
+    elif assoc_type[:18] == "Granger-Cause-orig":
+        func, ftype = lambda Z: 1e-5 + GrCaus_Test_p_val(Z, diff = False, test = assoc_type[18:]) , "not_vectorized" # H0: Z[1] does NOT granger cause Z[0] and vis versa,small p_value = reject the null, we want to reject the null by definition of association, thus we take p_val
     
-    elif assoc_type == "Granger-Cause-diff":
-        func, ftype = lambda Z: 1e-5 + GrCaus_Test_p_val(Z, diff = True, test="params_ftest"), "not_vectorized"
+    elif assoc_type[:18] == "Granger-Cause-diff":
+        func, ftype = lambda Z: 1e-5 + GrCaus_Test_p_val(Z, diff = True, test = assoc_type[18:]), "not_vectorized"
     
     else:
         if in_threads:
@@ -178,7 +178,15 @@ def get_assoc_func(assoc_type, in_threads = False):
     return func, ftype
 
 
-def GrCaus_Test_p_val(Z, maxlag = 10, diff = False, test = "ssr_chi2test"):
+def GrCaus_Test_p_val(Z, maxlag = 10, diff = False, test = "chi2"):
+    if test == "ssr":
+        test = "ssr_ftest"
+    elif test == "params":
+        test = "params_ftest"
+    elif test == "lr":
+        test == "lrtest"
+    else:
+        test = "ssr_chi2test"
     if diff:
         Z1 = np.diff(Z[0])
         Z2 = np.diff(Z[1])

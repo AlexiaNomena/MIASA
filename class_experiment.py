@@ -14,7 +14,7 @@ import time
 
 
 """ Classification experiments for different data types """
-repeat = 2000 # Number of replicates of each experiments used for the barplots
+repeat = 2004 # Number of replicates of each experiments used for the barplots
 var_data_list = [False, True]
 var_data_list_labs = ["False", "True"]
 
@@ -57,9 +57,8 @@ clust_methods = clust_methods + ["Kmedoids"] # for non_MD
 #metric_methods = [("Corr", "dCorr"), ("Cov", "dCov"), ("Cov", "dCorr"), ("Corr", "dCov")] # test repeats 1000
 #metric_methods = [("Corr", "dCorr_v2"), ("Cov", "dCov_v2"), ("Cov", "dCorr_v2"), ("Corr", "dCov_2")] # test repeats 1100
 #metric_methods = [("OR", "dOR"), ("OR", "dCond"), ("Cond_proba", "dCond"), ("Cond_proba", "dOR")] # test repeats 1200, proba are based on number of increments and decrements
-
-metric_methods = [("Corr", "dCorr"), ("Corr", "dCond"), ("Cond_proba", "dCorr")] # test repeats 2000
-
+#metric_methods = [("Corr", "dCorr"),  ("Cond_proba", "dCond"), ("Corr", "dCond"), ("Cond_proba", "dCorr")] # test repeats 200
+metric_methods = [("Corr", "dCorr"), ("Corr", "dCond"), ("Cond_proba", "dCorr")] # chosen runs repeats 2000, 2001, 2002, 2003, 2004 (differentiating filenames for a total of ~10000 repeats)
 generate_data = generate_data_correlated
 # Euclidean embedding pameters only used in MIASA (includes a finite number of auto adjustements)
 c_dic = "default" 
@@ -73,7 +72,8 @@ save_at = "Class_Data/meth_set_3/"
 classifiers = ["MIASA"]*2 + ["non_MD"]*1 # non_MD = Non_Metric_Distance
 clust_methods = ["Kmeans", "Kmedoids"] # for MIASA
 clust_methods = clust_methods + ["Kmedoids"] # for non_MD
-metric_methods = [("Corr", "dCorr"), ("Corr", "Granger-Cause-orig"), ("Corr", "Granger-Cause-diff")] 
+#metric_methods = [("Corr", "dCorr"), ("Corr", "Granger-Cause-orig-params"), ("Corr", "Granger-Cause-diff-params")] # tested but there was not much difference between Granger-Cause-orig and Granger-Cause-diff
+metric_methods = [("Corr", "dCorr"), ("Corr", "Granger-Cause-diff-params"), ("Corr", "Granger-Cause-diff-chi2")] 
 generate_data = load_data_twoGRN
 # Euclidean embedding pameters only used in MIASA (includes a finite number of auto adjustements)
 c_dic = "default" 

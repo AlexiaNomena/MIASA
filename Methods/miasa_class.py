@@ -47,20 +47,22 @@ def Miasa_Class(X, Y, num_clust, DMat = None, c_dic = None, dist_origin = (True,
     elif metric_method[0] == "Cond_proba":
        Feature_X, Feature_Y = Cond_proba(X, Y) 
        func, ftype = get_assoc_func(assoc_type = metric_method[1], in_threads = in_threads)
-    elif metric_method[0][:-5] == "Granger-Cause":
-      if metric_method[0][:-4] == "orig":
-          diff = False
-      else:
-          diff = True
-      Feature_X, Feature_Y= Granger_Cause(X, Y, diff = diff) 
-      func, ftype = get_assoc_func(assoc_type = metric_method[1], in_threads = in_threads)
+    
+    elif metric_method[0][:13] == "Granger-Cause":
+       if metric_method[0][14:18] == "orig":
+           diff = False
+           diff = False
+       else:
+           diff = True
+       Feature_X, Feature_Y= Granger_Cause(X, Y, diff = diff) 
+       func, ftype = get_assoc_func(assoc_type = metric_method[1], in_threads = in_threads)
 
     else:
         try:
-            Feature_X, Feature_Y, func, ftype = Feature_dic["Feature_X"], Feature_dic["Feature_Y"], Feature_dic["Asssociation_function"], Feature_dic["assoc_func_type"]
+            Feature_X, Feature_Y, func, ftype, DMat, dist_origin = Feature_dic["Feature_X"], Feature_dic["Feature_Y"], Feature_dic["Asssociation_function"], Feature_dic["assoc_func_type"], Feature_dic["DMat"], Feature_dic["dist_orig"]
         except:
-            sys.exit("Check implemented metric_methods or give a parameter Feature_dic must be given: keys Feature_X (ndarray), Feature_Y (ndarray), Association_function (func) with tuple argument (X, Y), assoc_func_type(str vectorized or str not_vectorized)")
-
+            sys.exit("Check implemented metric_methods or give a parameter Feature_dic must be given: keys Feature_X (ndarray), Feature_Y (ndarray), Association_function (func) with tuple argument (X, Y), assoc_func_type (str vectorized or str not_vectorized), DMat direclty given distance matrix, dist_origin bool tuple (orig X?, orig Y) ")
+            
     Result = get_class(X, Y, Feature_X, Feature_Y, func, ftype, metric_method, c_dic, DMat, dist_origin, num_clust, clust_method, palette, in_threads = in_threads)
 
     return Result
