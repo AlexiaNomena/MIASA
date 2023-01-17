@@ -14,7 +14,7 @@ import time
 
 
 """ Classification experiments for different data types """
-repeat = 200 # Number of replicates of each experiments used for the barplots
+repeat = 2000 # Number of replicates of each experiments used for the barplots
 var_data_list = [False, True]
 var_data_list_labs = ["False", "True"]
 

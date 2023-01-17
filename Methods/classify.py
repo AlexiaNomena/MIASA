@@ -26,7 +26,7 @@ def one_classification(r, repeat, method_dic_list, var_data, generate_data, c_di
         print("Case %d -- method num %d/%d"%(var_data*1, i+1, len(method_dic_list)), "-- run %d/%d"%(r+1,repeat))
         
         # since this is the same dataset, if the metric_method is the same, then pass DMat directly to avoid recomputing it everytime for method with MIASA and Non_MD
-        if i>0:
+        if (i>0)&(Id_Class is not None):
             if method_dic_list[i]["metric_method"] != method_dic_list[i-1]["metric_method"]:
                 DMat = None
             else:
