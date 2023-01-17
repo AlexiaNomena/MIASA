@@ -14,7 +14,7 @@ import time
 
 
 """ Classification experiments for different data types """
-repeat = 100 # Number of replicates of each experiments used for the barplots
+repeat = 200 # Number of replicates of each experiments used for the barplots
 var_data_list = [False, True]
 var_data_list_labs = ["False", "True"]
 
@@ -58,7 +58,7 @@ clust_methods = clust_methods + ["Kmedoids"] # for non_MD
 #metric_methods = [("Corr", "dCorr_v2"), ("Cov", "dCov_v2"), ("Cov", "dCorr_v2"), ("Corr", "dCov_2")] # test repeats 1100
 #metric_methods = [("OR", "dOR"), ("OR", "dCond"), ("Cond_proba", "dCond"), ("Cond_proba", "dOR")] # test repeats 1200, proba are based on number of increments and decrements
 
-metric_methods = [("Corr", "dCorr"), ("Cov", "dCov"), ("Cov", "dCorr"), ("Corr", "dCov")] # test repeats 100
+metric_methods = [("Corr", "dCorr"), ("Cond_proba", "dCond"), ("Corr", "dCond"), ("Cond_proba", "dCorr")] # test repeats 200
 
 generate_data = generate_data_correlated
 # Euclidean embedding pameters only used in MIASA (includes a finite number of auto adjustements)
