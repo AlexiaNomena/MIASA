@@ -71,6 +71,37 @@ def get_NMDclass(X, Y, Feature_X, Feature_Y, func, ftype, metric_method, DMat = 
     M = Feature_X.shape[0]
     N = Feature_Y.shape[0]
     
+    if (DMat is not None)&(DMat.shape == (M+N+1, M+N+1)):
+        if (not dist_origin[0]) and (not dist_origin[1]):
+            ### remove the origin
+            """ Similarity metric """
+            DX = DMat[:M, :M]
+            DY = DMat[M+1:, M+1:]
+            
+            """Association metric"""            
+            D_assoc = DMat[:M, M+1:]
+            
+            DMat = Prox_Mat(DX, DY, UX = None, UY = None, fXY = D_assoc)
+            
+    elif (DMat is not None)&(DMat.shape == (M+N, M+N)):
+        if (dist_origin[0]) or (dist_origin[1]):
+            """ Similarity metric """
+            DX = DMat[:M, :M]
+            DY = DMat[M:, M:]
+            """Association metric"""            
+            D_assoc = DMat[:M, M:]
+            
+            """Distane to origin Optional but must be set to None if not used"""
+            Orows = np.zeros(Feature_X.shape[0])
+            Ocols = np.zeros(Feature_Y.shape[0])
+            
+            if dist_origin[0]:
+                Orows = np.linalg.norm(Feature_X, axis = 1)
+            if dist_origin[1]:
+                Ocols = np.linalg.norm(Feature_Y, axis = 1)
+            
+            DMat = Prox_Mat(DX, DY, UX = Orows, UY = Ocols, fXY = D_assoc)
+    
     if metric_method not in ("KS-stat-stat", "KS-p1-p1", "KS-p1-stat", "KS-stat-p1"):
         if DMat is None:
 
@@ -96,7 +127,6 @@ def get_NMDclass(X, Y, Feature_X, Feature_Y, func, ftype, metric_method, DMat = 
                 Ocols = None
             
             DMat = Prox_Mat(DX, DY, UX = Orows, UY = Ocols, fXY = D_assoc)
-        
     elif metric_method in ("KS-stat-stat", "KS-p1-p1"):
         if DMat is None:
             Z = np.concatenate((X, Y), axis = 0)
@@ -123,18 +153,21 @@ def get_NMDclass(X, Y, Feature_X, Feature_Y, func, ftype, metric_method, DMat = 
         else:
             sys.exit("A non-metric distance clustering method is required for Non Metric Distance \n Available here is Kmedoids")
         
-        if (dist_origin[0] or dist_origin[1]) and metric_method not in ("KS-stat-stat", "KS-p1-p1", "KS-p1-stat", "KS-stat-p1"):
+        
+        if (dist_origin[0] or dist_origin[1]) & (metric_method not in ("KS-stat-stat", "KS-p1-p1", "KS-p1-stat", "KS-stat-p1")):
             Class_pred = np.concatenate((clust_labels[:M], clust_labels[M+1:]), axis = 0)
             was_orig = True
         else:
             Class_pred = clust_labels
             was_orig = False
+            
+        print(len(Class_pred))
+            
         Result = {"shape":(M, N), "was_orig":was_orig, "Class_pred":Class_pred, "clust_labels":clust_labels, "color_clustered":color_clustered, "DMat":DMat, "X":X, "Y":Y}
     except:
         if not in_threads:
             pdb.set_trace()
         
         Result = None
-    
     return Result
     

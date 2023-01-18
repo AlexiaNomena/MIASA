@@ -111,7 +111,7 @@ def Classify_general(data_dic, class_dic, num_clust, method_dic, DMat = None, c_
         Id_Class = Miasa_Class(X, Y, num_clust, DMat = DMat, dist_origin = (Orows,Ocols), metric_method = metric_method, clust_method = clust_method, c_dic = c_dic, Feature_dic = Feature_dic, in_threads = in_threads)
         
     elif class_method == "non_MD":
-        Orows, Ocols = True, True
+        Orows, Ocols = False, False
         Id_Class = NonMetric_Class(X, Y, num_clust, DMat = DMat, dist_origin = (Orows,Ocols), metric_method = metric_method, clust_method = clust_method, Feature_dic = Feature_dic, in_threads = in_threads)
         
     """Compute accuracy metric = rand_index metric"""
