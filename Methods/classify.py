@@ -21,7 +21,7 @@ def one_classification(r, repeat, method_dic_list, var_data, generate_data, c_di
     data_dic2 = {"X":X, "Y":Y, "Class_True":Class_True, "X_vars":X_vars, "Y_vars":Y_vars}
     acc_res = []
     DMat = None
-    for i in range(len(method_dic_list)):    
+    for i in range(len(method_dic_list)):
         Id_Class, X_vars, Y_vars, acc_r = Classify_general(data_dic2, class_dic, num_clust, method_dic = method_dic_list[i], DMat = DMat, c_dic = c_dic, in_threads = in_threads)
         print("Case %d -- method num %d/%d"%(var_data*1, i+1, len(method_dic_list)), "-- run %d/%d"%(r+1,repeat))
         
@@ -40,7 +40,7 @@ def split_data(data_dic, class_dic):
     """Split data in two random groups of the same size"""
     samples = np.array(list(data_dic.keys()))
     np.random.shuffle(samples)
-    X_vars = samples[:len(samples)//3]
+    X_vars = samples[:len(samples)//2]
     Y_vars = samples[len(X_vars):]
     M = len(X_vars)
     N = len(Y_vars)
@@ -111,7 +111,7 @@ def Classify_general(data_dic, class_dic, num_clust, method_dic, DMat = None, c_
         Id_Class = Miasa_Class(X, Y, num_clust, DMat = DMat, dist_origin = (Orows,Ocols), metric_method = metric_method, clust_method = clust_method, c_dic = c_dic, Feature_dic = Feature_dic, in_threads = in_threads)
         
     elif class_method == "non_MD":
-        Orows, Ocols = False, False
+        Orows, Ocols = True, True
         Id_Class = NonMetric_Class(X, Y, num_clust, DMat = DMat, dist_origin = (Orows,Ocols), metric_method = metric_method, clust_method = clust_method, Feature_dic = Feature_dic, in_threads = in_threads)
         
     """Compute accuracy metric = rand_index metric"""

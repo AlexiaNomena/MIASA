@@ -6,7 +6,7 @@ Created on Sun Dec 18 13:39:28 2022
 @author: raharinirina
 """
 import numpy as np
-from scipy.stats import ks_2samp, kurtosis, skew
+from scipy.stats import ks_2samp, kurtosis, skew, pearsonr, spearmanr
 import scipy.spatial as scSp
 from statsmodels.tsa.stattools import grangercausalitytests as GrCausTest
 import joblib as jb
@@ -141,6 +141,15 @@ def get_assoc_func(assoc_type, in_threads = False):
         
     elif assoc_type == "KS-p2":
         func, ftype = lambda Z: np.exp(-500*ks_2samp(Z[0], Z[1]).pvalue), "not_vectorized"
+    
+    elif assoc_type == "Pearson_pval":
+        try:
+            func, ftype = lambda Z: 1e-5 + 1 - pearsonr(Z[0], Z[1]).pvalue, "not_vectorized" # expected in future versions
+        except:
+            func, ftype = lambda Z: 1e-5 + 1 - pearsonr(Z[0], Z[1])[0], "not_vectorized" # old version
+            
+    elif assoc_type == "Spearman_pval":
+        func, ftype = lambda Z: 1e-5 + 1 - spearmanr(Z[0], Z[1]).pvalue, "vectorized"
     
     elif assoc_type == "Sub_Eucl":
         func, ftype = lambda Z: np.max(np.abs(Z[0][:, np.newaxis] - Z[1][np.newaxis, :])), "vectorized"

@@ -72,42 +72,45 @@ def get_class(X, Y, Feature_X, Feature_Y, func, ftype, metric_method, c_dic, DMa
     M = Feature_X.shape[0]
     N = Feature_Y.shape[0]
     
-    if DMat is None:
+    if (DMat is not None):
+        if (DMat.shape == (M+N+1, M+N+1)):
+            ### remove the origin
+            """ Similarity metric """
+            DX = DMat[:M, :M]
+            DY = DMat[M+1:, M+1:]
+            
+            """Association metric"""            
+            D_assoc = DMat[:M, M+1:]
+        elif (DMat.shape == (M+N, M+N)):
+            """ Similarity metric """
+            DX = DMat[:M, :M]
+            DY = DMat[M:, M:]
+            """Association metric"""            
+            D_assoc = DMat[:M, M:]
+        else:
+            sys.exit("Wrong shape of distance matrix")
+    
+    else:
         """ Similarity metric """
         DX = Similarity_Distance(Feature_X, method = "Euclidean")
         DY = Similarity_Distance(Feature_Y, method = "Euclidean")
         
         """Association metric"""
-    
         Z = (X, Y)
-        
         D_assoc = Association_Distance(Z, func, ftype)
-        """Distane to origin Optional but must be set to None if not used"""
-        if dist_origin[0] or dist_origin[1]:
-            Orows = np.zeros(M)
-            Ocols = np.zeros(N)
             
-            if dist_origin[0]:
-                Orows = np.linalg.norm(Feature_X, axis = 1)
-            if dist_origin[1]:
-                Ocols = np.linalg.norm(Feature_Y, axis = 1)
-        else:
-            Orows = None
-            Ocols = None
-    else:
-        if dist_origin[0] or dist_origin[1]:
-            DX = DMat[:M, :M]
-            DY = DMat[M+1:, M+1:]
-            Orows = DMat[M+1, :M]
-            Ocols = DMat[M+1, M+1:]
-            D_assoc = DMat[:M, M+1:]
-        else:
-            DX = DMat[:M, :M]
-            DY = DMat[M:, M:]
-            Orows = None
-            Ocols = None
-            D_assoc = DMat[ :M, M:]
         
+    if (dist_origin[0]) or (dist_origin[1]):
+        """Distane to origin Optional but must be set to None if not used"""
+        Orows = np.zeros(Feature_X.shape[0])
+        Ocols = np.zeros(Feature_Y.shape[0])
+        if dist_origin[0]:
+            Orows = np.linalg.norm(Feature_X, axis = 1)
+        if dist_origin[1]:
+            Ocols = np.linalg.norm(Feature_Y, axis = 1)
+    else:
+        Orows = None
+        Ocols = None
    
     """ Get joint Euclidean embedding """
     
@@ -120,8 +123,12 @@ def get_class(X, Y, Feature_X, Feature_Y, func, ftype, metric_method, c_dic, DMa
     else:
         c_dic = c_dic
     
+    
     alpha = np.max(D_assoc) # adding a constant to the Euclidean distances to statisfy one of the conditions for embedding
-    Coords, vareps = Euclidean_Embedding(DX+alpha, DY+alpha, Orows+alpha, Ocols+alpha, D_assoc, c_dic, in_threads = in_threads)
+    if (Orows is not None) or (Ocols is not None):
+        Coords, vareps = Euclidean_Embedding(DX+alpha, DY+alpha, Orows+alpha, Ocols+alpha, D_assoc, c_dic, in_threads = in_threads)
+    else:
+        Coords, vareps = Euclidean_Embedding(DX+alpha, DY+alpha, None, None, D_assoc, c_dic, in_threads = in_threads)
     
     if Coords is not None:
         if clust_method == "Kmeans":
