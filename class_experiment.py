@@ -14,7 +14,7 @@ import time
 
 
 """ Classification experiments for different data types """
-repeat = 1 # Number of replicates of each experiments used for the barplots
+repeat = 204 # Number of replicates of each experiments used for the barplots
 var_data_list = [False, True]
 var_data_list_labs = ["False", "True"]
 
@@ -48,6 +48,7 @@ plotfew = False # first run and plot 10 repeats (umap visualization) saved in Fi
 """
 
 """ Secod methods set: Saved/meth_set_2/"""
+"""
 set_num = 2
 save_at = "Class_Data/meth_set_2/"
 classifiers = ["MIASA"]*2 + ["non_MD"]*1 # non_MD = Non_Metric_Distance
@@ -57,17 +58,16 @@ clust_methods = clust_methods + ["Kmedoids"] # for non_MD
 #metric_methods = [("Corr", "dCorr_v2"), ("Cov", "dCov_v2"), ("Cov", "dCorr_v2"), ("Corr", "dCov_2")] # test repeats 1100
 #metric_methods = [("OR", "dOR"), ("OR", "dCond"), ("Cond_proba", "dCond"), ("Cond_proba", "dOR")] # test repeats 1200, proba are based on number of increments and decrements
 #metric_methods = [("Corr", "dCorr"),  ("Cond_proba", "dCond"), ("Corr", "dCond"), ("Cond_proba", "dCorr")] # test repeats 200
-#metric_methods = [("Corr", "dCorr"), ("Corr", "dCond"), ("Cond_proba", "dCorr")] # chosen runs repeats 2000, 2001, 2002, 2003, 2004 (differentiating filenames for a total of ~10000 repeats)
-metric_methods = [("Corr", "dCorr"), ("Corr", "Pearson_pval"), ("Corr", "Spearman_pval")]
+#metric_methods = [("Corr", "dCorr"), ("Corr", "dCond"), ("Cond_proba", "dCorr")] # test repeats 2000, 2001, 2002, 2003, 2004 (differentiating filenames for a total of ~10000 repeats)
+metric_methods = [("Corr", "dCorr"), ("Corr", "Pearson_pval"), ("Corr", "Spearman_pval")] # chosen runs repeats 2005
 
 generate_data = generate_data_correlated
 # Euclidean embedding pameters only used in MIASA (includes a finite number of auto adjustements)
 c_dic = "default" 
 in_threads = True # avoid broken runs when using parallel jobs (repeat>10)
 plotfew = False # first run and plot 10 repeats (umap visualization) saved in Figures/
-
-""" Third methods set"""
 """
+""" Third methods set"""
 set_num = 3
 save_at = "Class_Data/meth_set_3/"
 classifiers = ["MIASA"]*2 + ["non_MD"]*1 # non_MD = Non_Metric_Distance
@@ -80,7 +80,6 @@ generate_data = load_data_twoGRN
 c_dic = "default" 
 in_threads = True # avoid broken runs when using parallel jobs (repeat>10)
 plotfew = False # first run and plot 10 repeats (umap visualization) saved in Figures/
-"""
 
 """ Simulations """
 t0 = time.time()
