@@ -68,52 +68,62 @@ def BarPlotClass(data, method_name, ax, fig, vert = True, labX = True, labY = Tr
 
 import pandas as pd
 def pairwise_MW(acc_list, method_name):
-    p_res_dic = {}
-    U_res_dic = {}
+    p1_dic = {}
+    U1_dic = {}
+    p2_dic = {}
+    U2_dic = {}
+    E_dic = {}
     index_list = []
     for i in range(len(acc_list)):
         key = method_name[i][:5]+"_%d"%(i+1)
-        p_res_dic[key] = []
-        U_res_dic[key] = []
+        p1_dic[key] = []
+        U1_dic[key] = []
+        p2_dic[key] = []
+        U2_dic[key] = []
+        
+        E_dic[key] = []
         
         
         for j in range(len(acc_list)):
             if i == 0:
                 index_list.append(method_name[j][:5]+"_%d"%(j+1))
-        
-            
-            if method_name[i][:5] == "MIASA" and (j+1 not in (1, 3)):
-                alternative = "greater" # j = non_MD <  i = MIASA
-            
-            elif (method_name[i][:5] == "MIASA") and ((i!=j) and (j+1 in (1, 3))):
-                if j+1 == 1:
-                    alternative = "greater" # j = MIASA >  i = MIASA
-                else:
-                    alternative = "less" # j = MIASA <  i = MIASA
-            else:
-                alternative = "less"   # i = non_MD <  j = MIASA
-                    
-        
+                
             cond1 = method_name[i][:5] != method_name[j][:5]
             cond2 = method_name[i][:6] != method_name[j][:6]
             
             if (cond1 and cond2) or ((method_name[i][:5] == "MIASA") and (i!=j) and (j+1 in (1, 3))):
-                U, pval = MW_test(acc_list[i], acc_list[j], alternative = alternative)
-                p_res_dic[key].append("%.3f"%pval)
-                U_res_dic[key].append("%.3f"%U)
-            
-            
+                U1, pval1 = MW_test(acc_list[i], acc_list[j], alternative = "greater", method = "exact")
+                U2, pval2 = MW_test(acc_list[j], acc_list[i], alternative = "greater", method = "exact")
+
+                p1_dic[key].append("%.3f"%pval1)
+                U1_dic[key].append("%.3f"%U1)
+                
+                p2_dic[key].append("%.3f"%pval2)
+                U2_dic[key].append("%.3f"%U2)
+                
+                U = max(U1, U2)
+                E_dic[key].append("%.3f"%(1 - ((2*U)/(len(acc_list[i])*len(acc_list[j])))))
+
             else:
-                p_res_dic[key].append("--")
-                U_res_dic[key].append("--")
+                p1_dic[key].append("--")
+                U1_dic[key].append("--")
+                p2_dic[key].append("--")
+                U2_dic[key].append("--")
+                E_dic[key].append("--")
             
-    df1 = pd.DataFrame(p_res_dic, index = index_list)
-    df2 = pd.DataFrame(U_res_dic, index = index_list)
-    return df1, df2         
+    P1 = pd.DataFrame(p1_dic, index = index_list)
+    U1 = pd.DataFrame(U1_dic, index = index_list)
+    P2 = pd.DataFrame(p2_dic, index = index_list)
+    U2 = pd.DataFrame(U2_dic, index = index_list)
+    
+    Eff_size = pd.DataFrame(E_dic, index = index_list)
+
+    return P1, U1, P2, U2, Eff_size   
+ 
 
 if __name__ == "__main__": 
     var_data_list_labs = ["False", "True"]
-    Fig_title = ("Fixed sample size", "Random sample size")
+    Fig_title = ("Fixed ssize", "Random ssize")
     
     """ Plot first method set """
     set_num_1 = 1
@@ -123,7 +133,7 @@ if __name__ == "__main__":
     exclude_1_b = ["MIASA-(eCDF, eCDF)--Kmeans", "MIASA-(eCDF, KS-p1)--Kmeans"]
     slim_1 = (0.5, 1.1) # range of statistic to show on final plot
     sticks_1 = np.arange(0.5, 1.1, 0.1)
-    name_1 = "Dist. data"
+    name_1 = "Dist."
     
     """ Plot second method set """
     set_num_2 = 2
@@ -133,7 +143,7 @@ if __name__ == "__main__":
     exclude_2_b = ["MIASA-(Corr, dCorr)--Kmeans", "MIASA-(Corr, Pearson_pval)--Kmeans"]
     slim_2 = (0.65, 0.74) # range of statistic to show on final plot
     sticks_2 = np.arange(0.65, 0.74+0.01, 0.01)
-    name_2 = "Corr. data"
+    name_2 = "Corr."
     
     """ Plot third method set"""
     set_num_3 = 3
@@ -143,7 +153,7 @@ if __name__ == "__main__":
     exclude_3_b = ["MIASA-(Corr, dCorr)--Kmeans", "MIASA-(Corr, Granger-Cause-diff-chi2)--Kmeans"]
     slim_3 = (0.52, 0.64) # range of statistic to show on final plot
     sticks_3 = np.arange(0.52, 0.64+0.01, 0.02)
-    name_3 = "GRN data"
+    name_3 = "GRN"
     
     ''' Separated & Together '''
     set_num_list = [set_num_1, set_num_2, set_num_3]
@@ -162,9 +172,11 @@ if __name__ == "__main__":
     
     pdfb_all_MW = PdfPages("Figures/Paper_MW_RI.pdf")
     PreFig(xsize = 20, ysize = 20)
-    fig_all_MW = plt.figure(figsize = (10, 15))
-    plt.subplots_adjust(bottom = 0.06, right = 0.95, left = 0.06, top = 0.90, wspace = 0.05, hspace = 0.05)
-
+    fig_all_MW_1 = plt.figure(figsize = (10, 15))
+    #plt.subplots_adjust(bottom = 0.06, right = 0.95, left = 0.06, top = 0.90, wspace = 0.05, hspace = 0.05)
+    fig_all_MW_2 = plt.figure(figsize = (10, 15))
+    #plt.subplots_adjust(bottom = 0.06, right = 0.95, left = 0.06, top = 0.90, wspace = 0.05, hspace = 0.05)
+    
     k_all = 0
     for p in range(len(set_num_list)):
         set_num = set_num_list[p]
@@ -181,7 +193,9 @@ if __name__ == "__main__":
             ax.set_title("%s"%Fig_title[j])
 
             ax_all = fig_all.add_subplot(int("%d%d%d"%(3, 2, k_all+k)))
-            ax_MW = fig_all_MW.add_subplot(int("%d%d%d"%(3, 2, k_all+k)))
+            ax_MW_1 = fig_all_MW_1.add_subplot(int("%d%d%d"%(3, 2, k_all+k)))
+            ax_MW_2 = fig_all_MW_2.add_subplot(int("%d%d%d"%(3, 2, k_all+k)))
+
             for n in range(len(repeat_list)): 
                 repeat = repeat_list[n]
                 file = open(save_at + "Accuracy_set_%d_%d_varS%s.pck"%(set_num, repeat, var_data_list_labs[j]), "rb")
@@ -231,11 +245,19 @@ if __name__ == "__main__":
             else:
                 ax_all.set_yticks(ticks, [" " for t in ticks])
             
-            df1, df2 = pairwise_MW(acc_list_2, method_name_2)
-            ax_MW.set_title("(%s) %s"%(meth_list[p], Fig_title[j]))
-            pd.plotting.table(ax_MW, df1, loc = "upper center", colWidths = [0.75/len(method_name_2)]*len(method_name_2))
-            pd.plotting.table(ax_MW, df2, loc = "center", colWidths = [0.75/len(method_name_2)]*len(method_name_2))
-            ax_MW.axis("off")
+            P1, U1, P2, U2, Eff_size = pairwise_MW(acc_list_2, method_name_2)
+            ax_MW_1.set_title("(%s) %s, H0: col = row. H1 col > row"%(meth_list[p], Fig_title[j]))
+            pd.plotting.table(ax_MW_1, P1, loc = "upper center", colWidths = [0.75/len(method_name_2)]*len(method_name_2))
+            pd.plotting.table(ax_MW_1, U1, loc = "center", colWidths = [0.75/len(method_name_2)]*len(method_name_2))
+            pd.plotting.table(ax_MW_1, Eff_size, loc = "lower center", colWidths = [0.75/len(method_name_2)]*len(method_name_2))
+            ax_MW_1.axis("off")
+            
+            ax_MW_2.set_title("(%s) %s, H0: col = row. H1 col < row"%(meth_list[p], Fig_title[j]))
+            pd.plotting.table(ax_MW_2, P2, loc = "upper center", colWidths = [0.75/len(method_name_2)]*len(method_name_2))
+            pd.plotting.table(ax_MW_2, U2, loc = "center", colWidths = [0.75/len(method_name_2)]*len(method_name_2))
+            pd.plotting.table(ax_MW_2, Eff_size, loc = "lower center", colWidths = [0.75/len(method_name_2)]*len(method_name_2))
+            
+            ax_MW_2.axis("off")
             k += 1
             
         pdfb = PdfPages("Figures/Paper_Fig_RI_%d_infos.pdf"%set_num)    
@@ -247,6 +269,7 @@ if __name__ == "__main__":
     pdfb_all.savefig(fig_all, bbox_inches = "tight")
     pdfb_all.close()
     
-    pdfb_all_MW.savefig(fig_all_MW, bbox_inches = "tight")
+    pdfb_all_MW.savefig(fig_all_MW_1, bbox_inches = "tight")
+    pdfb_all_MW.savefig(fig_all_MW_2, bbox_inches = "tight")
     pdfb_all_MW.close()
         
