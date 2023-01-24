@@ -72,7 +72,8 @@ def pairwise_MW(acc_list, method_name):
     U1_dic = {}
     p2_dic = {}
     U2_dic = {}
-    E_dic = {}
+    E1_dic = {}
+    E2_dic = {}
     index_list = []
     for i in range(len(acc_list)):
         key = method_name[i][:5]+"_%d"%(i+1)
@@ -80,9 +81,8 @@ def pairwise_MW(acc_list, method_name):
         U1_dic[key] = []
         p2_dic[key] = []
         U2_dic[key] = []
-        
-        E_dic[key] = []
-        
+        E1_dic[key] = []
+        E2_dic[key] = []
         
         for j in range(len(acc_list)):
             if i == 0:
@@ -92,33 +92,38 @@ def pairwise_MW(acc_list, method_name):
             cond2 = method_name[i][:6] != method_name[j][:6]
             
             if (cond1 and cond2) or ((method_name[i][:5] == "MIASA") and (i!=j) and (j+1 in (1, 3))):
-                U1, pval1 = MW_test(acc_list[i], acc_list[j], alternative = "greater", method = "exact")
-                U2, pval2 = MW_test(acc_list[j], acc_list[i], alternative = "greater", method = "exact")
-
+                U1, pval1 = MW_test(acc_list[i], acc_list[j], alternative = "greater")
+                U2, pval2 = MW_test(acc_list[j], acc_list[i], alternative = "greater")
+                
                 p1_dic[key].append("%.3f"%pval1)
                 U1_dic[key].append("%.3f"%U1)
                 
                 p2_dic[key].append("%.3f"%pval2)
                 U2_dic[key].append("%.3f"%U2)
                 
-                U = max(U1, U2)
-                E_dic[key].append("%.3f"%(1 - ((2*U)/(len(acc_list[i])*len(acc_list[j])))))
+                n1, n2 = len(acc_list[i]),len(acc_list[j])
+                mu1 = (n1*n2)/2
+                mu2 = (n1*n2)/2
+                E1_dic[key].append("%.3f"%(1 - U1/mu1))
+                E2_dic[key].append("%.3f"%(1 - U2/mu2))
 
             else:
                 p1_dic[key].append("--")
                 U1_dic[key].append("--")
                 p2_dic[key].append("--")
                 U2_dic[key].append("--")
-                E_dic[key].append("--")
+                E1_dic[key].append("--")
+                E2_dic[key].append("--")
             
     P1 = pd.DataFrame(p1_dic, index = index_list)
     U1 = pd.DataFrame(U1_dic, index = index_list)
+    
     P2 = pd.DataFrame(p2_dic, index = index_list)
     U2 = pd.DataFrame(U2_dic, index = index_list)
     
-    Eff_size = pd.DataFrame(E_dic, index = index_list)
-
-    return P1, U1, P2, U2, Eff_size   
+    Eff_size1 = pd.DataFrame(E1_dic, index = index_list)
+    Eff_size2 = pd.DataFrame(E2_dic, index = index_list)
+    return P1, U1, P2, U2, Eff_size1, Eff_size2   
  
 
 if __name__ == "__main__": 
@@ -245,17 +250,17 @@ if __name__ == "__main__":
             else:
                 ax_all.set_yticks(ticks, [" " for t in ticks])
             
-            P1, U1, P2, U2, Eff_size = pairwise_MW(acc_list_2, method_name_2)
+            P1, U1, P2, U2, Eff_size1, Eff_size2 = pairwise_MW(acc_list_2, method_name_2)
             ax_MW_1.set_title("(%s) %s, H0: col = row. H1 col > row"%(meth_list[p], Fig_title[j]))
-            pd.plotting.table(ax_MW_1, P1, loc = "upper center", colWidths = [0.75/len(method_name_2)]*len(method_name_2))
+            pd.plotting.table(ax_MW_1, P1, loc = "upper center", colWidths = [0.75/len(method_name_2)]*len(method_name_2), label = "p-value")
             pd.plotting.table(ax_MW_1, U1, loc = "center", colWidths = [0.75/len(method_name_2)]*len(method_name_2))
-            pd.plotting.table(ax_MW_1, Eff_size, loc = "lower center", colWidths = [0.75/len(method_name_2)]*len(method_name_2))
+            pd.plotting.table(ax_MW_1, Eff_size1, loc = "lower center", colWidths = [0.75/len(method_name_2)]*len(method_name_2))
             ax_MW_1.axis("off")
             
             ax_MW_2.set_title("(%s) %s, H0: col = row. H1 col < row"%(meth_list[p], Fig_title[j]))
             pd.plotting.table(ax_MW_2, P2, loc = "upper center", colWidths = [0.75/len(method_name_2)]*len(method_name_2))
             pd.plotting.table(ax_MW_2, U2, loc = "center", colWidths = [0.75/len(method_name_2)]*len(method_name_2))
-            pd.plotting.table(ax_MW_2, Eff_size, loc = "lower center", colWidths = [0.75/len(method_name_2)]*len(method_name_2))
+            pd.plotting.table(ax_MW_2, Eff_size2, loc = "lower center", colWidths = [0.75/len(method_name_2)]*len(method_name_2))
             
             ax_MW_2.axis("off")
             k += 1
