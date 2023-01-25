@@ -79,7 +79,7 @@ def generate_data_dist(var_data = False, noise = False):
 
 def generate_data_correlated(var_data = False, noise = False):
     """Generate Artificial data from bivariate distributions """
-    per_spl = 200 # Num of iid observation in each samples 
+    per_spl = 500 # Num of iid observation in each samples 
     data_dic = {}
     class_type1 = ["1a", "1b", "1c"] # bivariate Normal Dist
     mean_list = np.random.choice(10, size = (len(class_type1), 2), replace = False) # not allowing repeating means

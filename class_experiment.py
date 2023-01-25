@@ -14,7 +14,7 @@ import time
 
 
 """ Classification experiments for different data types """
-repeat = 205 # Number of replicates of each experiments used for the barplots
+repeat = 2006 #207 # Number of replicates of each experiments used for the barplots
 var_data_list = [False, True]
 var_data_list_labs = ["False", "True"]
 
@@ -48,7 +48,7 @@ plotfew = False # first run and plot 10 repeats (umap visualization) saved in Fi
 """
 
 """ Secod methods set: Saved/meth_set_2/"""
-"""
+
 set_num = 2
 save_at = "Class_Data/meth_set_2/"
 classifiers = ["MIASA"]*2 + ["non_MD"]*1 # non_MD = Non_Metric_Distance
@@ -62,14 +62,14 @@ clust_methods = clust_methods + ["Kmedoids"] # for non_MD
 #metric_methods = [("Corr", "dCorr"), ("Corr", "Pearson_pval"), ("Corr", "Spearman_pval")] # chosen runs sample size = 200, repeats 2005
 metric_methods = [("Corr", "dCorr"), ("Corr", "Pearson_pval"), ("Corr", "Spearman_pval")] # chosen runs sample size = 500, repeats 2006
 
-
 generate_data = generate_data_correlated
 # Euclidean embedding pameters only used in MIASA (includes a finite number of auto adjustements)
 c_dic = "default" 
 in_threads = True # avoid broken runs when using parallel jobs (repeat>10)
 plotfew = False # first run and plot 10 repeats (umap visualization) saved in Figures/
-"""
+
 """ Third methods set"""
+"""
 set_num = 3
 save_at = "Class_Data/meth_set_3/"
 classifiers = ["MIASA"]*2 + ["non_MD"]*1 # non_MD = Non_Metric_Distance
@@ -82,7 +82,7 @@ generate_data = load_data_twoGRN
 c_dic = "default" 
 in_threads = True # avoid broken runs when using parallel jobs (repeat>10)
 plotfew = False # first run and plot 10 repeats (umap visualization) saved in Figures/
-
+"""
 """ Simulations """
 t0 = time.time()
 for j in range(len(var_data_list)):
