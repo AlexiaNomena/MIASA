@@ -6,7 +6,7 @@ Created on Sun Dec 18 13:21:27 2022
 @author: raharinirina
 """
 from Methods.classify import repeated_classifications, plotClass, BarPlotClass
-from Methods.simulate_class_data import generate_data_dist, generate_data_correlated, load_data_twoGRN
+from Methods.simulate_class_data import generate_data_dist, generate_data_correlated, generate_data_correlated_2, load_data_twoGRN
 import pdb
 from matplotlib.backends.backend_pdf import PdfPages
 import pickle
@@ -14,7 +14,7 @@ import time
 
 
 """ Classification experiments for different data types """
-repeat = 2006 #207 # Number of replicates of each experiments used for the barplots
+repeat = 2 # Number of replicates of each experiments used for the barplots
 var_data_list = [False, True]
 var_data_list_labs = ["False", "True"]
 
@@ -51,7 +51,7 @@ plotfew = False # first run and plot 10 repeats (umap visualization) saved in Fi
 
 set_num = 2
 save_at = "Class_Data/meth_set_2/"
-classifiers = ["MIASA"]*2 + ["non_MD"]*1 # non_MD = Non_Metric_Distance
+classifiers = ["MIASA"]*2 + ["non_MD"]*1 # non_MD = Non_Metric_Distance = Non_MIASA
 clust_methods = ["Kmeans", "Kmedoids"] # for MIASA
 clust_methods = clust_methods + ["Kmedoids"] # for non_MD
 #metric_methods = [("Corr", "dCorr"), ("Cov", "dCov"), ("Cov", "dCorr"), ("Corr", "dCov")] # sample size = 200, test repeats 1000
@@ -59,14 +59,17 @@ clust_methods = clust_methods + ["Kmedoids"] # for non_MD
 #metric_methods = [("OR", "dOR"), ("OR", "dCond"), ("Cond_proba", "dCond"), ("Cond_proba", "dOR")] # sample size = 200, test repeats 1200, proba are based on number of increments and decrements
 #metric_methods = [("Corr", "dCorr"),  ("Cond_proba", "dCond"), ("Corr", "dCond"), ("Cond_proba", "dCorr")] # sample size = 200, test repeats 200
 #metric_methods = [("Corr", "dCorr"), ("Corr", "dCond"), ("Cond_proba", "dCorr")] # sample size = 200, test repeats 2000, 2001, 2002, 2003, 2004 (differentiating filenames for a total of ~10000 repeats)
-#metric_methods = [("Corr", "dCorr"), ("Corr", "Pearson_pval"), ("Corr", "Spearman_pval")] # chosen runs sample size = 200, repeats 2005
-metric_methods = [("Corr", "dCorr"), ("Corr", "Pearson_pval"), ("Corr", "Spearman_pval")] # chosen runs sample size = 500, repeats 2006
+#metric_methods = [("Corr", "dCorr"), ("Corr", "Pearson_pval"), ("Corr", "Spearman_pval")] # test runs sample size = 500, repeats 2006 (only small improvements)
+#metric_methods = [("Corr", "dCorr"), ("Corr", "Pearson_pval"), ("Corr", "Spearman_pval")] # test runs, only bivariate normal dist, sample size = 200, repeats 2007 (no difference between MIASA and non-MD for corr, dcorr, large difference for other)
 
-generate_data = generate_data_correlated
+metric_methods = [("Corr", "dCorr"), ("Corr", "Pearson_pval"), ("Corr", "Spearman_pval")] # chosen runs sample size = 200, repeats 2005
+
+generate_data = generate_data_correlated_2
 # Euclidean embedding pameters only used in MIASA (includes a finite number of auto adjustements)
 c_dic = "default" 
 in_threads = True # avoid broken runs when using parallel jobs (repeat>10)
 plotfew = False # first run and plot 10 repeats (umap visualization) saved in Figures/
+
 
 """ Third methods set"""
 """
@@ -83,6 +86,7 @@ c_dic = "default"
 in_threads = True # avoid broken runs when using parallel jobs (repeat>10)
 plotfew = False # first run and plot 10 repeats (umap visualization) saved in Figures/
 """
+
 """ Simulations """
 t0 = time.time()
 for j in range(len(var_data_list)):

@@ -79,7 +79,7 @@ def generate_data_dist(var_data = False, noise = False):
 
 def generate_data_correlated(var_data = False, noise = False):
     """Generate Artificial data from bivariate distributions """
-    per_spl = 500 # Num of iid observation in each samples 
+    per_spl = 200 # Num of iid observation in each samples 
     data_dic = {}
     class_type1 = ["1a", "1b", "1c"] # bivariate Normal Dist
     mean_list = np.random.choice(10, size = (len(class_type1), 2), replace = False) # not allowing repeating means
@@ -133,7 +133,60 @@ def generate_data_correlated(var_data = False, noise = False):
     dtp = ("<U4", "<U4") #This is the type of the labels checked from printing
     return data_dic, class_dic, num_clust, dtp
 
-
+def generate_data_correlated_2(var_data = False, noise = False):
+    """Generate Artificial data from bivariate distributions """
+    per_spl = 200 # Num of iid observation in each samples 
+    data_dic = {}
+    class_type1 = ["1a", "1b", "1c"] # bivariate Normal Dist
+    mean_list1 = np.random.choice(10, size = (len(class_type1), 2), replace = False) # not allowing repeating means
+    var1 =  np.random.uniform(2, 5, size = (len(class_type1), 2)) # 2*np.ones((len(class_type1), 2)) # fix variance for stability of stimulations
+    corr1 = np.random.uniform(-1, 1, size = len(class_type1)) # always has to be less than the variance for a PSD covariance matrix (Gershgorin)
+    
+    class_type2 = ["2a", "2b", "2c"] # bivariate t Dist
+    mean_list2 = np.random.choice(15, size = (len(class_type2), 2), replace = False)
+    var2 = np.random.uniform(2, 5, size = (len(class_type1), 2)) # 2*np.ones((len(class_type1), 2)) # fix variance for stability of stimulations
+    corr2 = np.random.uniform(-1, 1, size = len(class_type2))
+    
+    
+    num_clust = len(class_type1) + len(class_type2)
+    labs = np.cumsum(np.ones(num_clust)) - 1
+    
+    # Number of samples per classes
+    MaxNumVar = 25
+    if var_data:
+        num_var_list = np.random.choice(np.arange(2, MaxNumVar), size = len(labs))
+        num_var = {labs[k]: num_var_list[k] for k in range(len(labs))}
+    else:
+        num_var = {labs[k]:MaxNumVar for k in range(len(labs))}
+    
+    
+    class_dic = {}
+    k = 0
+    for i in range(3):
+        lab = labs[k:k+2]
+        for j in range(MaxNumVar + 1):
+            if j < num_var[lab[0]]:
+                cov_i = np.array([[0, corr1[i]], [corr1[i], 0]]) + np.diag(var1[i, :])
+                Z = np.random.multivariate_normal(mean_list1[i, :], cov_i, size = per_spl)
+                data_dic[class_type1[i]+"%d_%d"%(j+1, 0)] = Z[:, 0]
+                class_dic[class_type1[i]+"%d_%d"%(j+1, 0)] = lab[0]
+                
+                data_dic[class_type1[i]+"%d_%d"%(j+1, 1)] = Z[:, 1]
+                class_dic[class_type1[i]+"%d_%d"%(j+1, 1)] = lab[0]
+                
+            if j < num_var[lab[1]]:
+                cov_i = np.array([[0, corr2[i]], [corr2[i], 0]]) + np.diag(var2[i, :])
+                Z = np.random.multivariate_normal(mean_list2[i, :], cov_i, size = per_spl)
+                
+                data_dic[class_type2[i]+"%d_%d"%(j+1, 0)] = Z[:, 0]
+                class_dic[class_type2[i]+"%d_%d"%(j+1, 0)] = lab[1]
+                
+                data_dic[class_type2[i]+"%d_%d"%(j+1, 1)] = Z[:, 1]
+                class_dic[class_type2[i]+"%d_%d"%(j+1, 1)] = lab[1]
+               
+        k += 2    
+    dtp = ("<U4", "<U4") #This is the type of the labels checked from printing
+    return data_dic, class_dic, num_clust, dtp
 
 """ Classification Experiment on random samples from SSA of two Gene Regulation Network """
 """ GRN_Models folder containing all relevant modules Can be downloaded from https://github.com/vikramsunkara/ScRNAseqMoments"""
