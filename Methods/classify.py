@@ -37,11 +37,12 @@ def one_classification(r, repeat, method_dic_list, var_data, generate_data, c_di
 
 
 def split_data(data_dic, class_dic, separation = False):
+    pdb.set_trace()
+    
     if separation:
         """Extract separated data"""
-        X_vars = data_dic["X_ids"]
-        Y_vars = data_dic["Y_ids"]
-        samples = np.concatenate(np.array(X_vars), np.array(Y_vars))
+        X_vars = data_dic["X_vars"]
+        Y_vars = data_dic["Y_vars"]
     else:
         """Split data in two random groups of the same size"""
         samples = np.array(list(data_dic.keys()))
@@ -49,13 +50,13 @@ def split_data(data_dic, class_dic, separation = False):
         X_vars = samples[:len(samples)//2]
         Y_vars = samples[len(X_vars):]
         
-        
     M = len(X_vars)
     N = len(Y_vars)
     X = np.array([data_dic[X_vars[i]] for i in range(M)])
     Y = np.array([data_dic[Y_vars[i]] for i in range(N)])
     """ True Classes """
-    Class_True = np.array([class_dic[samples[i]] for i in range(len(samples))])
+    Vars = X_vars + Y_vars
+    Class_True = np.array([class_dic[Vars[i]] for i in range(len(Vars))])
     return X, Y, Class_True, X_vars, Y_vars
 
 import joblib as jb
