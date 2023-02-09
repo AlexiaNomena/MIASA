@@ -15,9 +15,9 @@ import pdb
 import sys
 
 """ Classification general setting """
-def one_classification(r, repeat, method_dic_list, var_data, generate_data, c_dic = "default", in_threads = True):
+def one_classification(r, repeat, method_dic_list, var_data, generate_data, c_dic = "default", in_threads = True, separation = False):
     data_dic, class_dic, num_clust, dtp = generate_data(var_data) # use the same dataset for all methods
-    X, Y, Class_True, X_vars, Y_vars = split_data(data_dic, class_dic)
+    X, Y, Class_True, X_vars, Y_vars = split_data(data_dic, class_dic, separation)
     data_dic2 = {"X":X, "Y":Y, "Class_True":Class_True, "X_vars":X_vars, "Y_vars":Y_vars}
     acc_res = []
     DMat = None
@@ -36,25 +36,31 @@ def one_classification(r, repeat, method_dic_list, var_data, generate_data, c_di
     return acc_res
 
 
-def split_data(data_dic, class_dic):
-    """Split data in two random groups of the same size"""
-    samples = np.array(list(data_dic.keys()))
-    np.random.shuffle(samples)
-    X_vars = samples[:len(samples)//2]
-    Y_vars = samples[len(X_vars):]
+def split_data(data_dic, class_dic, separation = False):
+    if separation:
+        """Extract separated data"""
+        X_vars = data_dic["X_ids"]
+        Y_vars = data_dic["Y_ids"]
+        samples = np.concatenate(np.array(X_vars), np.array(Y_vars))
+    else:
+        """Split data in two random groups of the same size"""
+        samples = np.array(list(data_dic.keys()))
+        np.random.shuffle(samples)
+        X_vars = samples[:len(samples)//2]
+        Y_vars = samples[len(X_vars):]
+        
+        
     M = len(X_vars)
     N = len(Y_vars)
-    
     X = np.array([data_dic[X_vars[i]] for i in range(M)])
     Y = np.array([data_dic[Y_vars[i]] for i in range(N)])
     """ True Classes """
-    Class_True = np.array([class_dic[samples[i]] for i in range(M+N)])
-    
+    Class_True = np.array([class_dic[samples[i]] for i in range(len(samples))])
     return X, Y, Class_True, X_vars, Y_vars
 
 import joblib as jb
 from functools import partial
-def repeated_classifications(repeat, method_dic_list, generate_data, var_data = False, n_jobs = -1, plot = True, c_dic = "default", in_threads = True): 
+def repeated_classifications(repeat, method_dic_list, generate_data, var_data = False, n_jobs = -1, plot = True, c_dic = "default", in_threads = True, separation = False): 
     repeat = 10 + repeat
         
     acc_list = []
@@ -64,7 +70,7 @@ def repeated_classifications(repeat, method_dic_list, generate_data, var_data = 
         for r in range(10):
             sub_list = []
             data_dic, class_dic, num_clust, dtp = generate_data(var_data)
-            X, Y, Class_True, X_vars, Y_vars = split_data(data_dic, class_dic)
+            X, Y, Class_True, X_vars, Y_vars = split_data(data_dic, class_dic, separation)
             data_dic2 = {"X":X, "Y":Y, "Class_True":Class_True, "X_vars":X_vars, "Y_vars":Y_vars}
             for i in range(len(method_dic_list)):    
                 Id_Class, X_vars, Y_vars, acc_r = Classify_general(data_dic2, class_dic, num_clust, method_dic = method_dic_list[i], DMat = None, c_dic = c_dic, in_threads = in_threads)

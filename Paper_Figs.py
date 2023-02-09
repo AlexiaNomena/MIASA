@@ -162,7 +162,7 @@ if __name__ == "__main__":
     """ Plot third method set"""
     set_num_3 = 3
     save_at_3 = "Class_Data/meth_set_3/"
-    repeat_3 = [200, 201, 202, 203, 204, 205, 206]#, 207, 208, 209]
+    repeat_3 = [200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210]
     exclude_3 = ("MIASA-(Corr, Granger-Cause-diff-params)--Kmeans", "MIASA-(Corr, Granger-Cause-diff-params)--Kmedoids", "non_MD-(Corr, Granger-Cause-diff-params)--Kmedoids")
     exclude_3_b = ["MIASA-(Corr, dCorr)--Kmeans", "MIASA-(Corr, Granger-Cause-diff-chi2)--Kmeans"]
     slim_3 = (0.52, 0.6)#0.64) # range of statistic to show on final plot

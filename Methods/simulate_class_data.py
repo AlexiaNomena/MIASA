@@ -91,7 +91,7 @@ def generate_data_correlated(var_data = False, noise = False):
     loc_list = np.random.choice(10, size = (len(class_type1), 2), replace = False) # not allowing repeating means
     var2 = np.random.uniform(2, 5, size = (len(class_type1), 2)) # 2*np.ones((len(class_type1), 2)) # fix variance for stability of stimulations
     corr2 = np.random.uniform(-1, 1, size = len(class_type2))
-    
+
     
     num_clust = len(class_type1) + len(class_type2)
     labs = np.cumsum(np.ones(num_clust)) - 1
@@ -104,6 +104,9 @@ def generate_data_correlated(var_data = False, noise = False):
     else:
         num_var = {labs[k]:MaxNumVar for k in range(len(labs))}
     
+    ## collecting separated samples
+    data_dic["X_vars"] = []
+    data_dic["Y_vars"] = []
     
     class_dic = {}
     k = 0
@@ -115,9 +118,12 @@ def generate_data_correlated(var_data = False, noise = False):
                 Z = np.random.multivariate_normal(mean_list[i, :], cov_i, size = per_spl)
                 data_dic[class_type1[i]+"%d_%d"%(j+1, 0)] = Z[:, 0]
                 class_dic[class_type1[i]+"%d_%d"%(j+1, 0)] = lab[0]
+                data_dic["X_vars"].append(class_type1[i]+"%d_%d"%(j+1, 0))
                 
                 data_dic[class_type1[i]+"%d_%d"%(j+1, 1)] = Z[:, 1]
                 class_dic[class_type1[i]+"%d_%d"%(j+1, 1)] = lab[0]
+                data_dic["Y_vars"].append(class_type1[i]+"%d_%d"%(j+1, 1))
+
                 
             if j < num_var[lab[1]]:
                 cov_i = np.array([[0, corr2[i]], [corr2[i], 0]]) + np.diag(var2[i, :])
@@ -125,9 +131,11 @@ def generate_data_correlated(var_data = False, noise = False):
                 Z = frozen_t.rvs(size = per_spl)
                 data_dic[class_type2[i]+"%d_%d"%(j+1, 0)] = Z[:, 0]
                 class_dic[class_type2[i]+"%d_%d"%(j+1, 0)] = lab[1]
+                data_dic["X_vars"].append(class_type2[i]+"%d_%d"%(j+1, 0))
                 
                 data_dic[class_type2[i]+"%d_%d"%(j+1, 1)] = Z[:, 1]
                 class_dic[class_type2[i]+"%d_%d"%(j+1, 1)] = lab[1]
+                data_dic["Y_vars"].append(class_type2[i]+"%d_%d"%(j+1, 1))
                
         k += 2    
     dtp = ("<U4", "<U4") #This is the type of the labels checked from printing
@@ -142,7 +150,7 @@ def generate_data_correlated_2(var_data = False, noise = False):
     var1 =  np.random.uniform(2, 5, size = (len(class_type1), 2)) # 2*np.ones((len(class_type1), 2)) # fix variance for stability of stimulations
     corr1 = np.random.uniform(-1, 1, size = len(class_type1)) # always has to be less than the variance for a PSD covariance matrix (Gershgorin)
     
-    class_type2 = ["2a", "2b", "2c"] # bivariate t Dist
+    class_type2 = ["2a", "2b", "2c"] # bivariate_Normal Dist
     mean_list2 = np.random.choice(15, size = (len(class_type2), 2), replace = False)
     var2 = np.random.uniform(2, 5, size = (len(class_type1), 2)) # 2*np.ones((len(class_type1), 2)) # fix variance for stability of stimulations
     corr2 = np.random.uniform(-1, 1, size = len(class_type2))
@@ -159,6 +167,9 @@ def generate_data_correlated_2(var_data = False, noise = False):
     else:
         num_var = {labs[k]:MaxNumVar for k in range(len(labs))}
     
+    ## collecting separated samples
+    data_dic["X_vars"] = []
+    data_dic["Y_vars"] = []
     
     class_dic = {}
     k = 0
@@ -170,20 +181,24 @@ def generate_data_correlated_2(var_data = False, noise = False):
                 Z = np.random.multivariate_normal(mean_list1[i, :], cov_i, size = per_spl)
                 data_dic[class_type1[i]+"%d_%d"%(j+1, 0)] = Z[:, 0]
                 class_dic[class_type1[i]+"%d_%d"%(j+1, 0)] = lab[0]
+                data_dic["X_vars"].append(class_type1[i]+"%d_%d"%(j+1, 0))
                 
                 data_dic[class_type1[i]+"%d_%d"%(j+1, 1)] = Z[:, 1]
                 class_dic[class_type1[i]+"%d_%d"%(j+1, 1)] = lab[0]
-                
+                data_dic["Y_vars"].append(class_type1[i]+"%d_%d"%(j+1, 1))
+
             if j < num_var[lab[1]]:
                 cov_i = np.array([[0, corr2[i]], [corr2[i], 0]]) + np.diag(var2[i, :])
                 Z = np.random.multivariate_normal(mean_list2[i, :], cov_i, size = per_spl)
                 
                 data_dic[class_type2[i]+"%d_%d"%(j+1, 0)] = Z[:, 0]
                 class_dic[class_type2[i]+"%d_%d"%(j+1, 0)] = lab[1]
-                
+                data_dic["X_vars"].append(class_type2[i]+"%d_%d"%(j+1, 0))
+
                 data_dic[class_type2[i]+"%d_%d"%(j+1, 1)] = Z[:, 1]
                 class_dic[class_type2[i]+"%d_%d"%(j+1, 1)] = lab[1]
-               
+                data_dic["Y_vars"].append(class_type2[i]+"%d_%d"%(j+1, 1))
+
         k += 2    
     dtp = ("<U4", "<U4") #This is the type of the labels checked from printing
     return data_dic, class_dic, num_clust, dtp
@@ -229,6 +244,11 @@ def generate_data_twoGRN(var_data = False, noise = False):
     else:
         num_var = {labs[k]:MaxNumVar for k in range(len(labs))}
     
+    
+    ## collecting separated samples
+    data_dic["X_vars"] = []
+    data_dic["Y_vars"] = []
+    
     class_dic = {}
     k = 0
     """
@@ -237,14 +257,15 @@ def generate_data_twoGRN(var_data = False, noise = False):
         for j in range(MaxNumVar + 1):
             print(i, j)
             if j < num_var[lab[0]]:
+                data_dic["X_vars"].append(class_type1[i]+"%d_%d"%(j+1, 0))
+                data_dic["Y_vars"].append(class_type1[i]+"%d_%d"%(j+1, 1))
                 if class_type1[i] != "NoI":
                     ssa_i = ssa_func_list[i](Stochiometry = trans[i][0], Propensities = propens[i][0], X_0 = initial_state, T_Obs_Points = T)
                     Z = ssa_i[loc_mRNA, :]
                     data_dic[class_type1[i]+"%d_%d"%(j+1, 0)] = Z[0, :]
                     data_dic[class_type1[i]+"%d_%d"%(j+1, 1)] = Z[1, :]
                     class_dic[class_type1[i]+"%d_%d"%(j+1, 0)] = lab[0]
-                    class_dic[class_type1[i]+"%d_%d"%(j+1, 1)] = lab[0]
-                    
+                    class_dic[class_type1[i]+"%d_%d"%(j+1, 1)] = lab[0]  
                 else:
                     ssa_i_0 = ssa_func_list[i](Stochiometry = trans[i][0], Propensities = propens[i][0], X_0 = initial_state, T_Obs_Points = T)
                     data_dic[class_type1[i]+"%d_%d"%(j+1, 0)] = ssa_i_0[loc_mRNA[0], :]
@@ -252,6 +273,7 @@ def generate_data_twoGRN(var_data = False, noise = False):
                     data_dic[class_type1[i]+"%d_%d"%(j+1, 1)] = ssa_i_1[loc_mRNA[1], :]
                     class_dic[class_type1[i]+"%d_%d"%(j+1, 0)] = lab[0]
                     class_dic[class_type1[i]+"%d_%d"%(j+1, 1)] = max(labs)+1+lab[0] # separate label for non-interacting species
+
         k += 1    
     """
     for i in range(len(class_type1)):
@@ -267,12 +289,13 @@ def generate_data_twoGRN(var_data = False, noise = False):
         for j in range(MaxNumVar + 1):
             if j < num_var[lab[0]]:
                 Z = res_list[j]
+                data_dic["X_vars"].append(class_type1[i]+"%d_%d"%(j+1, 0))
+                data_dic["Y_vars"].append(class_type1[i]+"%d_%d"%(j+1, 1))
                 if class_type1[i] != "NoI":
                     data_dic[class_type1[i]+"%d_%d"%(j+1, 0)] = Z[0, :]
                     data_dic[class_type1[i]+"%d_%d"%(j+1, 1)] = Z[1, :]
                     class_dic[class_type1[i]+"%d_%d"%(j+1, 0)] = lab[0]
                     class_dic[class_type1[i]+"%d_%d"%(j+1, 1)] = lab[0]
-                    
                 else:
                     data_dic[class_type1[i]+"%d_%d"%(j+1, 0)] = Z[0]
                     data_dic[class_type1[i]+"%d_%d"%(j+1, 1)] = Z[1]
@@ -318,8 +341,11 @@ def load_data_twoGRN(var_data = False, noise = False):
     else:
         num_var = {labs[k]:MaxNumVar for k in range(len(labs))}
     
-    class_dic = {}
+    ## collecting separated samples
+    data_dic["X_vars"] = []
+    data_dic["Y_vars"] = []
     
+    class_dic = {}
     k = 0
     for i in range(len(class_type1)):
         lab = [labs[k]]
@@ -330,7 +356,8 @@ def load_data_twoGRN(var_data = False, noise = False):
             if j < num_var[lab[0]]:
                 data_dic[class_type1[i]+"%d_%d"%(j+1, 0)] = Z[:, 0, j]
                 data_dic[class_type1[i]+"%d_%d"%(j+1, 1)] = Z[:, 1, j]
-                
+                data_dic["X_vars"].append(class_type1[i]+"%d_%d"%(j+1, 0))
+                data_dic["Y_vars"].append(class_type1[i]+"%d_%d"%(j+1, 1))
                 if class_type1[i] != "NoI":
                     class_dic[class_type1[i]+"%d_%d"%(j+1, 0)] = lab[0]
                     class_dic[class_type1[i]+"%d_%d"%(j+1, 1)] = lab[0]
