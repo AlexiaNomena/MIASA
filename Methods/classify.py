@@ -37,8 +37,6 @@ def one_classification(r, repeat, method_dic_list, var_data, generate_data, c_di
 
 
 def split_data(data_dic, class_dic, separation = False):
-    pdb.set_trace()
-    
     if separation:
         """Extract separated data"""
         X_vars = data_dic["X_vars"]
@@ -89,11 +87,11 @@ def repeated_classifications(repeat, method_dic_list, generate_data, var_data = 
     if repeat-10 > 10:
         repeat = repeat - 10
         # n_jobs = -1 means use all CPUs
-        pfunc = partial(one_classification, repeat = repeat, method_dic_list = method_dic_list, var_data = var_data, generate_data = generate_data, c_dic = c_dic, in_threads = in_threads)
+        pfunc = partial(one_classification, repeat = repeat, method_dic_list = method_dic_list, var_data = var_data, generate_data = generate_data, c_dic = c_dic, in_threads = in_threads, separation = separation)
         acc_list = acc_list + list(jb.Parallel(n_jobs = n_jobs, prefer = "threads")(jb.delayed(pfunc)(r) for r in range(start, repeat)))
     
     else:
-        pfunc = partial(one_classification, repeat = repeat-10, method_dic_list = method_dic_list, var_data = var_data, generate_data = generate_data, c_dic = c_dic, in_threads = in_threads)
+        pfunc = partial(one_classification, repeat = repeat-10, method_dic_list = method_dic_list, var_data = var_data, generate_data = generate_data, c_dic = c_dic, in_threads = in_threads, separation = separation)
         for r in range(repeat-10):
             acc_list.append(pfunc(r))
     
