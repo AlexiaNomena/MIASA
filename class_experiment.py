@@ -14,7 +14,7 @@ import time
 
 
 """ Classification experiments for different data types """
-repeat = 2008 # Number of replicates of each experiments used for the barplots
+repeat = 211 # Number of replicates of each experiments used for the barplots
 var_data_list = [False, True]
 var_data_list_labs = ["False", "True"]
 
@@ -53,14 +53,14 @@ plotfew = False # first run and plot 10 repeats (umap visualization) saved in Fi
 """
 
 """ Second methods set: Saved/meth_set_2/"""
-
+"""
 set_num = 2
 save_at = "Class_Data/meth_set_2/"
 classifiers = ["MIASA"]*2 + ["non_MD"]*1 # non_MD = Non_Metric_Distance = Non_MIASA
 clust_methods = ["Kmeans", "Kmedoids"] # for MIASA
 clust_methods = clust_methods + ["Kmedoids"] # for non_MD
-#metric_methods = [("Corr", "dCorr"), ("Corr", "Pearson_pval"), ("Corr", "Spearman_pval")] # chosen runs sample size = 200, repeats 2005, sep_vars = False
-metric_methods = [("Corr", "dCorr"), ("Corr", "Pearson_pval"), ("Corr", "Spearman_pval")]  # test runs sample size = 200, repeats 2008, already separated X, Y samples, i.e. , sep_vars = True
+#metric_methods = [("Corr", "dCorr"), ("Corr", "Pearson_pval"), ("Corr", "Spearman_pval")] # test runs sample size = 200, repeats 2005, sep_vars = False
+metric_methods = [("Corr", "dCorr"), ("Corr", "Pearson_pval"), ("Corr", "Spearman_pval")]  # chosen runs sample size = 200, repeats 2008, already separated X, Y samples, i.e. , sep_vars = True
 
 # Already separated X, Y samples otherwise randomly separate the dataset into two equal number of sample sets
 sep_vars = True
@@ -70,17 +70,18 @@ generate_data = generate_data_correlated
 c_dic = "default" 
 in_threads = True # avoid broken runs when using parallel jobs (repeat>10)
 plotfew = False # first run and plot 10 repeats (umap visualization) saved in Figures/
-
+"""
 
 """ Third methods set"""
-"""
+
 set_num = 3
 save_at = "Class_Data/meth_set_3/"
 classifiers = ["MIASA"]*2 + ["non_MD"]*1 # non_MD = Non_Metric_Distance
 clust_methods = ["Kmeans", "Kmedoids"] # for MIASA
 clust_methods = clust_methods + ["Kmedoids"] # for non_MD
 #metric_methods = [("Corr", "dCorr"), ("Corr", "Granger-Cause-orig-params"), ("Corr", "Granger-Cause-diff-params")] # tested but there was not much difference between Granger-Cause-orig and Granger-Cause-diff
-metric_methods = [("Corr", "dCorr"), ("Corr", "Granger-Cause-diff-params"), ("Corr", "Granger-Cause-diff-chi2")] # repeats 200 to 210 sep_vars = False
+#metric_methods = [("Corr", "dCorr"), ("Corr", "Granger-Cause-diff-params"), ("Corr", "Granger-Cause-diff-chi2")] # repeats 200 to 210 sep_vars = False
+metric_methods = [("Corr", "dCorr"), ("Corr", "Granger-Cause-diff-params"), ("Corr", "Granger-Cause-diff-chi2")] # repeats 211 to 220 sep_vars = True
 
 # Already separated X, Y samples otherwise randomly separate the dataset into two equal number of sample sets
 sep_vars = True
@@ -91,7 +92,7 @@ generate_data = load_data_twoGRN
 c_dic = "default" 
 in_threads = True # avoid broken runs when using parallel jobs (repeat>10)
 plotfew = False # first run and plot 10 repeats (umap visualization) saved in Figures/
-"""
+
 
 """ Simulations """
 t0 = time.time()

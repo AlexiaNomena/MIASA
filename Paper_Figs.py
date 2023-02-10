@@ -137,7 +137,7 @@ def pairwise_MW(X, Y, method_nameX, method_nameY, typeEs = "Kerby", snf_color = 
 
 if __name__ == "__main__": 
     var_data_list_labs = ["False", "True"]
-    Fig_title = ("Fixed ssize", "Random ssize")
+    Fig_title = ("Fixed sample size", "Random sample size")
     
     """ Plot first method set """
     set_num_1 = 1
