@@ -15,12 +15,13 @@ import pdb
 import scipy as sp
 from scipy.cluster.hierarchy import linkage
 from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
 from functools import partial
 import umap
 import seaborn as sns
 
 
-def low_dim_coords(Coords, dim=2, method  = "MDS", n_neighbors = 15, min_dist = None):
+def low_dim_coords(Coords, dim=2, method  = "MDS", n_neighbors = 15, min_dist = None, scale = None):
     '''
     @ brief          : embeding of points onto a lower-dimensional manifold of using sklean.manifold
     @ param Coords   : Coords, dim, method
@@ -41,17 +42,37 @@ def low_dim_coords(Coords, dim=2, method  = "MDS", n_neighbors = 15, min_dist = 
         Emb_coords = MDS_YH(Coords, dim)
         
     elif method == "umap":
-        Emb_coords = umap_reducer(Coords, dim, n_neighbors, min_dist)
+        Emb_coords = umap_reducer(Coords, dim, n_neighbors, min_dist, scale)
     
+    elif method == "t-SNE":
+        Emb_coords = tSNE_reducer(Coords, dim, n_neighbors, min_dist, scale)
     return Emb_coords
 
 rand = 0 # fixed initialization for reproducibility of UMAP and Kmeans
-def umap_reducer(Coords, dim, np, min_dist):
+def umap_reducer(Coords, dim, np, min_dist, scale = None):
     if min_dist == None:
         reducer = umap.UMAP(n_neighbors = np, metric = "euclidean", n_components = dim, random_state= rand) # n_neighbor = 2 (local structure) --- 200 (global structure, truncated when larger than dataset size)
     else:
         reducer = umap.UMAP(n_neighbors = np, min_dist = min_dist, metric = "euclidean", n_components = dim, random_state= rand)
-    scaled_coords = Coords #StandardScaler().fit_transform(Coords)
+    if scale == "standard":
+        scaled_coords = StandardScaler().fit_transform(Coords) 
+    elif scale == "pca":
+        scaled_coords = PCA(n_components = 5).fit_transform(Coords) 
+    else:
+        scaled_coords = Coords
+    Emb_coords = reducer.fit_transform(scaled_coords)
+    return Emb_coords
+
+def tSNE_reducer(Coords, dim, np, min_dist, scale = None):
+    reducer = sklm.TSNE(n_components = dim, perplexity = np, random_state=rand)
+    
+    if scale == "standard":
+        scaled_coords = StandardScaler().fit_transform(Coords) 
+    elif scale == "pca":
+        scaled_coords = PCA(n_components = 5).fit_transform(Coords) 
+    else:
+        scaled_coords = Coords
+        
     Emb_coords = reducer.fit_transform(scaled_coords)
     return Emb_coords
 

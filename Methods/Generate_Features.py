@@ -142,12 +142,12 @@ def get_assoc_func(assoc_type, in_threads = False):
     elif assoc_type == "KS-p2":
         func, ftype = lambda Z: np.exp(-500*ks_2samp(Z[0], Z[1]).pvalue), "not_vectorized"
     
-    elif assoc_type == "Pearson_pval":
-        #func, ftype = lambda Z: 1e-5 + 1 - pearsonr(Z[0], Z[1]).pvalue, "not_vectorized" # expected in future versions
-        func, ftype = lambda Z: 1e-5 + 1 - pearsonr(Z[0], Z[1])[1], "not_vectorized" # old version
+    elif assoc_type == "Pearson_pval": ### We want to reject H0 = no correlation, thus we take pval
+        #func, ftype = lambda Z: 1e-5 + pearsonr(Z[0], Z[1]).pvalue, "not_vectorized" # expected in future versions
+        func, ftype = lambda Z: 1e-5 +  pearsonr(Z[0], Z[1])[1]/100, "not_vectorized" # old version
             
-    elif assoc_type == "Spearman_pval":
-        func, ftype = lambda Z: 1e-5 + 1 - spearmanr(Z[0], Z[1]).pvalue, "not_vectorized"
+    elif assoc_type == "Spearman_pval": ### We want to reject H0 = no correlation, thus we take pval
+        func, ftype = lambda Z: 1e-5 + spearmanr(Z[0], Z[1]).pvalue, "not_vectorized"
     
     elif assoc_type == "Sub_Eucl":
         func, ftype = lambda Z: np.max(np.abs(Z[0][:, np.newaxis] - Z[1][np.newaxis, :])), "vectorized"

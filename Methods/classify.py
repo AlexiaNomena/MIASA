@@ -53,7 +53,7 @@ def split_data(data_dic, class_dic, separation = False):
     X = np.array([data_dic[X_vars[i]] for i in range(M)])
     Y = np.array([data_dic[Y_vars[i]] for i in range(N)])
     """ True Classes """
-    Vars = X_vars + Y_vars
+    Vars = list(X_vars) + list(Y_vars)
     Class_True = np.array([class_dic[Vars[i]] for i in range(len(Vars))])
     return X, Y, Class_True, X_vars, Y_vars
 
@@ -77,7 +77,8 @@ def repeated_classifications(repeat, method_dic_list, generate_data, var_data = 
     
                 if method_dic_list[i]["class_method"] == "MIASA":
                     pdf = method_dic_list[i]["fig"]
-                    plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, r)
+                    plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = r, n_neighbors = 15, method = "UMAP")
+                    plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = r, n_neighbors = 30, method = "t-SNE")
                 sub_list.append(acc_r)
                 
             acc_list.append(sub_list)
@@ -133,13 +134,13 @@ def Classify_general(data_dic, class_dic, num_clust, method_dic, DMat = None, c_
 from .figure_settings import Display, PreFig
 from .Core.Lower_dim import low_dim_coords
 import pandas as pd
-def plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neighbors = 2, min_dist = 0.99):   
+def plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neighbors = 2, min_dist = 0.99, method = "umap", scale = None):   
     """@brief Plot and Save class figures"""
     
     Coords = Id_Class["Coords"]
     """Lower Dimensional visualization of clusters"""
-    low_meth = "umap" # or sklearn.manifols methods: MDS, Isomap, 
-    Coords_manifold = low_dim_coords(Coords, dim=2, method  = low_meth, n_neighbors = n_neighbors, min_dist = min_dist) 
+    low_meth = method # methods: MDS, Isomap, TSNE
+    Coords_manifold = low_dim_coords(Coords, dim=2, method  = low_meth, n_neighbors = n_neighbors, min_dist = min_dist, scale = scale) 
     """
     Kmeans and UMAP are already parameterized for reproducibility (random_state = 0 for both).
     However, slight changes could still happen due to the optimization procedure and versions of these packages.
