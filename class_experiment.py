@@ -6,7 +6,7 @@ Created on Sun Dec 18 13:21:27 2022
 @author: raharinirina
 """
 from Methods.classify import repeated_classifications, plotClass, BarPlotClass
-from Methods.simulate_class_data import generate_data_dist, generate_data_correlated, generate_data_correlated_2, load_data_twoGRN
+from Methods.simulate_class_data import generate_data_dist, generate_data_correlated, load_data_twoGRN
 import pdb
 from matplotlib.backends.backend_pdf import PdfPages
 import pickle

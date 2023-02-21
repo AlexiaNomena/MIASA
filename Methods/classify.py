@@ -171,6 +171,7 @@ def plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neighbors = 2, 
     color_clustered = Id_Class["color_clustered"]
     ColName = None
     RowName = None
+    #pdb.set_trace()
     
     col_rows = {rows_labels[DataFrame.index[i]]:color_clustered[i] for i in range(M)}
     col_cols = {columns_labels[DataFrame.columns[i]]:color_clustered[i+M+1] for i in range(N)}
@@ -197,10 +198,87 @@ def plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neighbors = 2, 
                                                  RowName = RowName,
                                                  lims = False) # crop fig
     
-    pdf.savefig(fig, bbox_inches = "tight")
-    
+    pdf.savefig(fig, bbox_inches = "tight")    
 
+def plotClass_separated(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neighbors = 2, min_dist = 0.99, method = "umap", scale = None):   
+    """@brief Plot and Save class figures"""
     
+    Coords = Id_Class["Coords"]
+    """Lower Dimensional visualization of clusters"""
+    low_meth = method # methods: MDS, Isomap, TSNE
+    Coords_manifold = low_dim_coords(Coords, dim=2, method  = low_meth, n_neighbors = n_neighbors, min_dist = min_dist, scale = scale) 
+    """
+    Kmeans and UMAP are already parameterized for reproducibility (random_state = 0 for both).
+    However, slight changes could still happen due to the optimization procedure and versions of these packages.
+    """
+    
+    """Coordinate system for regular projection on principal axes"""
+    was_orig = Id_Class["was_orig"]
+    M, N = Id_Class["shape"]
+    if was_orig:
+        Rows_manifold = Coords_manifold[:M, :]
+        Cols_manifold = Coords_manifold[M+1:, :]
+        Origin_manifold = Coords_manifold[M, :] 
+    else:
+        Rows_manifold = Coords_manifold[:M, :]
+        Cols_manifold = Coords_manifold[M:, :]
+        Origin_manifold = np.zeros(Coords_manifold.shape[1])
+    
+    Inertia = np.array([0, 1]) # not relevant for manifold
+    
+    ### Dummy dataframe
+    DataFrame = pd.DataFrame({Y_vars[i]:np.zeros(M) for i in range(N)}, index = X_vars)
+    rows_labels = {X_vars[i]:X_vars[i] for i in range(M)}
+    columns_labels = {Y_vars[i]:Y_vars[i] for i in range(N)}
+    
+    AllCols = DataFrame.columns
+    AllRows = DataFrame.index
+    
+    color_clustered = Id_Class["color_clustered"]
+    ColName = None
+    RowName = None
+    #pdb.set_trace()
+    
+    col_rows = {rows_labels[DataFrame.index[i]]:color_clustered[i] for i in range(M)}
+    col_cols = {columns_labels[DataFrame.columns[i]]:color_clustered[i+M+1] for i in range(N)}
+    col_to_use = (col_rows, col_cols)
+    marker_to_use = [("o",20),("o",20)]
+    unique_classe = np.unique(color_clustered, axis = 0)
+    for i in range(unique_classe.shape[0]):
+        class_row = np.all(color_clustered[:M, :] == unique_classe[i, :], axis = 1)
+        if was_orig:
+            class_col = np.all(color_clustered[M+1:, :] == unique_classe[i, :], axis = 1)
+        else:
+            class_col =  np.all(color_clustered[M:, :] == unique_classe[i, :], axis = 1)
+        
+        coords_row = Rows_manifold[class_row, :]
+        coords_col = Cols_manifold[class_col, :]
+        
+        Data = DataFrame.copy()
+        Data.drop(list(Data.columns[~class_col]), axis = 1, inplace = True)
+        Data.drop(list(Data.index[~class_row]), axis = 0, inplace = True)
+        fig, xy_rows, xy_cols, gs, center = Display(coords_row, 
+                                                     coords_col, 
+                                                     Inertia, 
+                                                     Data,
+                                                     center = Origin_manifold, 
+                                                     rows_to_Annot = AllRows[class_row],  # row items to annotate, if None then no annotation (None if none)
+                                                     cols_to_Annot = AllCols[class_col],  # column items to annotate (None if none)
+                                                     Label_rows = rows_labels, # dictionary of labels respectivelly corresponding to the row items (None if none)
+                                                     Label_cols = columns_labels,     # dictionary of labels respectivelly corresponding to the column items that (None if none)
+                                                     markers = marker_to_use,# pyplot markertypes, markersize: [(marker for the row items, size), (marker for the columb items, size)] 
+                                                     col = col_to_use,        # pyplot colortypes : [color for the row items, color for the column items] 
+                                                     figtitle = "method = %s (%d)"%(low_meth, run_num), 
+                                                     outliers = (True, True),
+                                                     dtp = dtp, 
+                                                     chosenAxes = np.array([0,1]), 
+                                                     show_inertia = False, 
+                                                     model={"model":"stand"}, 
+                                                     ColName = ColName, 
+                                                     RowName = RowName,
+                                                     lims = False) # crop fig
+    
+        pdf.savefig(fig, bbox_inches = "tight")
 
 import matplotlib.pyplot as plt
 def BarPlotClass(data, method_name, pdf, stat_name = None):

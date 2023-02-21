@@ -71,8 +71,7 @@ def generate_data_dist(var_data = False, noise = False):
         
         k += 4   
     
-    
-    dtp = ("<U4", "<U4") #his is the type of the labels checked from printing
+    dtp = (str, str)
     return data_dic, class_dic, num_clust, dtp
 
 """ Classification Experiment on random samples from bivariate probability distributions """
@@ -144,7 +143,7 @@ def generate_data_correlated(var_data = False, noise = False):
             """   
         #k += 2   
         k +=1
-    dtp = ("<U4", "<U4") #This is the type of the labels checked from printing
+    dtp = (str, str)  #This is the type of the labels checked from printing
     return data_dic, class_dic, num_clust, dtp
 
 def generate_data_correlated_2(var_data = False, noise = False):
@@ -206,7 +205,7 @@ def generate_data_correlated_2(var_data = False, noise = False):
                 data_dic["Y_vars"].append(class_type2[i]+"%d_%d"%(j+1, 1))
 
         k += 2    
-    dtp = ("<U4", "<U4") #This is the type of the labels checked from printing
+    dtp = (str, str) 
     return data_dic, class_dic, num_clust, dtp
 
 """ Classification Experiment on random samples from SSA of two Gene Regulation Network """
@@ -234,7 +233,7 @@ def generate_data_twoGRN(var_data = False, noise = False):
     loc_mRNA = np.array([4, 5]) # M1, M2 are the simulated mRNA counts
     
     data_dic = {}
-    class_type1 = ["NoI", "Up_G1", "Up_G1G2"] # bivariate Normal Dist
+    class_type1 = ["NoI", "S_Up", "D_Up"]
     ssa_func_list = [ssa_func, ssa_func, ssa_func, ssa_func] # can exclude change of parameters in this form
     trans = [(trans_NoI_G1, trans_NoI_G2), (trans_Up_G1, ), (trans_Up_G1G2, )]
     propens = [(prop_NoI_G1, prop_NoI_G2), (prop_Up_G1, ), (prop_Up_G1G2, )]
@@ -309,7 +308,7 @@ def generate_data_twoGRN(var_data = False, noise = False):
                     class_dic[class_type1[i]+"%d_%d"%(j+1, 1)] = max(labs)+1+lab[0] # separate label for non-interacting species
     
     num_clust = num_clust + 1 # the 2 Genes in the NoI was assigned to different classes
-    dtp = ("<U4", "<U4") #This is the type of the labels checked from printing
+    dtp = (str, str) #This is the type of the labels checked from printing
     return data_dic, class_dic, num_clust, dtp
 
 
@@ -333,7 +332,7 @@ def load_data_twoGRN(var_data = False, noise = False):
     loc_mRNA = np.array([4, 5]) # M1, M2 are the simulated mRNA counts
     
     data_dic = {}
-    class_type1 = ["NoI", "Up_G1", "Up_G1G2"] # bivariate Normal Dist
+    class_type1 = ["NoI_", "S_Up_", "D_Up_1"] 
     files = ["Data/2mRNA_100000/two_MRNA_No_Up_data_100000.pck", "Data/2mRNA_100000/two_MRNA_Single_Up_data_100000.pck", "Data/2mRNA_100000/two_MRNA_Double_Up_data_100000.pck"]
     
     num_clust = len(class_type1)
@@ -374,7 +373,7 @@ def load_data_twoGRN(var_data = False, noise = False):
         k += 1    
 
     num_clust = num_clust + 1 # the 2 Genes in the NoI was assigned to different classes
-    dtp = ("<U4", "<U4") #This is the type of the labels checked from printing
+    dtp = (str, str) #This is the type of the labels checked from printing
     return data_dic, class_dic, num_clust, dtp
  
 import pickle        

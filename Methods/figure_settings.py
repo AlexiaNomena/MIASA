@@ -130,7 +130,7 @@ def Annotate(ax, rows_to_Annot, cols_to_Annot, Label_rows, Label_cols, xy_rows, 
                 except:
                     print("Column categories are pink because you haven't entered an appropriate col parameter: it's either a tuple of 2 colors (one for all the row sand ones for all the cols) or a tuple of 2 dictionaries with labels as keys (one for all the rows and one for all the cols) ")
                     col_j = "green"
-                
+            
             try:
                 ax = OneAnnotation(ax, int(Label_rows[j]), xy_rows[j, :], col_j, xl, yl, arrow = arrow)
             except:

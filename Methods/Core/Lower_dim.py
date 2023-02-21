@@ -60,6 +60,7 @@ def umap_reducer(Coords, dim, np, min_dist, scale = None):
         scaled_coords = PCA(n_components = 5).fit_transform(Coords) 
     else:
         scaled_coords = Coords
+    
     Emb_coords = reducer.fit_transform(scaled_coords)
     return Emb_coords
 
