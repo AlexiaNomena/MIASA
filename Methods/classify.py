@@ -14,6 +14,8 @@ from sklearn.metrics import rand_score, adjusted_rand_score
 import pdb
 import sys
 
+import matplotlib.pyplot as plt
+
 """ Classification general setting """
 def one_classification(r, repeat, method_dic_list, var_data, generate_data, c_dic = "default", in_threads = True, separation = False):
     data_dic, class_dic, num_clust, dtp = generate_data(var_data) # use the same dataset for all methods
@@ -44,6 +46,7 @@ def split_data(data_dic, class_dic, separation = False):
     else:
         """Split data in two random groups of the same size"""
         samples = np.array(list(data_dic.keys()))
+        samples = samples[~(samples == "true_colors")]
         np.random.shuffle(samples)
         X_vars = samples[:len(samples)//2]
         Y_vars = samples[len(X_vars):]
@@ -134,7 +137,10 @@ def Classify_general(data_dic, class_dic, num_clust, method_dic, DMat = None, c_
 from .figure_settings import Display, PreFig
 from .Core.Lower_dim import low_dim_coords
 import pandas as pd
-def plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neighbors = 2, min_dist = 0.99, method = "umap", scale = None):   
+
+def plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neighbors = 2, min_dist = 0.99, method = "umap", 
+                        scale = None, sub_fig_size = 7, cluster_colors = False, true_colors = None, markers = [("o",20),("o",20)],
+                        show_labels = False, show_orig = True):        
     """@brief Plot and Save class figures"""
     
     Coords = Id_Class["Coords"]
@@ -158,6 +164,9 @@ def plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neighbors = 2, 
         Cols_manifold = Coords_manifold[M:, :]
         Origin_manifold = np.zeros(Coords_manifold.shape[1])
     
+    if not show_orig:
+        Origin_manifold = None
+        
     Inertia = np.array([0, 1]) # not relevant for manifold
     
     ### Dummy dataframe
@@ -165,25 +174,34 @@ def plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neighbors = 2, 
     rows_labels = {X_vars[i]:X_vars[i] for i in range(M)}
     columns_labels = {Y_vars[i]:Y_vars[i] for i in range(N)}
     
-    AllCols = DataFrame.columns
-    AllRows = DataFrame.index
+    if show_labels:
+        rows_to_Annot = np.array(DataFrame.index)
+        cols_to_Annot = np.array(DataFrame.columns)
+    else:
+        rows_to_Annot = None
+        cols_to_Annot = None
     
     color_clustered = Id_Class["color_clustered"]
     ColName = None
     RowName = None
     #pdb.set_trace()
     
-    col_rows = {rows_labels[DataFrame.index[i]]:color_clustered[i] for i in range(M)}
-    col_cols = {columns_labels[DataFrame.columns[i]]:color_clustered[i+M+1] for i in range(N)}
+    if cluster_colors:
+        col_rows = {rows_labels[X_vars[i]]:color_clustered[i] for i in range(M)}
+        col_cols = {columns_labels[Y_vars[i]]:color_clustered[i+M+1] for i in range(N)}
+    else:
+        col_rows = {rows_labels[X_vars[i]]:true_colors[X_vars[i]] for i in range(M)}
+        col_cols = {columns_labels[Y_vars[i]]:true_colors[Y_vars[i]] for i in range(N)}
+    
     col_to_use = (col_rows, col_cols)
-    marker_to_use = [("o",20),("o",20)]
+    marker_to_use = markers #[("o",20),("o",20)]
     fig, xy_rows, xy_cols, gs, center = Display(Rows_manifold, 
                                                  Cols_manifold, 
                                                  Inertia, 
                                                  DataFrame,
                                                  center = Origin_manifold, 
-                                                 rows_to_Annot = AllRows,  # row items to annotate, if None then no annotation (None if none)
-                                                 cols_to_Annot = AllCols,  # column items to annotate (None if none)
+                                                 rows_to_Annot = rows_to_Annot,  # row items to annotate, if None then no annotation (None if none)
+                                                 cols_to_Annot = cols_to_Annot,  # column items to annotate (None if none)
                                                  Label_rows = rows_labels, # dictionary of labels respectivelly corresponding to the row items (None if none)
                                                  Label_cols = columns_labels,     # dictionary of labels respectivelly corresponding to the column items that (None if none)
                                                  markers = marker_to_use,# pyplot markertypes, markersize: [(marker for the row items, size), (marker for the columb items, size)] 
@@ -200,7 +218,9 @@ def plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neighbors = 2, 
     
     pdf.savefig(fig, bbox_inches = "tight")    
 
-def plotClass_separated(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neighbors = 2, min_dist = 0.99, method = "umap", scale = None):   
+def plotClass_separated(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neighbors = 2, min_dist = 0.99, method = "umap", 
+                        scale = None, sub_fig_size = 7, cluster_colors = False, true_colors = None, markers = [("o",10),("o",10)], 
+                        show_labels = False, show_orig = False, show_separation = False):   
     """@brief Plot and Save class figures"""
     
     Coords = Id_Class["Coords"]
@@ -222,8 +242,12 @@ def plotClass_separated(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neigh
     else:
         Rows_manifold = Coords_manifold[:M, :]
         Cols_manifold = Coords_manifold[M:, :]
+        
         Origin_manifold = np.zeros(Coords_manifold.shape[1])
     
+    if not show_orig:
+        Origin_manifold = None
+        
     Inertia = np.array([0, 1]) # not relevant for manifold
     
     ### Dummy dataframe
@@ -231,20 +255,36 @@ def plotClass_separated(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neigh
     rows_labels = {X_vars[i]:X_vars[i] for i in range(M)}
     columns_labels = {Y_vars[i]:Y_vars[i] for i in range(N)}
     
-    AllCols = DataFrame.columns
-    AllRows = DataFrame.index
-    
+    if show_labels:
+        AllRows = np.array(DataFrame.index)
+        AllCols = np.array(DataFrame.columns)
+    else:
+        rows_to_Annot = None
+        cols_to_Annot = None
+       
     color_clustered = Id_Class["color_clustered"]
     ColName = None
     RowName = None
     #pdb.set_trace()
+    if cluster_colors:
+        col_rows = {rows_labels[X_vars[i]]:color_clustered[i] for i in range(M)}
+        col_cols = {columns_labels[Y_vars[i]]:color_clustered[i+M+1] for i in range(N)}
+    else:
+        col_rows = {rows_labels[X_vars[i]]:true_colors[X_vars[i]] for i in range(M)}
+        col_cols = {columns_labels[Y_vars[i]]:true_colors[Y_vars[i]] for i in range(N)}
     
-    col_rows = {rows_labels[DataFrame.index[i]]:color_clustered[i] for i in range(M)}
-    col_cols = {columns_labels[DataFrame.columns[i]]:color_clustered[i+M+1] for i in range(N)}
     col_to_use = (col_rows, col_cols)
-    marker_to_use = [("o",20),("o",20)]
+    marker_to_use = markers
     unique_classe = np.unique(color_clustered, axis = 0)
+    
+    if len(unique_classe)%2 == 0:
+        F = int(len(unique_classe)//2)
+    else:
+        F = int(len(unique_classe)//2) + 1
+        
+    fig = plt.figure(figsize = (sub_fig_size*F, sub_fig_size*F))
     for i in range(unique_classe.shape[0]):
+        ax = fig.add_subplot(F, F, i+1)
         class_row = np.all(color_clustered[:M, :] == unique_classe[i, :], axis = 1)
         if was_orig:
             class_col = np.all(color_clustered[M+1:, :] == unique_classe[i, :], axis = 1)
@@ -254,6 +294,10 @@ def plotClass_separated(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neigh
         coords_row = Rows_manifold[class_row, :]
         coords_col = Cols_manifold[class_col, :]
         
+        if show_labels:
+            rows_to_Annot = AllRows[class_row]
+            cols_to_Annot = AllCols[class_col]
+        
         Data = DataFrame.copy()
         Data.drop(list(Data.columns[~class_col]), axis = 1, inplace = True)
         Data.drop(list(Data.index[~class_row]), axis = 0, inplace = True)
@@ -262,8 +306,10 @@ def plotClass_separated(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neigh
                                                      Inertia, 
                                                      Data,
                                                      center = Origin_manifold, 
-                                                     rows_to_Annot = AllRows[class_row],  # row items to annotate, if None then no annotation (None if none)
-                                                     cols_to_Annot = AllCols[class_col],  # column items to annotate (None if none)
+                                                     rows_to_Annot = rows_to_Annot,#AllRows[class_row],  # row items to annotate, if None then no annotation (None if none)
+                                                     cols_to_Annot = cols_to_Annot,#AllCols[class_col],  # column items to annotate (None if none)
+                                                     fig = fig,# give fig
+                                                     ax = ax, # give ax
                                                      Label_rows = rows_labels, # dictionary of labels respectivelly corresponding to the row items (None if none)
                                                      Label_cols = columns_labels,     # dictionary of labels respectivelly corresponding to the column items that (None if none)
                                                      markers = marker_to_use,# pyplot markertypes, markersize: [(marker for the row items, size), (marker for the columb items, size)] 
@@ -277,10 +323,12 @@ def plotClass_separated(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neigh
                                                      ColName = ColName, 
                                                      RowName = RowName,
                                                      lims = False) # crop fig
-    
-        pdf.savefig(fig, bbox_inches = "tight")
+        if show_separation:
+            ax.axis("on")
+        else:
+            ax.axis("off")
+    pdf.savefig(fig, bbox_inches = "tight")
 
-import matplotlib.pyplot as plt
 def BarPlotClass(data, method_name, pdf, stat_name = None):
     PreFig()
     data_list = []

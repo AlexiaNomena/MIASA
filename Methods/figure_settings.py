@@ -254,7 +254,7 @@ def Display(Coords_rows, Coords_cols, Inertia, Data, rows_to_Annot, cols_to_Anno
                 cols_to_Annot_index = cols_to_Annot_index + list(ind)
     else:
         cols_to_Annot_index = None
-    
+        
     if not separate:
         if fig == None or ax == None:
             fig = pl.figure(figsize=(36+18,20+10))#pl.figure(figsize=(18,10))
@@ -424,8 +424,8 @@ def Display(Coords_rows, Coords_cols, Inertia, Data, rows_to_Annot, cols_to_Anno
                 pl.xlim((xmin, xmax))
                 pl.ylim((ymin, ymax))
             
-        else:
-            ax = Separation_axis(ax, xy_rows, xy_cols, outliers, lims = lims, col = "grey")
+        #else:
+        #    ax = Separation_axis(ax, xy_rows, xy_cols, outliers, lims = lims, col = "grey")
             
         # aspect ratio of axis
         #ax.set_aspect(1.0/(1.25*ax.get_data_ratio()), adjustable='box') # this can deforms the entire configuration, distances that are equal may look different and vice-versa

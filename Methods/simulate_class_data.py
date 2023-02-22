@@ -10,10 +10,11 @@ import scipy.stats as stats
 import joblib as jb
 from functools import partial 
 import pdb
+import seaborn as sns
 
 
 """ Classification Experiment on random samples from specific probability distributions """
-def generate_data_dist(var_data = False, noise = False):
+def generate_data_dist(var_data = False, noise = False, palette = "tab20"):
     """Generate Artificial dinstinct distributions data"""
     per_spl = 200 # Num of iid observation in each samples 
     data_dic = {}
@@ -39,6 +40,9 @@ def generate_data_dist(var_data = False, noise = False):
     num_clust = len(class_type1) + len(class_type2) + len(class_type3) + len(class_type4)
     labs = np.cumsum(np.ones(num_clust)) - 1
     
+    colors_dic = {}
+    colors = sns.color_palette(palette, num_clust)
+    
     # Number of samples per classes
     MaxNumVar = 25
     if var_data:
@@ -56,27 +60,34 @@ def generate_data_dist(var_data = False, noise = False):
             if j < num_var[lab[0]]:
                 data_dic[class_type1[i]+"%d"%(j+1)] = np.random.normal(val1[i][0], val1[i][1], size = per_spl)
                 class_dic[class_type1[i]+"%d"%(j+1)] = lab[0]
+                colors_dic[class_type1[i]+"%d"%(j+1)] = colors[k]
                 
             if j < num_var[lab[1]]:
                 data_dic[class_type2[i]+"%d"%(j+1)] = np.random.uniform(val2[i][0], val2[i][1], size = per_spl)
                 class_dic[class_type2[i]+"%d"%(j+1)] = lab[1]
+                colors_dic[class_type2[i]+"%d"%(j+1)] = colors[k+1]
+
               
             if j < num_var[lab[2]]:
                 data_dic[class_type3[i]+"%d"%(j+1)] = np.random.pareto(val3[i][0], size = per_spl)*val3[i][1]
                 class_dic[class_type3[i]+"%d"%(j+1)] = lab[2]
+                colors_dic[class_type3[i]+"%d"%(j+1)] = colors[k+2]
+
                 
             if j <= num_var[lab[3]]:
                 data_dic[class_type4[i]+"%d"%(j+1)] = np.random.poisson(val4[i], size = per_spl)
                 class_dic[class_type4[i]+"%d"%(j+1)] = lab[3]
-        
+                colors_dic[class_type4[i]+"%d"%(j+1)] = colors[k+3]
+
         k += 4   
     
+    data_dic["true_colors"] = colors_dic
     dtp = (str, str)
     return data_dic, class_dic, num_clust, dtp
 
 """ Classification Experiment on random samples from bivariate probability distributions """
 
-def generate_data_correlated(var_data = False, noise = False):
+def generate_data_correlated(var_data = False, noise = False, palette = "tab20"):
     """Generate Artificial data from bivariate distributions """
     per_spl = 300 # Num of iid observation in each samples 
     data_dic = {}
@@ -146,7 +157,7 @@ def generate_data_correlated(var_data = False, noise = False):
     dtp = (str, str)  #This is the type of the labels checked from printing
     return data_dic, class_dic, num_clust, dtp
 
-def generate_data_correlated_2(var_data = False, noise = False):
+def generate_data_correlated_2(var_data = False, noise = False, palette = "tab20"):
     """Generate Artificial data from bivariate distributions """
     per_spl = 200 # Num of iid observation in each samples 
     data_dic = {}
@@ -224,7 +235,7 @@ from .GRN_Models.MRNA_Single_UpRegulation import propensities as prop_Up_G1 # ex
 from .GRN_Models.MRNA_Double_UpRegulation import propensities as prop_Up_G1G2 # extract M1, M2
 
 
-def generate_data_twoGRN(var_data = False, noise = False):
+def generate_data_twoGRN(var_data = False, noise = False, palette = "tab20"):
     """Generate Artificial data from SSA of two Gene Regulation Network """
     per_spl = 100 #200 # Num of iid observation in each samples 
     T = np.linspace(0.0, 60.0, per_spl)
@@ -328,15 +339,15 @@ def GRN_sub(j, i, num_var, lab, class_type, ssa_func_list, loc_mRNA, trans, prop
         return Z
     
 
-def load_data_twoGRN(var_data = False, noise = False):
+def load_data_twoGRN(var_data = False, noise = False, palette = "tab20"):
     loc_mRNA = np.array([4, 5]) # M1, M2 are the simulated mRNA counts
     
     data_dic = {}
     class_type1 = ["NoI_", "S_Up_", "D_Up_1"] 
     files = ["Data/2mRNA_100000/two_MRNA_No_Up_data_100000.pck", "Data/2mRNA_100000/two_MRNA_Single_Up_data_100000.pck", "Data/2mRNA_100000/two_MRNA_Double_Up_data_100000.pck"]
     
-    num_clust = len(class_type1)
-    labs = np.cumsum(np.ones(num_clust)) - 1
+    labs = np.cumsum(np.ones(len(class_type1))) - 1
+    num_clust = len(class_type1) + 1 # the 2 Genes in the NoI was assigned to different classes
     
     # Number of samples per classes
     MaxNumVar = 25
@@ -348,8 +359,9 @@ def load_data_twoGRN(var_data = False, noise = False):
     
     ## collecting separated samples
     data_dic["X_vars"] = []
-    data_dic["Y_vars"] = []
-    
+    data_dic["Y_vars"] = []    
+    colors_dic = {}
+    colors = sns.color_palette(palette, num_clust)
     class_dic = {}
     k = 0
     for i in range(len(class_type1)):
@@ -367,12 +379,16 @@ def load_data_twoGRN(var_data = False, noise = False):
                     class_dic[class_type1[i]+"%d_%d"%(j+1, 0)] = lab[0]
                     class_dic[class_type1[i]+"%d_%d"%(j+1, 1)] = lab[0]
                     
+                    colors_dic[class_type1[i]+"%d_%d"%(j+1, 0)] = colors[i]
+                    colors_dic[class_type1[i]+"%d_%d"%(j+1, 1)] = colors[i]
                 else:
                     class_dic[class_type1[i]+"%d_%d"%(j+1, 0)] = lab[0]
                     class_dic[class_type1[i]+"%d_%d"%(j+1, 1)] = max(labs)+1+lab[0] # separate label for non-interacting species
+                    colors_dic[class_type1[i]+"%d_%d"%(j+1, 0)] = colors[i]
+                    colors_dic[class_type1[i]+"%d_%d"%(j+1, 1)] = colors[-1] # separate label for non-interacting species
+        
         k += 1    
-
-    num_clust = num_clust + 1 # the 2 Genes in the NoI was assigned to different classes
+    data_dic["true_colors"] = colors_dic
     dtp = (str, str) #This is the type of the labels checked from printing
     return data_dic, class_dic, num_clust, dtp
  
