@@ -219,7 +219,7 @@ def plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neighbors = 2, 
     pdf.savefig(fig, bbox_inches = "tight")    
 
 def plotClass_separated(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neighbors = 2, min_dist = 0.99, method = "umap", 
-                        scale = None, sub_fig_size = 7, cluster_colors = False, true_colors = None, markers = [("o",10),("o",10)], 
+                        scale = None, sub_fig_size = 7, num_row_col = None, cluster_colors = False, true_colors = None, markers = [("o",10),("o",10)], 
                         show_labels = False, show_orig = False, show_separation = False):   
     """@brief Plot and Save class figures"""
     
@@ -275,21 +275,26 @@ def plotClass_separated(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neigh
     
     col_to_use = (col_rows, col_cols)
     marker_to_use = markers
-    unique_classe = np.unique(color_clustered, axis = 0)
+    unique_classe = np.unique(Id_Class["Class_pred"])
     
     if len(unique_classe)%2 == 0:
         F = int(len(unique_classe)//2)
     else:
         F = int(len(unique_classe)//2) + 1
-        
-    fig = plt.figure(figsize = (sub_fig_size*F, sub_fig_size*F))
-    for i in range(unique_classe.shape[0]):
-        ax = fig.add_subplot(F, F, i+1)
-        class_row = np.all(color_clustered[:M, :] == unique_classe[i, :], axis = 1)
-        if was_orig:
-            class_col = np.all(color_clustered[M+1:, :] == unique_classe[i, :], axis = 1)
+    
+    if num_row_col is None:
+        fig = plt.figure(figsize = (sub_fig_size*F, sub_fig_size*F))
+    else:
+        fig = plt.figure(figsize = (sub_fig_size*num_row_col[1], sub_fig_size*num_row_col[0]))
+    
+    for i in range(len(unique_classe)):
+        if num_row_col is None:
+            ax = fig.add_subplot(F, F, i+1)
         else:
-            class_col =  np.all(color_clustered[M:, :] == unique_classe[i, :], axis = 1)
+            ax = fig.add_subplot(num_row_col[0], num_row_col[1], i+1)
+            
+        class_row = Id_Class["Class_pred"][:M] == unique_classe[i]
+        class_col =  Id_Class["Class_pred"][M:] == unique_classe[i]
         
         coords_row = Rows_manifold[class_row, :]
         coords_col = Cols_manifold[class_col, :]
