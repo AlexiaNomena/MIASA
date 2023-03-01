@@ -11,6 +11,8 @@ import sklearn.cluster as sklc
 import sklearn_extra.cluster as sklEc
 
 import sklearn.manifold as sklm
+import sklearn.neighbors as sklNB
+
 import pdb
 import scipy as sp
 from scipy.cluster.hierarchy import linkage
@@ -98,7 +100,7 @@ def get_clusters(Coords, num_clust, palette, method = "Kmeans", init = "k-means+
             # parameter affinity will be deprecated, replace with metric in future
             #clusters = sklc.AgglomerativeClustering(n_clusters = num_clust, metric = metric, linkage = method[14:]).fit(Coords)
         else:
-            clusters = sklc.AgglomerativeClustering(n_clusters = num_clust, linkage = method[14:]).fit(Coords)
+            clusters = sklc.AgglomerativeClustering(n_clusters = num_clust, linkage = method[14:], distance_threshold = None).fit(Coords)
     
     elif method == "Spectral":
         if metric == "precomputed":
@@ -108,11 +110,50 @@ def get_clusters(Coords, num_clust, palette, method = "Kmeans", init = "k-means+
                 clusters = sklc.SpectralClustering(n_clusters = num_clust, affinity = metric).fit(Coords)
             except:
                 clusters = sklc.SpectralClustering(n_clusters = num_clust).fit(Coords)
-        
-    labels = clusters.labels_
+    
+    elif method == "Simple_Min_Dist":
+        labels = Simple_Min_Dist(Coords, metric, num_clust)
+    
+    if method != "Simple_Min_Dist":
+        labels = clusters.labels_
+    
     col_labels = get_col_labs(labels, palette)
     return labels, col_labels
- 
+
+    
+def Simple_Min_Dist(Coords, metric, num_clust = None):
+    labels = np.zeros(Coords.shape[0])
+    
+    if num_clust is None:
+        num_clust = 5
+    
+    if metric != "precomputed":
+        spDist = sp.spatial.distance.pdist(Coords)
+        spDist = sp.spatial.distance.squareform(spDist)
+    else:
+        spDist = Coords
+    
+    # choose centroids as random points within percentiles
+    perc = np.linspace(5, 95, num_clust)
+    #out = np.percentile(Norm, 95, interpolation = "midpoint")
+    #ind_out = np.random.choice(range(len(Norm))[Norm > out])
+    all_indx = np.arange(0, spDist.shape[0])
+    ind_centre = []
+    centre_labels = []
+    for n in range(int(num_clust)):
+        point_n = np.percentile(spDist[0, :], perc[n], interpolation = "midpoint")
+        where_point = spDist[0, :] <= point_n
+        ind_centre.append(np.random.choice(all_indx[where_point*1 != 0]))
+        centre_labels.append(n+1)
+    
+    
+    # Asign labels of nearest centre
+    for i in range(len(labels)):
+        dist_i = spDist[i, np.array(ind_centre)]
+        nearest_centre = np.argmin(dist_i)
+        labels[i] = centre_labels[nearest_centre]
+        
+    return labels
 
 def get_col_labs(labels, palette):               
     unique_labs = np.unique(labels)

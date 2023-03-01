@@ -148,7 +148,10 @@ def get_class(X, Y, Feature_X, Feature_Y, func, ftype, metric_method, c_dic, DMa
         
         elif clust_method == "Spectral":
         	clust_labels, color_clustered = get_clusters(Coords, num_clust, palette, method = clust_method)    
-            
+        
+        elif clust_method == "Simple_Min_Dist":
+            clust_labels, color_clustered = get_clusters(Coords, num_clust, palette, method = clust_method)   
+                
         else:
             sys.exit("A metric-distance based clustering method is better for MIASA \n Available here is Kmeans")
         
