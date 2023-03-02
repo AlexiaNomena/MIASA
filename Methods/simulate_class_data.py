@@ -375,7 +375,7 @@ def load_data_twoGRN(var_data = False, noise = False, palette = "tab20"):
                 data_dic[class_type1[i]+"%d_%d"%(j+1, 1)] = Z[:, 1, j]
                 data_dic["X_vars"].append(class_type1[i]+"%d_%d"%(j+1, 0))
                 data_dic["Y_vars"].append(class_type1[i]+"%d_%d"%(j+1, 1))
-                if class_type1[i] != "NoI":
+                if class_type1[i] != "NoI_":
                     class_dic[class_type1[i]+"%d_%d"%(j+1, 0)] = lab[0]
                     class_dic[class_type1[i]+"%d_%d"%(j+1, 1)] = lab[0]
                     

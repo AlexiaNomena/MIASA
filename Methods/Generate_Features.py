@@ -176,7 +176,8 @@ def get_assoc_func(assoc_type, in_threads = False):
     elif assoc_type[:18] == "Granger-Cause-orig":
         #func, ftype = lambda Z: 1e-5 + GrCaus_Test_p_val(Z, diff = False, test = assoc_type[18:]) , "not_vectorized" # H0: Z[1] does NOT granger cause Z[0] and vis versa,small p_value = reject the null, we want to reject the null by definition of association, thus we take p_val
         if not in_threads:
-            func, ftype = lambda Z: 1e-5 + vect_GrCaus_Test_p_val(Z, diff = False, test = assoc_type[18:]), "vectorized"
+            #func, ftype = lambda Z: 1e-5 + vect_GrCaus_Test_p_val(Z, diff = False, test = assoc_type[18:]), "vectorized"
+            func, ftype = lambda Z: 1e-5 + GrCaus_Test_p_val(Z, diff = False, test = assoc_type[18:]), "not_vectorized"
         else:
             func, ftype = lambda Z: 1e-5 + GrCaus_Test_p_val(Z, diff = False, test = assoc_type[18:]), "not_vectorized"
 

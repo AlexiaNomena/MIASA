@@ -82,6 +82,7 @@ def tSNE_reducer(Coords, dim, np, min_dist, scale = None):
 def get_clusters(Coords, num_clust, palette, method = "Kmeans", init = "k-means++", metric = None):
     if method == "Kmeans":
         clusters = sklc.KMeans(n_clusters = num_clust, init = init, random_state = rand).fit(Coords)
+        labels = clusters.labels_
     elif method == "Kmedoids":
         if init == "k-means++" or init == "k-means++":
             init = "k-medoids++"
@@ -93,7 +94,7 @@ def get_clusters(Coords, num_clust, palette, method = "Kmeans", init = "k-means+
                 clusters = sklEc.KMedoids(n_clusters = num_clust, metric = metric, init = init, random_state = rand).fit(Coords)
             except:
                 clusters = sklEc.KMedoids(n_clusters = num_clust, init = init, random_state = rand).fit(Coords)
-                
+        labels = clusters.labels_        
     elif method[:13] == "Agglomerative":
         if metric == "precomputed":
             clusters = sklc.AgglomerativeClustering(n_clusters = num_clust, affinity = metric, linkage = method[14:]).fit(Coords)
@@ -101,7 +102,7 @@ def get_clusters(Coords, num_clust, palette, method = "Kmeans", init = "k-means+
             #clusters = sklc.AgglomerativeClustering(n_clusters = num_clust, metric = metric, linkage = method[14:]).fit(Coords)
         else:
             clusters = sklc.AgglomerativeClustering(n_clusters = num_clust, linkage = method[14:], distance_threshold = None).fit(Coords)
-    
+        labels = clusters.labels_
     elif method == "Spectral":
         if metric == "precomputed":
             clusters = sklc.SpectralClustering(n_clusters = num_clust, affinity = metric).fit(Coords)
@@ -110,16 +111,39 @@ def get_clusters(Coords, num_clust, palette, method = "Kmeans", init = "k-means+
                 clusters = sklc.SpectralClustering(n_clusters = num_clust, affinity = metric).fit(Coords)
             except:
                 clusters = sklc.SpectralClustering(n_clusters = num_clust).fit(Coords)
-    
+        labels = clusters.labels_
+        
     elif method == "Simple_Min_Dist":
         labels = Simple_Min_Dist(Coords, metric, num_clust)
     
-    if method != "Simple_Min_Dist":
-        labels = clusters.labels_
+    elif method[0] == "MLPClassifier":
+        labels = Neural_Net(Coords, params = method[1])
     
     col_labels = get_col_labs(labels, palette)
     return labels, col_labels
 
+from sklearn.neural_network import MLPClassifier
+def Neural_Net(Coords, params):
+    """Remember that Class_True does not contain the origin and the origin"""
+    M, N, Class_True, perc_train = params
+    Coords_data = np.row_stack((Coords[:M, :], Coords[-N:, :]))
+    K = int((perc_train/100)*len(Class_True))
+    
+    Inds = np.arange(0, Coords_data.shape[0], 1, dtype = int)
+    np.random.shuffle(Inds)
+    
+    #DMat= sp.spatial.distance.pdist(Coords)
+    #DMat = sp.spatial.distance.squareform(DMat)
+    #DMat = StandardScaler().fit_transform(DMat)
+    
+   # DMat_data = np.row_stack((DMat[:M, :], DMat[-N:, :]))
+    Coords_train = Coords_data[Inds[:K], :]
+    Class_train= Class_True[Inds[:K]]
+    clf = MLPClassifier(random_state=1, max_iter = 300).fit(Coords_train, Class_train)
+    
+    labels_pred = clf.predict(Coords)
+    
+    return labels_pred
     
 def Simple_Min_Dist(Coords, metric, num_clust = None):
     labels = np.zeros(Coords.shape[0])

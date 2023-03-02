@@ -14,7 +14,7 @@ import time
 
 
 """ Classification experiments for different data types """
-repeat = 207 # Number of replicates of each experiments used for the barplots
+repeat = 400 # Number of replicates of each experiments used for the barplots
 var_data_list = [False, True]
 var_data_list_labs = ["False", "True"]
 
@@ -78,7 +78,7 @@ save_at = "Class_Data/meth_set_3/"
 classifiers = ["MIASA"]*2 + ["non_MD"]*1 # non_MD = Non_Metric_Distance
 clust_methods = ["Kmeans", "Kmedoids"] # for MIASA
 clust_methods = clust_methods + ["Kmedoids"] # for non_MD
-metric_methods = [("Corr", "dCorr"), ("Corr", "Granger-Cause-diff-params"), ("Corr", "Granger-Cause-diff-chi2")] # repeats 200 to 210, sep_vars = True
+metric_methods = [("Corr", "dCorr"), ("Corr", "Granger-Cause-diff-params"), ("Corr", "Granger-Cause-diff-chi2")] # repeats 400 to 40, sep_vars = True
 
 # Already separated X, Y samples otherwise randomly separate the dataset into two equal number of sample sets
 sep_vars = True
