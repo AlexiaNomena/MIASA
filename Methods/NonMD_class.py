@@ -58,7 +58,7 @@ def NonMetric_Class(X, Y, num_clust, DMat = None, dist_origin = (True, True), me
        
     else:
         try:
-            Feature_X, Feature_Y, func, ftype, DMat, dist_origin = Feature_dic["Feature_X"], Feature_dic["Feature_Y"], Feature_dic["Asssociation_function"], Feature_dic["assoc_func_type"], Feature_dic["DMat"], Feature_dic["dist_orig"]
+            Feature_X, Feature_Y, func, ftype, DMat, dist_origin = Feature_dic["Feature_X"], Feature_dic["Feature_Y"], Feature_dic["Asssociation_function"], Feature_dic["assoc_func_type"], Feature_dic["DMat"], Feature_dic["dist_origin"]
         except:
             sys.exit("Check implemented metric_methods or give a parameter Feature_dic must be given: keys Feature_X (ndarray), Feature_Y (ndarray), Association_function (func) with tuple argument (X, Y), assoc_func_type (str vectorized or str not_vectorized), DMat direclty given distance matrix, dist_origin bool tuple (orig X?, orig Y) ") 
             
@@ -78,31 +78,38 @@ def get_NMDclass(X, Y, Feature_X, Feature_Y, func, ftype, metric_method, DMat = 
             
             """Association metric"""            
             D_assoc = DMat[:M, M+1:]
-            if (not dist_origin[0]) and (not dist_origin[1]):
-                ### remove the origin
-                """Reconstruct distance matrix """
-                DMat = Prox_Mat(DX, DY, UX = None, UY = None, fXY = D_assoc)
-        
+            
         elif (DMat.shape == (M+N, M+N)):
             """ Similarity metric """
             DX = DMat[:M, :M]
             DY = DMat[M:, M:]
             """Association metric"""            
             D_assoc = DMat[:M, M:]
-            
-            if (dist_origin[0]) or (dist_origin[1]):
-                """Distane to origin Optional but must be set to None if not used"""
-                Orows = np.zeros(Feature_X.shape[0])
-                Ocols = np.zeros(Feature_Y.shape[0])
-                if dist_origin[0]:
-                    Orows = np.linalg.norm(Feature_X, axis = 1)
-                if dist_origin[1]:
-                    Ocols = np.linalg.norm(Feature_Y, axis = 1)
-                
-                """Reconstruct distance matrix """
-                DMat = Prox_Mat(DX, DY, UX = Orows, UY = Ocols, fXY = D_assoc)
+        
         else:
             sys.exit("Wrong shape of distance matrix")
+            
+        if (dist_origin[0]) or (dist_origin[1]):
+            """Distane to origin Optional but must be set to None if not used"""
+            Orows = np.zeros(Feature_X.shape[0])
+            Ocols = np.zeros(Feature_Y.shape[0])
+            if dist_origin[0]:
+                if (DMat.shape == (M+N+1, M+N+1)):
+                    Orows = DMat[:M, M]
+                else:
+                    Orows = np.linalg.norm(Feature_X, axis = 1)
+            if dist_origin[1]:
+                if (DMat.shape == (M+N+1, M+N+1)):
+                    Ocols = DMat[M+1:, M]
+                else:
+                    Ocols = np.linalg.norm(Feature_Y, axis = 1)
+        else:
+            Orows = None
+            Ocols = None
+                
+        """Reconstruct distance matrix """
+        DMat = Prox_Mat(DX, DY, UX = Orows, UY = Ocols, fXY = D_assoc)
+        
     
     if metric_method not in ("KS-stat-stat", "KS-p1-p1", "KS-p1-stat", "KS-stat-p1"):
         if DMat is None:

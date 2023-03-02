@@ -14,7 +14,7 @@ import time
 
 
 """ Classification experiments for different data types """
-repeat = 206 # Number of replicates of each experiments used for the barplots
+repeat = 207 # Number of replicates of each experiments used for the barplots
 var_data_list = [False, True]
 var_data_list_labs = ["False", "True"]
 
@@ -24,7 +24,7 @@ set_num = 0
 save_at = ""
 classifiers = ["MIASA"]
 clust_methods = ["Kmeans"] # Must be of the same length as classifiers and with a one-to-one mapping i.e. classifiers[i] uses clust_method[i]
-metric_methods = [("eCDF", "KS-stat"), ("eCDF", "KS-stat")] # (similarity, association) used by all couple (classifiers[i], clust_method[i])
+metric_methods = [("eCDF", "KS-stat"), ("eCDF", "KS-sstat")] # (similarity, association) used by all couple (classifiers[i], clust_method[i])
 
 # Already separated X, Y samples otherwise randomly separate the dataset into two equal number of sample sets
 sep_vars = False
