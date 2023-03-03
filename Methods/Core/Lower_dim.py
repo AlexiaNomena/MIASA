@@ -123,7 +123,7 @@ def get_clusters(Coords, num_clust, palette, method = "Kmeans", init = "k-means+
     return labels, col_labels
 
 from sklearn.neural_network import MLPClassifier
-def Neural_Net(Coords, params):
+def Neural_Net(Coords, params, metric = None):
     """Remember that Class_True does not contain the origin and the origin"""
     M, N, Class_True, perc_train = params
     Coords_data = np.row_stack((Coords[:M, :], Coords[-N:, :]))
@@ -132,11 +132,12 @@ def Neural_Net(Coords, params):
     Inds = np.arange(0, Coords_data.shape[0], 1, dtype = int)
     np.random.shuffle(Inds)
     
+    # remember to set metric  == precomputed for Non-metric Classification
     #DMat= sp.spatial.distance.pdist(Coords)
     #DMat = sp.spatial.distance.squareform(DMat)
     #DMat = StandardScaler().fit_transform(DMat)
+    #DMat_data = np.row_stack((DMat[:M, :], DMat[-N:, :]))
     
-   # DMat_data = np.row_stack((DMat[:M, :], DMat[-N:, :]))
     Coords_train = Coords_data[Inds[:K], :]
     Class_train= Class_True[Inds[:K]]
     clf = MLPClassifier(random_state=1, max_iter = 300).fit(Coords_train, Class_train)
