@@ -143,41 +143,45 @@ def get_class(X, Y, Feature_X, Feature_Y, func, ftype, metric_method, c_dic, DMa
         Coords, vareps = Euclidean_Embedding(DX+alpha, DY+alpha, None, None, D_assoc, c_dic, in_threads = in_threads)
     
     if Coords is not None:
+        # Thre is no point that is close to the origin as a particular characteristic of the embedding, thus the origin must be removed otherwise it risk to be considered as one cluster
+        
+        Coords_0 = np.row_stack((Coords[:M, :], Coords[-N:, :]))
         if clust_method == "Kmeans":
             if num_clust == None:
                 sys.exit("Kmeans requires number of clusters parameter: num_clust")
             else:
-                clust_labels, color_clustered = get_clusters(Coords, num_clust, palette, method = clust_method)
+                clust_labels, color_clustered = get_clusters(Coords_0, num_clust, palette, method = clust_method)
         
         elif clust_method == "Kmedoids":
             if num_clust == None:
                 sys.exit("Kmedoids requires number of clusters parameter: num_clust")
             else:
-                clust_labels, color_clustered = get_clusters(Coords, num_clust, palette, method = clust_method)
+                clust_labels, color_clustered = get_clusters(Coords_0, num_clust, palette, method = clust_method)
                 
         elif clust_method[:13] == "Agglomerative": 
-            clust_labels, color_clustered = get_clusters(Coords, num_clust, palette, method = clust_method)
+            clust_labels, color_clustered = get_clusters(Coords_0, num_clust, palette, method = clust_method)
         
         elif clust_method == "Spectral":
-        	clust_labels, color_clustered = get_clusters(Coords, num_clust, palette, method = clust_method)    
+        	clust_labels, color_clustered = get_clusters(Coords_0, num_clust, palette, method = clust_method)    
         
         elif clust_method == "Simple_Min_Dist":
-            clust_labels, color_clustered = get_clusters(Coords, num_clust, palette, method = clust_method)   
+            clust_labels, color_clustered = get_clusters(Coords_0, num_clust, palette, method = clust_method)   
                 
         elif clust_method[0] == "MLPClassifier":
-            clust_labels, color_clustered = get_clusters(Coords, num_clust, palette, method = clust_method)
+            clust_labels, color_clustered = get_clusters(Coords_0, num_clust, palette, method = clust_method)
             
         else:
             sys.exit("A metric-distance based clustering method is better for MIASA \n Available here is Kmeans")
         
+        
         if dist_origin[0] or dist_origin[1]:
             Coords = Coords - Coords[M, :][np.newaxis, :]
-            Class_pred = np.concatenate((clust_labels[:M], clust_labels[M+1:]), axis = 0)
+            Class_pred = np.concatenate((clust_labels[:M], clust_labels[-N:]), axis = 0)
             was_orig = True
         else:
             Class_pred = clust_labels
             was_orig = False
-        
+       
         DMat = Prox_Mat(DX, DY, UX = Orows, UY = Ocols, fXY = D_assoc)
         Result = {"Coords": Coords, "shape":(M, N), "was_orig":was_orig, "vareps":vareps, "Class_pred":Class_pred, "clust_labels":clust_labels, "color_clustered":color_clustered, "DMat":DMat, "X":X, "Y":Y}
     

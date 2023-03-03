@@ -176,7 +176,6 @@ def get_NMDclass(X, Y, Feature_X, Feature_Y, func, ftype, metric_method, DMat = 
         else:
             Class_pred = clust_labels
             was_orig = False
-          
         Result = {"shape":(M, N), "was_orig":was_orig, "Class_pred":Class_pred, "clust_labels":clust_labels, "color_clustered":color_clustered, "DMat":DMat, "X":X, "Y":Y}
     except:
         if not in_threads:

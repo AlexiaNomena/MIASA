@@ -188,7 +188,7 @@ def plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neighbors = 2, 
     
     if cluster_colors:
         col_rows = {rows_labels[X_vars[i]]:color_clustered[i] for i in range(M)}
-        col_cols = {columns_labels[Y_vars[i]]:color_clustered[i+M+1] for i in range(N)}
+        col_cols = {columns_labels[Y_vars[i]]:color_clustered[-N+i] for i in range(N)}
     else:
         col_rows = {rows_labels[X_vars[i]]:true_colors[X_vars[i]] for i in range(M)}
         col_cols = {columns_labels[Y_vars[i]]:true_colors[Y_vars[i]] for i in range(N)}
@@ -268,7 +268,7 @@ def plotClass_separated(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neigh
     #pdb.set_trace()
     if cluster_colors:
         col_rows = {rows_labels[X_vars[i]]:color_clustered[i] for i in range(M)}
-        col_cols = {columns_labels[Y_vars[i]]:color_clustered[i+M+1] for i in range(N)}
+        col_cols = {columns_labels[Y_vars[i]]:color_clustered[-N+i] for i in range(N)}
     else:
         col_rows = {rows_labels[X_vars[i]]:true_colors[X_vars[i]] for i in range(M)}
         col_cols = {columns_labels[Y_vars[i]]:true_colors[Y_vars[i]] for i in range(N)}
