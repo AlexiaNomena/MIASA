@@ -59,7 +59,6 @@ save_at = "Class_Data/meth_set_2/"
 classifiers = ["MIASA"]*2 + ["non_MD"]*1 # non_MD = Non_Metric_Distance = Non_MIASA
 clust_methods = ["Kmeans", "Kmedoids"] # for MIASA
 clust_methods = clust_methods + ["Kmedoids"] # for non_MD
-#metric_methods = [("Corr", "dCorr"), ("Corr", "Pearson_pval")] # tested runs, only normally distributed samples, samples size = 300, repeats 2010, pval/100, , already separated X, Y samples, i.e. , sep_vars = True
 metric_methods = [("Corr", "dCorr"), ("Corr", "Pearson_pval")] # Chosen runs, only normally distributed samples, samples size = 300, repeats 2009, , already separated X, Y samples, i.e. , sep_vars = True
 
 # Already separated X, Y samples otherwise randomly separate the dataset into two equal number of sample sets
