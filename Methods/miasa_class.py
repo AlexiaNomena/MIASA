@@ -144,8 +144,7 @@ def get_class(X, Y, Feature_X, Feature_Y, func, ftype, metric_method, c_dic, DMa
     
     if Coords is not None:
         # Thre is no point that is close to the origin as a particular characteristic of the embedding, thus the origin must be removed otherwise it risk to be considered as one cluster
-        
-        Coords_0 = np.row_stack((Coords[:M, :], Coords[-N:, :]))
+        Coords_0 = np.row_stack((Coords[:M, :], Coords[-N:, :])) # works even if there was no origin considered
         if clust_method == "Kmeans":
             if num_clust == None:
                 sys.exit("Kmeans requires number of clusters parameter: num_clust")
