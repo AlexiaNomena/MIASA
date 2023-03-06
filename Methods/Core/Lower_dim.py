@@ -126,6 +126,8 @@ from sklearn.neural_network import MLPClassifier
 def Neural_Net(Coords, params, metric = None):
     """Remember that Class_True does not contain the origin and the origin"""
     M, N, Class_True, perc_train = params
+    
+    #Coords = StandardScaler().fit_transform(Coords) ## scale
     Coords_data = np.row_stack((Coords[:M, :], Coords[-N:, :]))
     K = int((perc_train/100)*len(Class_True))
     
@@ -139,8 +141,8 @@ def Neural_Net(Coords, params, metric = None):
     #DMat_data = np.row_stack((DMat[:M, :], DMat[-N:, :]))
     
     Coords_train = Coords_data[Inds[:K], :]
-    Class_train= Class_True[Inds[:K]]
-    clf = MLPClassifier(random_state=1, max_iter = 300).fit(Coords_train, Class_train)
+    Class_train = Class_True[Inds[:K]]
+    clf = MLPClassifier(random_state=1, max_iter = 500).fit(Coords_train, Class_train)
     
     labels_pred = clf.predict(Coords)
     
