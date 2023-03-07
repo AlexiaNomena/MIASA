@@ -10,7 +10,7 @@ from .Generate_Features import eCDF, Eucl, covariance, get_assoc_func
 from .Generate_Features import corrcoeff, moms, OR, Cond_proba, Granger_Cause
 from .Core.Generate_Distances import Similarity_Distance, Association_Distance, KS_Distance, KS_Distance_Mixed
 
-from .Core.Lower_dim import get_clusters
+from .Core.Clustering import get_clusters
 from .Core.CosLM import Prox_Mat
 import sys
 import pdb
@@ -146,7 +146,7 @@ def get_NMDclass(X, Y, Feature_X, Feature_Y, func, ftype, metric_method, DMat = 
         if DMat is None:
             Z = (X, Y)
             DMat = KS_Distance_Mixed(Z, to_use = metric_method)
-
+    
     try:        
         if clust_method == "Kmedoids":
             if num_clust == None:
@@ -177,7 +177,9 @@ def get_NMDclass(X, Y, Feature_X, Feature_Y, func, ftype, metric_method, DMat = 
             Class_pred = clust_labels
             was_orig = False
         Result = {"shape":(M, N), "was_orig":was_orig, "Class_pred":Class_pred, "clust_labels":clust_labels, "color_clustered":color_clustered, "DMat":DMat, "X":X, "Y":Y}
+    
     except:
+        print("Failed clustering, check that clustering method is implemented")
         if not in_threads:
             pdb.set_trace()
         

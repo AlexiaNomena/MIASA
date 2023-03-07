@@ -9,7 +9,7 @@ Created on Sun Dec 18 14:03:16 2022
 from .Core.Generate_Distances import Similarity_Distance, Association_Distance
 from .Generate_Features import eCDF, Eucl, covariance, get_assoc_func
 from .Generate_Features import corrcoeff, moms, OR, Cond_proba, Granger_Cause
-from .Core.Lower_dim import get_clusters
+from .Core.Clustering import get_clusters
 from .Core.qEmbedding import Euclidean_Embedding
 from .Core.CosLM import Prox_Mat
 
