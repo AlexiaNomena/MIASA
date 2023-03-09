@@ -47,11 +47,11 @@ def get_clusters(Coords, num_clust, palette, method = "Kmeans", init = "k-means+
                 clusters = sklc.SpectralClustering(n_clusters = num_clust).fit(Coords)
         labels = clusters.labels_
     elif method == "GMM":
-        cluster = sklMixt.GaussianMixture(n_components = num_clust, random_state = rand).fit(Coords)
+        cluster = sklMixt.GaussianMixture(n_components = num_clust, random_state = rand, max_iter = 200).fit(Coords)
         labels = cluster.predict(Coords)
     
     elif method == "BayesianGMM":
-        cluster = sklMixt.BayesianGaussianMixture(n_components = num_clust, random_state = rand).fit(Coords)
+        cluster = sklMixt.BayesianGaussianMixture(n_components = num_clust, random_state = rand, max_iter = 200).fit(Coords)
         labels = cluster.predict(Coords)
     
     elif method == "Simple_Min_Dist":
