@@ -15,6 +15,9 @@ from functools import partial
 import pdb
 import sys
 
+def Null(X, Y):
+    """In case we don't want to care about interpoint similarity in the clustering"""
+    return np.zeros(X.shape), np.zeros(Y.shape)
 
 def eCDF(X,Y):
     """ Empirical CDF similarity and Komogorov-Smirnov statistics association"""
