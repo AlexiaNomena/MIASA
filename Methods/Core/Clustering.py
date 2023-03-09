@@ -7,6 +7,7 @@ Created on Tue Mar  7 15:58:03 2023
 """
 import numpy as np
 import sklearn.cluster as sklc
+import sklearn.mixture as sklMixt
 import sklearn_extra.cluster as sklEc
 import seaborn as sns
 import scipy as sp
@@ -45,7 +46,14 @@ def get_clusters(Coords, num_clust, palette, method = "Kmeans", init = "k-means+
             except:
                 clusters = sklc.SpectralClustering(n_clusters = num_clust).fit(Coords)
         labels = clusters.labels_
-        
+    elif method == "GMM":
+        cluster = sklMixt.GaussianMixture(n_components = num_clust, random_state = rand).fit(Coords)
+        labels = cluster.predict(Coords)
+    
+    elif method == "BayesianGMM":
+        cluster = sklMixt.BayesianGaussianMixture(n_components = num_clust, random_state = rand).fit(Coords)
+        labels = cluster.predict(Coords)
+    
     elif method == "Simple_Min_Dist":
         labels = Simple_Min_Dist(Coords, metric, num_clust)
     
