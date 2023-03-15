@@ -134,39 +134,38 @@ def pairwise_MW(X, Y, method_nameX, method_nameY, typeEs = "Kerby", snf_color = 
     
     return P, U, Eff_size, Full, Col
 
-
-if __name__ == "__main__": 
+def Plot_1():
     var_data_list_labs = ["False", "True"]
     Fig_title = ("Fixed sample size", "Random sample size")
     
     """ Plot first method set """
     set_num_1 = 1
     save_at_1 = "Class_Data/meth_set_1/"
-    repeat_1 = [1000, 300, 260, 240, 200]
+    repeat_1 = [2000]
     exclude_1 = ("MIASA-(eCDF, KS-stat)--Kmeans", "MIASA-(eCDF, KS-stat)--Kmedoids", "non_MD-(eCDF, KS-stat)--Kmedoids")
     exclude_1_b = ["MIASA-(eCDF, eCDF)--Kmeans", "MIASA-(eCDF, KS-p1)--Kmeans"]
-    slim_1 = (0.5, 1.1) # range of statistic to show on final plot
+    slim_1 = (0.5, 1.) # range of statistic to show on final plot
     sticks_1 = np.arange(0.5, 1.1, 0.1)
     name_1 = "Dist."
     
     """ Plot second method set """
     set_num_2 = 2
     save_at_2 = "Class_Data/meth_set_2/"
-    repeat_2 = [2005] 
+    repeat_2 = [2000] 
     exclude_2 = ("MIASA-(Corr, Spearman_pval)--Kmeans", "MIASA-(Corr, Spearman_pval)--Kmedoids", "non_MD-(Corr, Spearman_pval)--Kmedoids")
     exclude_2_b = ["MIASA-(Corr, dCorr)--Kmeans", "MIASA-(Corr, Pearson_pval)--Kmeans"]
-    slim_2 = (0.65, 0.74) # range of statistic to show on final plot
-    sticks_2 = np.arange(0.65, 0.74+0.01, 0.01)
+    slim_2 = (0.67, 0.73) # range of statistic to show on final plot
+    sticks_2 = np.arange(0.65, 0.73+0.01, 0.01)
     name_2 = "Corr."
     
     """ Plot third method set"""
     set_num_3 = 3
     save_at_3 = "Class_Data/meth_set_3/"
-    repeat_3 = [200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210]
+    repeat_3 = [400, 401, 402, 403, 404]
     exclude_3 = ("MIASA-(Corr, Granger-Cause-diff-params)--Kmeans", "MIASA-(Corr, Granger-Cause-diff-params)--Kmedoids", "non_MD-(Corr, Granger-Cause-diff-params)--Kmedoids")
     exclude_3_b = ["MIASA-(Corr, dCorr)--Kmeans", "MIASA-(Corr, Granger-Cause-diff-chi2)--Kmeans"]
-    slim_3 = (0.52, 0.6)#0.64) # range of statistic to show on final plot
-    sticks_3 = np.arange(0.52, 0.64+0.01, 0.02)
+    slim_3 = (0.54, 0.70)#0.64) # range of statistic to show on final plot
+    sticks_3 = np.arange(0.52, 0.70+0.01, 0.02)
     name_3 = "GRN"
     
     ''' Separated & Together '''
@@ -179,12 +178,12 @@ if __name__ == "__main__":
     sticks_list = [sticks_1, sticks_2, sticks_3]
     meth_list = [name_1, name_2, name_3]
     
-    pdfb_all = PdfPages("Figures/Paper_Fig_RI.pdf")
+    pdfb_all = PdfPages("Figures/Final/Paper_Fig_RI.pdf")
     PreFig(xsize = 20, ysize = 20)
-    fig_all = plt.figure(figsize = (20, 30))
+    fig_all = plt.figure(figsize = (30, 20))
     plt.subplots_adjust(bottom = 0.06, right = 0.95, left = 0.06, top = 0.90, wspace = 0.05, hspace = 0.05)
     
-    pdfb_all_MW = PdfPages("Figures/Paper_MW_RI.pdf")
+    pdfb_all_MW = PdfPages("Figures/Final/Paper_MW_RI.pdf")
     PreFig(xsize = 20, ysize = 20)
     fig_all_MW_1 = plt.figure(figsize = (10, 15))
     
@@ -200,10 +199,10 @@ if __name__ == "__main__":
         k = 1
         for j in range(len(var_data_list_labs)):
             acc_dic = {}
-            ax = fig.add_subplot(int("%d%d%d"%(1, 2, k)))
+            ax = fig.add_subplot(int("%d%d%d"%(1, 2, j+1)))
             ax.set_title("%s"%Fig_title[j])
 
-            ax_all = fig_all.add_subplot(int("%d%d%d"%(3, 2, k_all+k)))
+            ax_all = fig_all.add_subplot(int("%d%d%d"%(2, 3, k_all+k)))
             ax_MW_1 = fig_all_MW_1.add_subplot(int("%d%d%d"%(6, 1, k_all+k)))
 
             for n in range(len(repeat_list)): 
@@ -240,7 +239,7 @@ if __name__ == "__main__":
             labX_all, labY_all = False, False
             
             vert = True
-            if k_all+k in (1, 3, 5):
+            if k_all+k in (1, 4):
                 fig_all = BarPlotClass(acc_list_2, method_name_2, ax_all, fig_all, vert, labX = labX_all, stat_lim = stat_lim_list[p], labY = labY_all, stat_ticks = sticks_list[p], whis = (20, 95), stat_name = "RI scores")
             else:
                 fig_all = BarPlotClass(acc_list_2, method_name_2, ax_all, fig_all, vert, labX = labX_all, stat_lim = stat_lim_list[p], labY = labY_all, stat_ticks = None, whis = (20, 95), stat_name = "RI scores")
@@ -263,19 +262,164 @@ if __name__ == "__main__":
             #pd.plotting.table(ax_MW_1, Eff_size1, loc = "lower center", colWidths = [0.75/len(method_name_2)]*len(method_name_2))
             ax_MW_1.axis("off")
                         
-            k += 1
+            k += 3
             
-        pdfb = PdfPages("Figures/Paper_Fig_RI_%d_infos.pdf"%set_num)    
+        pdfb = PdfPages("Figures/Final/Paper_Fig_RI_%d_infos.pdf"%set_num)    
         pdfb.savefig(fig, bbox_inches = "tight")
         pdfb.close()
         
-        k_all +=2
+        k_all +=1
     
     pdfb_all.savefig(fig_all, bbox_inches = "tight")
     pdfb_all.close()
     
     pdfb_all_MW.savefig(fig_all_MW_1, bbox_inches = "tight")
     pdfb_all_MW.close()
+
+
+def Plot_2():
+    var_data_list_labs = ["False"]
+    Fig_title = ("Fixed sample size", "Random sample size")
+    
+    """ Plot first method set """
+    set_num_1 = 1
+    save_at_1 = "Class_Data/meth_set_1/"
+    repeat_1 = [2000]
+    exclude_1 = ("MIASA-(eCDF, KS-stat)--Kmeans", "MIASA-(eCDF, KS-stat)--Kmedoids", "non_MD-(eCDF, KS-stat)--Kmedoids")
+    exclude_1_b = ["MIASA-(eCDF, eCDF)--Kmeans", "MIASA-(eCDF, KS-p1)--Kmeans"]
+    slim_1 = (0.5, 1.) # range of statistic to show on final plot
+    sticks_1 = np.arange(0.5, 1.1, 0.1)
+    name_1 = "Dist."
+    
+    """ Plot second method set """
+    set_num_2 = 2
+    save_at_2 = "Class_Data/meth_set_2/"
+    repeat_2 = [2000] 
+    exclude_2 = ("MIASA-(Corr, Spearman_pval)--Kmeans", "MIASA-(Corr, Spearman_pval)--Kmedoids", "non_MD-(Corr, Spearman_pval)--Kmedoids")
+    exclude_2_b = ["MIASA-(Corr, dCorr)--Kmeans", "MIASA-(Corr, Pearson_pval)--Kmeans"]
+    slim_2 = (0.67, 0.73) # range of statistic to show on final plot
+    sticks_2 = np.arange(0.65, 0.73+0.01, 0.01)
+    name_2 = "Corr."
+    
+    """ Plot third method set"""
+    set_num_3 = 3
+    save_at_3 = "Class_Data/meth_set_3/"
+    repeat_3 = [400, 401, 402, 403, 404]
+    exclude_3 = ("MIASA-(Corr, Granger-Cause-diff-params)--Kmeans", "MIASA-(Corr, Granger-Cause-diff-params)--Kmedoids", "non_MD-(Corr, Granger-Cause-diff-params)--Kmedoids")
+    exclude_3_b = ["MIASA-(Corr, dCorr)--Kmeans", "MIASA-(Corr, Granger-Cause-diff-chi2)--Kmeans"]
+    slim_3 = (0.54, 0.70)#0.64) # range of statistic to show on final plot
+    sticks_3 = np.arange(0.52, 0.70+0.01, 0.02)
+    name_3 = "GRN"
+    
+    ''' Separated & Together '''
+    set_num_list = [set_num_1, set_num_2, set_num_3]
+    save_at_list = [save_at_1, save_at_2, save_at_3]
+    repeats = [repeat_1, repeat_2, repeat_3]
+    exclude_list = [exclude_1, exclude_2, exclude_3]
+    exclude_all = [exclude_1_b, exclude_2_b, exclude_3_b]
+    stat_lim_list = [slim_1, slim_2, slim_3]
+    sticks_list = [sticks_1, sticks_2, sticks_3]
+    meth_list = [name_1, name_2, name_3]
+    
+    pdfb_all = PdfPages("Figures/Final/Paper_Fig_RI.pdf")
+    PreFig(xsize = 20, ysize = 20)
+    fig_all = plt.figure(figsize = (30, 20))
+    plt.subplots_adjust(bottom = 0.06, right = 0.95, left = 0.06, top = 0.90, wspace = 0.05, hspace = 0.05)
+    
+    pdfb_all_MW = PdfPages("Figures/Final/Paper_MW_RI.pdf")
+    PreFig(xsize = 20, ysize = 20)
+    fig_all_MW_1 = plt.figure(figsize = (10, 15))
+    
+    k_all = 0
+    for p in range(len(set_num_list)):
+        set_num = set_num_list[p]
+        save_at = save_at_list[p]
+        repeat_list = repeats[p]
+        exclude = exclude_list[p]
+    
+        PreFig(xsize = 16, ysize = 16)
+        fig = plt.figure(figsize = (20, 10))
+        k = 1
+        for j in range(len(var_data_list_labs)):
+            acc_dic = {}
+            ax = fig.add_subplot(int("%d%d%d"%(1, 2, j+1)))
+            ax.set_title("%s"%Fig_title[j])
+
+            ax_all = fig_all.add_subplot(int("%d%d%d"%(2, 3, k_all+k)))
+            ax_MW_1 = fig_all_MW_1.add_subplot(int("%d%d%d"%(6, 1, k_all+k)))
+
+            for n in range(len(repeat_list)): 
+                repeat = repeat_list[n]
+                file = open(save_at + "Accuracy_set_%d_%d_varS%s.pck"%(set_num, repeat, var_data_list_labs[j]), "rb")
+                AcData = pickle.load(file)
+                file.close()
+                
+                acc_list_n, adjusted_acc_list_n, method_name_n = AcData["accuracy_list"], AcData["adjusted_accuracy_list"], AcData["method_name"]
+                for i in range(len(method_name_n)):
+                    meth = method_name_n[i]
+                    if meth not in exclude:
+                        try:
+                            acc_dic[meth] = np.concatenate((acc_dic[meth], acc_list_n[i, :].compressed()))
+                        except:
+                            acc_dic[meth] = acc_list_n[i, :].compressed() ##  for mehods that is still not in dic ### normaly, by the way we run the simulations, this should only happen when n = 0
+            
+            method_name = list(acc_dic.keys())
+            acc_list = [acc_dic[meth] for meth in method_name]
+            labX, labY = True, True
+            if k != 1:
+                labY = False
+            fig = BarPlotClass(acc_list, method_name, ax, fig, labX = labX, labY = labY, stat_name = "RI scores")
+
+            
+            acc_list_2 = []
+            method_name_2 = []
+            for i in range(len(method_name)):
+                meth = method_name[i]
+                if meth not in exclude_all[p]:
+                    acc_list_2.append(acc_dic[meth])
+                    method_name_2.append(meth)
+
+            labX_all, labY_all = True, True
+            if k!= 1:
+                labY = False
+            
+            vert = True
+            if k_all+k in (1, 4):
+                fig_all = BarPlotClass(acc_list_2, method_name_2, ax_all, fig_all, vert, labX = labX_all, stat_lim = stat_lim_list[p], labY = labY_all, stat_ticks = sticks_list[p], whis = (20, 95), stat_name = "RI scores")
+            else:
+                fig_all = BarPlotClass(acc_list_2, method_name_2, ax_all, fig_all, vert, labX = labX_all, stat_lim = stat_lim_list[p], labY = labY_all, stat_ticks = None, whis = (20, 95), stat_name = "RI scores")
+                if vert:
+                    ax_all.set_yticks(sticks_list[p],[" " for s in range(len(sticks_list[p]))])
+                else:
+                    ax_all.set_xticks(sticks_list[p],[" " for s in range(len(sticks_list[p]))])
+                    
+
+            P1, U1, Eff_size1, Full1, ColCell1 = pairwise_MW(acc_list_2, acc_list_2, method_name_2, method_name_2, typeEs = "Kerby", snf_color = "yellow")
+            ax_MW_1.set_title("(%s) %s, H0: col = row. H1 col > row"%(meth_list[p], Fig_title[j]))
+            pd.plotting.table(ax_MW_1, Full1, loc = "center", cellColours = ColCell1, colWidths = [1.5/len(method_name_2)]*len(method_name_2))            
+            #pd.plotting.table(ax_MW_1, P1, loc = "upper center", colWidths = [0.75/len(method_name_2)]*len(method_name_2))
+            #pd.plotting.table(ax_MW_1, U1, loc = "center", colWidths = [0.75/len(method_name_2)]*len(method_name_2))
+            #pd.plotting.table(ax_MW_1, Eff_size1, loc = "lower center", colWidths = [0.75/len(method_name_2)]*len(method_name_2))
+            ax_MW_1.axis("off")
+                        
+            k += 3
+            
+        pdfb = PdfPages("Figures/Final/Paper_Fig_RI_%d_infos.pdf"%set_num)    
+        pdfb.savefig(fig, bbox_inches = "tight")
+        pdfb.close()
+        
+        k_all +=1
+    
+    pdfb_all.savefig(fig_all, bbox_inches = "tight")
+    pdfb_all.close()
+    
+    pdfb_all_MW.savefig(fig_all_MW_1, bbox_inches = "tight")
+    pdfb_all_MW.close()
+
+
+
+if __name__ == "__main__":
+    Plot_2()
 
 
 
