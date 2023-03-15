@@ -106,17 +106,35 @@ def convert_spherical(A, scale_rads = 1, cut = None, how_cut = None):
     	s_radius = np.sqrt(radius[:, np.newaxis]**2 - np.cumsum(Abis**2, axis = 1))
     
     	B = A[:, :A.shape[1]-1]
-    	cosvals = np.divide(B, s_radius, out = np.zeros(B.shape), where = (s_radius !=0))
+    	cosvals = np.divide(B, s_radius, out = np.ones(B.shape), where = (s_radius !=0))
+        
+        ### correction for numerical errors
+    	cosvals[cosvals>1] = 1
+    	cosvals[cosvals<-1] = -1
+        
     	angles = np.arccos(cosvals)
-    	# special case
-    	angles[:, -1] = (2*np.pi - np.arccos(A[:, -2]/s_radius[:, -1]))*(A[:, -1]<0) + angles[:, -1]*(A[:, -1]>=0)
+    	### for numerical reasons it fails to compute that arccos(1) = 0.0 and arcos(-1) = pi and gives nans instead/ zero division encountered
+    	angles[np.isclose(cosvals, np.ones(cosvals.shape))] = 0.0 ### manual correction
+    	angles[np.isclose(cosvals, -np.ones(cosvals.shape))] = np.pi ### manual correction
+        
+        # special case
+    	sp_case = np.divide(A[:, -2], s_radius[:, -1], out = np.ones(len(A[:, -2])), where = s_radius[:, -1] != 0)
+    	sp_case[sp_case>1] = 1
+    	sp_case[sp_case<-1] = -1
+        
+    	sp_acos = np.arccos(sp_case)
+    	sp_acos[np.isclose(sp_case, np.ones(len(sp_case)))] = 0.0 ### manual correction
+    	sp_acos[np.isclose(sp_case, -np.ones(len(sp_case)))] = np.pi ### manual correction
+    	
+    	angles[:, -1] = (2*np.pi - sp_acos)*(A[:, -1]<0) + angles[:, -1]*(A[:, -1]>=0)
+    	
     	sinA = np.sin(angles)
     	cosA = np.cos(angles)
     
-    	powers = np.ones((len(angles), A.shape[1]))    
+    	powers = np.ones((A.shape[1]-1, A.shape[1]))    
     	pow_sinA = np.triu(powers, k = 1)
     	pow_cosA = powers - pow_sinA - np.tril(powers, k = -1)
-
+		
     	Transf_Mat = np.stack([np.prod(np.power(sinA[j, :][:, np.newaxis], pow_sinA) , axis = 0)*np.prod(np.power(cosA[j, :][:, np.newaxis], pow_cosA), axis = 0) for j in range(A.shape[0])])
     	if cut is not None:
             try:
@@ -128,6 +146,8 @@ def convert_spherical(A, scale_rads = 1, cut = None, how_cut = None):
                 sys.exit("Computing spherical coordinates:Paramater cut must be less that square norm of vector")
         
     	spherical_CoordMat =  np.diag(scale_rads*radius).dot(Transf_Mat)
+    	if np.sum(np.isnan(Transf_Mat)) > 1:
+            pdb.set_trace()
     except:
     	sys.exit("Computing spherical coordinates: try first by removing the axes corresponding to zero eigenvalues \n Or remove the points with zeros in all coordinates")
     

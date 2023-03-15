@@ -163,6 +163,9 @@ def get_NMDclass(X, Y, Feature_X, Feature_Y, func, ftype, metric_method, DMat = 
         elif clust_method == "Simple_Min_Dist":
             clust_labels, color_clustered = get_clusters(DMat, num_clust, palette, method = clust_method, metric = "precomputed")  
         
+        elif clust_method == "DBSCAN":
+            clust_labels, color_clustered = get_clusters(DMat, num_clust, palette, method = clust_method, metric = "precomputed")
+            
         elif clust_method[0] == "MLPClassifier":
             clust_labels, color_clustered = get_clusters(DMat, num_clust, palette, method = clust_method)
         

@@ -14,7 +14,7 @@ import time
 
 
 """ Classification experiments for different data types """
-repeat = 403 # Number of replicates of each experiments used for the barplots
+repeat = 2000 # Number of replicates of each experiments used for the barplots
 var_data_list = [False, True]
 var_data_list_labs = ["False", "True"]
 
@@ -24,7 +24,7 @@ set_num = 0
 save_at = ""
 classifiers = ["MIASA"]
 clust_methods = ["Kmeans"] # Must be of the same length as classifiers and with a one-to-one mapping i.e. classifiers[i] uses clust_method[i]
-metric_methods = [("eCDF", "KS-stat"), ("eCDF", "KS-sstat")] # (similarity, association) used by all couple (classifiers[i], clust_method[i])
+metric_methods = [("eCDF", "KS-stat"), ("eCDF", "KS-p1")] # (similarity, association) used by all couple (classifiers[i], clust_method[i])
 
 # Already separated X, Y samples otherwise randomly separate the dataset into two equal number of sample sets
 sep_vars = False
@@ -38,19 +38,21 @@ plotfew = False # first run and plot 10 repeats (umap visualization) saved in Fi
 """
 
 """ First methods set"""
-"""
 set_num = 1
-save_at = "Class_Data/meth_set_1/" #sample size = 200
+save_at = "Class_Data/meth_set_1/" #sample size = 300
 classifiers = ["MIASA"]*2 + ["non_MD"]*1 # non_MD = Non_Metric_Distance
 clust_methods = ["Kmeans", "Kmedoids"] # for MIASA
 clust_methods = clust_methods + ["Kmedoids"] # for non_MD
 metric_methods = [("eCDF", "eCDF"), ("eCDF", "KS-stat"), ("eCDF", "KS-p1")] 
+# Already separated X, Y samples otherwise randomly separate the dataset into two equal number of sample sets
+sep_vars = False
+# data generating function
 generate_data = generate_data_dist
 # Euclidean embedding pameters only used in MIASA (includes a finite number of auto adjustements)
 c_dic = "default" # seems no-auto adjustments was performed, default works well for this the datatype and distance measures
 in_threads = True # avoid broken runs when using parallel jobs (repeat>10)
 plotfew = False # first run and plot 10 repeats (umap visualization) saved in Figures/
-"""
+
 
 """ Second methods set: Saved/meth_set_2/"""
 """
@@ -59,7 +61,7 @@ save_at = "Class_Data/meth_set_2/"
 classifiers = ["MIASA"]*2 + ["non_MD"]*1 # non_MD = Non_Metric_Distance = Non_MIASA
 clust_methods = ["Kmeans", "Kmedoids"] # for MIASA
 clust_methods = clust_methods + ["Kmedoids"] # for non_MD
-metric_methods = [("Corr", "dCorr"), ("Corr", "Pearson_pval")] # Chosen runs, only normally distributed samples, samples size = 300, repeats 2009, , already separated X, Y samples, i.e. , sep_vars = True
+metric_methods = [("Corr", "dCorr"), ("Corr", "Pearson_pval")] # Chosen runs, only normally distributed samples, samples size = 300, repeats 2000, , already separated X, Y samples, i.e. , sep_vars = True
 
 # Already separated X, Y samples otherwise randomly separate the dataset into two equal number of sample sets
 sep_vars = True
@@ -72,12 +74,13 @@ plotfew = False # first run and plot 10 repeats (umap visualization) saved in Fi
 """
 
 """ Third methods set"""
+"""
 set_num = 3
 save_at = "Class_Data/meth_set_3/"
 classifiers = ["MIASA"]*2 + ["non_MD"]*1 # non_MD = Non_Metric_Distance
 clust_methods = ["Kmeans", "Kmedoids"] # for MIASA
 clust_methods = clust_methods + ["Kmedoids"] # for non_MD
-metric_methods = [("Corr", "dCorr"), ("Corr", "Granger-Cause-diff-params"), ("Corr", "Granger-Cause-diff-chi2")] # repeats 400 to 40, sep_vars = True
+metric_methods = [("Corr", "dCorr"), ("Corr", "Granger-Cause-diff-params"), ("Corr", "Granger-Cause-diff-chi2")] # repeats 400 to 404, sep_vars = True
 
 # Already separated X, Y samples otherwise randomly separate the dataset into two equal number of sample sets
 sep_vars = True
@@ -88,7 +91,7 @@ generate_data = load_data_twoGRN
 c_dic = "default" 
 in_threads = True # avoid broken runs when using parallel jobs (repeat>10)
 plotfew = False # first run and plot 10 repeats (umap visualization) saved in Figures/
-
+"""
 
 """ Simulations """
 t0 = time.time()

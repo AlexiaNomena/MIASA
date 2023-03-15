@@ -16,7 +16,7 @@ import seaborn as sns
 """ Classification Experiment on random samples from specific probability distributions """
 def generate_data_dist(var_data = False, noise = False, palette = "tab20"):
     """Generate Artificial dinstinct distributions data"""
-    per_spl = 200 # Num of iid observation in each samples 
+    per_spl = 300 # Num of iid observation in each samples 
     data_dic = {}
     class_type1 = ["1a", "1b", "1c", "1d", "1e", "1f", "1g", "1h", "1i", "1j"] # Normal Dist
     val1_mean = np.random.choice(15, size = len(class_type1), replace = False) # not allowing repeating means
