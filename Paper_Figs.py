@@ -220,14 +220,7 @@ def Plot_1():
                         except:
                             acc_dic[meth] = acc_list_n[i, :].compressed() ##  for mehods that is still not in dic ### normaly, by the way we run the simulations, this should only happen when n = 0
             
-            method_name = list(acc_dic.keys())
-            acc_list = [acc_dic[meth] for meth in method_name]
-            labX, labY = True, True
-            if k != 1:
-                labY = False
-            fig = BarPlotClass(acc_list, method_name, ax, fig, labX = labX, labY = labY, stat_name = "RI scores")
-
-            
+            method_name = list(acc_dic.keys()) 
             acc_list_2 = []
             method_name_2 = []
             for i in range(len(method_name)):
@@ -235,14 +228,12 @@ def Plot_1():
                 if meth not in exclude_all[p]:
                     acc_list_2.append(acc_dic[meth])
                     method_name_2.append(meth)
-
-            labX_all, labY_all = False, False
             
             vert = True
             if k_all+k in (1, 4):
-                fig_all = BarPlotClass(acc_list_2, method_name_2, ax_all, fig_all, vert, labX = labX_all, stat_lim = stat_lim_list[p], labY = labY_all, stat_ticks = sticks_list[p], whis = (20, 95), stat_name = "RI scores")
+                fig_all = BarPlotClass(acc_list_2, method_name_2, ax_all, fig_all, vert, labX = True, stat_lim = stat_lim_list[p], labY = True, stat_ticks = sticks_list[p], whis = (20, 95), stat_name = "RI scores")
             else:
-                fig_all = BarPlotClass(acc_list_2, method_name_2, ax_all, fig_all, vert, labX = labX_all, stat_lim = stat_lim_list[p], labY = labY_all, stat_ticks = None, whis = (20, 95), stat_name = "RI scores")
+                fig_all = BarPlotClass(acc_list_2, method_name_2, ax_all, fig_all, vert, labX = True, stat_lim = stat_lim_list[p], labY = False, stat_ticks = None, whis = (20, 95), stat_name = "RI scores")
                 if vert:
                     ax_all.set_yticks(sticks_list[p],[" " for s in range(len(sticks_list[p]))])
                 else:
@@ -254,6 +245,8 @@ def Plot_1():
             else:
                 ax_all.set_yticks(ticks, [" " for t in ticks])
             
+            
+
             P1, U1, Eff_size1, Full1, ColCell1 = pairwise_MW(acc_list_2, acc_list_2, method_name_2, method_name_2, typeEs = "Kerby", snf_color = "yellow")
             ax_MW_1.set_title("(%s) %s, H0: col = row. H1 col > row"%(meth_list[p], Fig_title[j]))
             pd.plotting.table(ax_MW_1, Full1, loc = "center", cellColours = ColCell1, colWidths = [1.5/len(method_name_2)]*len(method_name_2))            
@@ -261,7 +254,15 @@ def Plot_1():
             #pd.plotting.table(ax_MW_1, U1, loc = "center", colWidths = [0.75/len(method_name_2)]*len(method_name_2))
             #pd.plotting.table(ax_MW_1, Eff_size1, loc = "lower center", colWidths = [0.75/len(method_name_2)]*len(method_name_2))
             ax_MW_1.axis("off")
-                        
+            
+
+            acc_list = [acc_dic[meth] for meth in method_name]
+            labX_0, labY_0 = True, True
+            if k != 1:
+                labY_0 = False
+            
+            fig = BarPlotClass(acc_list, method_name, ax, fig, labX = labX_0, labY = labY_0, stat_name = "RI scores")
+            
             k += 3
             
         pdfb = PdfPages("Figures/Final/Paper_Fig_RI_%d_infos.pdf"%set_num)    
@@ -368,6 +369,7 @@ def Plot_2():
             labX, labY = True, True
             if k != 1:
                 labY = False
+            
             fig = BarPlotClass(acc_list, method_name, ax, fig, labX = labX, labY = labY, stat_name = "RI scores")
 
             
@@ -419,7 +421,7 @@ def Plot_2():
 
 
 if __name__ == "__main__":
-    Plot_2()
+    Plot_1()
 
 
 
