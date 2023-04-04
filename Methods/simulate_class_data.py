@@ -14,7 +14,13 @@ import seaborn as sns
 
 
 """ Classification Experiment on random samples from specific probability distributions """
-def generate_data_dist(var_data = False, noise = False, palette = "tab20"):
+
+
+def generate_data_dist(var_data = False, noise = False, palette = "tab20", random_state = None):
+    
+    if random_state is not None:
+        np.random.seed(random_state) # in case one needs a reproducible result
+    
     """Generate Artificial dinstinct distributions data"""
     per_spl = 300 # Num of iid observation in each samples 
     data_dic = {}
@@ -87,28 +93,35 @@ def generate_data_dist(var_data = False, noise = False, palette = "tab20"):
 
 """ Classification Experiment on random samples from bivariate probability distributions """
 
-def generate_data_correlated(var_data = False, noise = False, palette = "tab20"):
+def generate_data_correlated(var_data = False, noise = False, palette = "tab20", random_state = None):
+    
+    if random_state is not None:
+        np.random.seed(random_state) # in case one needs a reproducible result
+        
     """Generate Artificial data from bivariate distributions """
     per_spl = 300 # Num of iid observation in each samples 
     data_dic = {}
-    class_type1 = ["1a", "1b", "1c", "1d", "1e", "1f"] # bivariate Normal Dist
+    class_type1 = ["1a", "1b", "1c", "1d", "1e", "1f", "1g", "1h", "1i", "1j"]  # bivariate Normal Dist
     #mean_list = np.random.choice(10, size = (len(class_type1), 2), replace = False) # not allowing repeating means
     #var1 =  np.random.uniform(2, 5, size = (len(class_type1), 2)) # 2*np.ones((len(class_type1), 2)) # fix variance for stability of stimulations
     #cov1 = np.random.uniform(-1, 1, size = len(class_type1)) # always has to be less than the variance for a PSD covariance matrix (Gershgorin)
     
-    mean_list = np.random.choice(20, size = (len(class_type1), 2), replace = False) # not allowing repeating means
+    #mean_list = np.array([[0, 0], [10, 10], [0, 10], [10, 0], [20, 10], [10, 20]]) # not allowing repeating means
+    #pdb.set_trace()
+    #var1 = np.column_stack((2*(np.ones((len(class_type1)))), 2*(np.ones((len(class_type1))))))
+    #cov1 = np.ones(len(class_type1))
+    
+    mean_list = np.random.choice(30, size = (len(class_type1), 2), replace = False) # not allowing repeating means
+    #mean_list = np.zeros((len(class_type1), 2))
     var1 =  np.random.uniform(5, 10, size = (len(class_type1), 2)) # 2*np.ones((len(class_type1), 2)) # fix variance for stability of stimulations
     cov1 = np.random.uniform(-3, 3, size = len(class_type1)) # always has to be less than the variance for a PSD covariance matrix (Gershgorin)
     
-    #class_type2 = ["2a", "2b", "2c", "2d", "2e", "2f"] # bivariate t Dist
-    #val1 = [(0, 1), (0, 5), (2, 1)]
-    #loc_list = np.random.choice(10, size = (len(class_type1), 2), replace = False) # not allowing repeating means
-    #var2 = np.random.uniform(2, 5, size = (len(class_type1), 2)) # 2*np.ones((len(class_type1), 2)) # fix variance for stability of stimulations
-    #cov2 = np.random.uniform(-1, 1, size = len(class_type2))
-
-    
-    num_clust = len(class_type1) #+ len(class_type2)
+  
+    num_clust = len(class_type1)
     labs = np.cumsum(np.ones(num_clust)) - 1
+    
+    colors_dic = {}
+    colors = sns.color_palette(palette, num_clust)
     
     # Number of samples per classes
     MaxNumVar = 25
@@ -124,8 +137,7 @@ def generate_data_correlated(var_data = False, noise = False, palette = "tab20")
     
     class_dic = {}
     k = 0
-    for i in range(6):
-        #lab = labs[k:k+2]
+    for i in range(10):
         lab = labs[k:k+1]
         for j in range(MaxNumVar + 1):
             if j < num_var[lab[0]]:
@@ -133,31 +145,112 @@ def generate_data_correlated(var_data = False, noise = False, palette = "tab20")
                 Z = np.random.multivariate_normal(mean_list[i, :], cov_i, size = per_spl)
                 data_dic[class_type1[i]+"%d_%d"%(j+1, 0)] = Z[:, 0]
                 class_dic[class_type1[i]+"%d_%d"%(j+1, 0)] = lab[0]
+                colors_dic[class_type1[i]+"%d_%d"%(j+1, 0)] =  colors[k]
                 data_dic["X_vars"].append(class_type1[i]+"%d_%d"%(j+1, 0))
                 
                 data_dic[class_type1[i]+"%d_%d"%(j+1, 1)] = Z[:, 1]
                 class_dic[class_type1[i]+"%d_%d"%(j+1, 1)] = lab[0]
+                colors_dic[class_type1[i]+"%d_%d"%(j+1, 1)] = colors[k]
                 data_dic["Y_vars"].append(class_type1[i]+"%d_%d"%(j+1, 1))
+   
+        k +=1
+    dtp = (str, str)  #This is the type of the labels checked from printing
+    
+    data_dic["true_colors"] = colors_dic
+    
+    return data_dic, class_dic, num_clust, dtp
 
-            """    
+def generate_data_correlated_ver2(var_data = False, noise = False, palette = "tab20", random_state = None):
+    
+    if random_state is not None:
+        np.random.seed(random_state) # in case one needs a reproducible result
+        
+    """Generate Artificial data from bivariate distributions """
+    per_spl = 300 # Num of iid observation in each samples 
+    data_dic = {}
+    class_type1 = ["1a", "1b", "1c", "1d", "1e", "1f", "1g", "1h", "1i", "1j"] # bivariate Normal Dist
+    
+    #mean_list = np.array([[0, 0], [10, 10], [0, 10], [10, 0], [20, 10], [10, 20]]) # not allowing repeating means
+    #pdb.set_trace()
+    #var1 = np.column_stack((2*(np.ones((len(class_type1)))), 2*(np.ones((len(class_type1))))))
+    #cov1 = np.ones(len(class_type1))
+    
+    mean_list = np.random.choice(50, size = (len(class_type1), 2), replace = False) # not allowing repeating means
+    var1 =  np.random.uniform(5, 10, size = (len(class_type1), 2)) # 2*np.ones((len(class_type1), 2)) # fix variance for stability of stimulations
+    cov1 = np.random.uniform(-3, 3, size = len(class_type1)) # always has to be less than the variance for a PSD covariance matrix (Gershgorin)
+    
+    class_type2 = ["2a", "2b", "2c", "2d", "2e", "2f", "2g", "2h", "2i", "2j"] # bivariate t Dist
+    nu = 3 ##
+    loc_list = 2*np.random.choice(50, size = (len(class_type1), 2), replace = False) # not allowing repeating means
+    var2 = np.random.uniform(5, 10, size = (len(class_type1), 2)) # 2*np.ones((len(class_type1), 2)) # fix variance for stability of stimulations
+    sigma2 = np.random.uniform(-3, 3, size = len(class_type2))
+
+    
+    num_clust = len(class_type1) + len(class_type2)
+    labs = np.cumsum(np.ones(num_clust)) - 1
+    
+    colors_dic = {}
+    colors = sns.color_palette(palette, num_clust)
+    
+    # Number of samples per classes
+    MaxNumVar = 25
+    if var_data:
+        num_var_list = np.random.choice(np.arange(2, MaxNumVar), size = len(labs))
+        num_var = {labs[k]: num_var_list[k] for k in range(len(labs))}
+    else:
+        num_var = {labs[k]:MaxNumVar for k in range(len(labs))}
+    
+    ## collecting separated samples
+    data_dic["X_vars"] = []
+    data_dic["Y_vars"] = []
+    
+    class_dic = {}
+    k = 0
+    for i in range(10):
+        lab = labs[k:k+2]
+        for j in range(MaxNumVar + 1):
+            if j < num_var[lab[0]]:
+                cov_i = np.array([[0, cov1[i]], [cov1[i], 0]]) + np.diag(var1[i, :])
+                Z = np.random.multivariate_normal(mean_list[i, :], cov_i, size = per_spl)
+                data_dic[class_type1[i]+"%d_%d"%(j+1, 0)] = Z[:, 0]
+                class_dic[class_type1[i]+"%d_%d"%(j+1, 0)] = lab[0]
+                colors_dic[class_type1[i]+"%d_%d"%(j+1, 0)] =  colors[k]
+                data_dic["X_vars"].append(class_type1[i]+"%d_%d"%(j+1, 0))
+                
+                data_dic[class_type1[i]+"%d_%d"%(j+1, 1)] = Z[:, 1]
+                class_dic[class_type1[i]+"%d_%d"%(j+1, 1)] = lab[0]
+                colors_dic[class_type1[i]+"%d_%d"%(j+1, 1)] = colors[k]
+                data_dic["Y_vars"].append(class_type1[i]+"%d_%d"%(j+1, 1))
+                
+
+               
             if j < num_var[lab[1]]:
-                cov_i = np.array([[0, cov2[i]], [cov2[i], 0]]) + np.diag(var2[i, :])
-                frozen_t = stats.multivariate_t(loc_list[i, :], cov_i)
+                SIGMA = ((nu-2)/nu)*np.array([[0, sigma2[i]], [sigma2[i], 0]]) + np.diag(var2[i, :]) 
+                frozen_t = stats.multivariate_t(loc_list[i, :], SIGMA, df = nu) # the covariance is given by (nu/(nu - 2))SIGMA for nu>3 (https://en.wikipedia.org/wiki/Multivariate_t-distribution)
                 Z = frozen_t.rvs(size = per_spl)
                 data_dic[class_type2[i]+"%d_%d"%(j+1, 0)] = Z[:, 0]
                 class_dic[class_type2[i]+"%d_%d"%(j+1, 0)] = lab[1]
+                colors_dic[class_type2[i]+"%d_%d"%(j+1, 0)] =  colors[k+1]
                 data_dic["X_vars"].append(class_type2[i]+"%d_%d"%(j+1, 0))
-                
+
                 data_dic[class_type2[i]+"%d_%d"%(j+1, 1)] = Z[:, 1]
                 class_dic[class_type2[i]+"%d_%d"%(j+1, 1)] = lab[1]
+                colors_dic[class_type2[i]+"%d_%d"%(j+1, 1)] = colors[k+1]
                 data_dic["Y_vars"].append(class_type2[i]+"%d_%d"%(j+1, 1))
-            """   
-        #k += 2   
-        k +=1
+               
+        k += 2   
     dtp = (str, str)  #This is the type of the labels checked from printing
+    
+    data_dic["true_colors"] = colors_dic
+    
     return data_dic, class_dic, num_clust, dtp
 
-def generate_data_correlated_2(var_data = False, noise = False, palette = "tab20"):
+
+def generate_data_correlated_2(var_data = False, noise = False, palette = "tab20", random_state = None):
+    
+    if random_state is not None:
+        np.random.seed(random_state) # in case one needs a reproducible result
+        
     """Generate Artificial data from bivariate distributions """
     per_spl = 200 # Num of iid observation in each samples 
     data_dic = {}
@@ -235,7 +328,10 @@ from .GRN_Models.MRNA_Single_UpRegulation import propensities as prop_Up_G1 # ex
 from .GRN_Models.MRNA_Double_UpRegulation import propensities as prop_Up_G1G2 # extract M1, M2
 
 
-def generate_data_twoGRN(var_data = False, noise = False, palette = "tab20"):
+def generate_data_twoGRN(var_data = False, noise = False, palette = "tab20", random_state = None):
+    if random_state is not None:
+        np.random.seed(random_state) # in case one needs a reproducible result
+    
     """Generate Artificial data from SSA of two Gene Regulation Network """
     per_spl = 100 #200 # Num of iid observation in each samples 
     T = np.linspace(0.0, 60.0, per_spl)
@@ -339,15 +435,19 @@ def GRN_sub(j, i, num_var, lab, class_type, ssa_func_list, loc_mRNA, trans, prop
         return Z
     
 
-def load_data_twoGRN(var_data = False, noise = False, palette = "tab20"):
-    loc_mRNA = np.array([4, 5]) # M1, M2 are the simulated mRNA counts
+def load_data_twoGRN(var_data = False, noise = False, palette = "tab20", random_state = None):
+    
+    #if random_state is not None:
+    #    np.random.seed(random_state) # in case one needs a reproducible result
+    
+    loc_mRNA = np.array([False,False,False,False,True,True]) #np.array([4, 5]) # M1, M2 are the simulated mRNA counts
     
     data_dic = {}
-    class_type1 = ["NoI_", "S_Up_", "D_Up_1"] 
+    class_type1 = ["NoI_", "S_Up_", "D_Up_"] 
     files = ["Data/2mRNA_100000/two_MRNA_No_Up_data_100000.pck", "Data/2mRNA_100000/two_MRNA_Single_Up_data_100000.pck", "Data/2mRNA_100000/two_MRNA_Double_Up_data_100000.pck"]
     
     labs = np.cumsum(np.ones(len(class_type1))) - 1
-    num_clust = len(class_type1) + 1 # the 2 Genes in the NoI was assigned to different classes
+    num_clust = len(class_type1) # + 1 if the 2 Genes in the NoI was assigned to different classes (does not make much difference)
     
     # Number of samples per classes
     MaxNumVar = 25
@@ -360,14 +460,17 @@ def load_data_twoGRN(var_data = False, noise = False, palette = "tab20"):
     ## collecting separated samples
     data_dic["X_vars"] = []
     data_dic["Y_vars"] = []    
+    
     colors_dic = {}
     colors = sns.color_palette(palette, num_clust)
+    
     class_dic = {}
     k = 0
     for i in range(len(class_type1)):
         lab = [labs[k]]
-        ## Load relevant datafiles        
-        Z = GRN_load(num_var[lab[0]], filename = files[i], loc_species = loc_mRNA) 
+        ## Load relevant datafiles
+        Z = GRN_load(num_var[lab[0]], filename = files[i], loc_species = loc_mRNA, random_state = random_state)
+       
         ## place the runs into the data_dic 
         for j in range(MaxNumVar + 1):
             if j < num_var[lab[0]]:
@@ -383,17 +486,71 @@ def load_data_twoGRN(var_data = False, noise = False, palette = "tab20"):
                     colors_dic[class_type1[i]+"%d_%d"%(j+1, 1)] = colors[i]
                 else:
                     class_dic[class_type1[i]+"%d_%d"%(j+1, 0)] = lab[0]
-                    class_dic[class_type1[i]+"%d_%d"%(j+1, 1)] = max(labs)+1+lab[0] # separate label for non-interacting species
+                    class_dic[class_type1[i]+"%d_%d"%(j+1, 1)] = lab[0]#max(labs)+1+lab[0] # if separate label for non-interacting species (does not make much difference)
                     colors_dic[class_type1[i]+"%d_%d"%(j+1, 0)] = colors[i]
-                    colors_dic[class_type1[i]+"%d_%d"%(j+1, 1)] = colors[-1] # separate label for non-interacting species
+                    colors_dic[class_type1[i]+"%d_%d"%(j+1, 1)] = colors[i] #colors[-1] # if separate label for non-interacting species (does not make much difference)
         
         k += 1    
     data_dic["true_colors"] = colors_dic
     dtp = (str, str) #This is the type of the labels checked from printing
     return data_dic, class_dic, num_clust, dtp
  
-import pickle        
-def GRN_load(sample_size, filename, loc_species):
+import pickle 
+import matplotlib.pyplot as plt
+
+def GRN_load(sample_size, filename, loc_species, random_state = None):
+    #if random_state is not None:
+    #    np.random.seed(random_state) # in case one needs a reproducible result   
+    
+    for s in range(sample_size):
+        f = open(filename,'rb')
+        input_dic = pickle.load(f)
+        f.close()
+        
+        Sim_data = input_dic['Obs'] # -> numpy array           (#Time, #Dim, #Repeats)
+        inds = np.arange(0,Sim_data.shape[-1],1,dtype=np.int) # repeats indexes, i.e., different cells
+        sampled_inds = np.random.choice(inds, size=10000, replace=False) # No repeating samples
+        Samples = Sim_data[:, loc_species][:, :, sampled_inds]
+        mean_timecourse = np.mean(Samples, axis = 2)
+        variance_timecourse = np.var(Samples, axis = 2)
+        skew_timecourse = stats.skew(Samples, axis = 2)
+        Z_sub = np.row_stack((mean_timecourse, variance_timecourse, skew_timecourse))#, skew_timecourse, variance_timecourse))
+        if s == 0:
+            Z = Z_sub[:, :, np.newaxis]
+        else:
+            Z = np.concatenate((Z, Z_sub[:, :, np.newaxis]), axis = 2)
+    
+    """
+    w1 = 1#(1e-20+ np.linalg.norm(skew_timecourse[20:, 0]))
+    w2 = 1#(1e-20+ np.linalg.norm(skew_timecourse[20:, 1]))
+    
+    fig = plt.figure(figsize = (3*10, 10))
+    ax = fig.add_subplot(int("%d%d%d"%(1, 3, 1)))
+    plt.plot(mean_timecourse[:, 0]/w1, label = "mean A")
+    plt.plot(mean_timecourse[:, 1]/w2, label = "mean B")
+    #ax.set_aspect("equal")
+    plt.legend()
+    
+    ax1 = fig.add_subplot(int("%d%d%d"%(1, 3, 2)))
+    plt.plot(variance_timecourse[:, 0]/w1, label = "var A")
+    plt.plot(variance_timecourse[:, 1]/w2, label = "var B")
+    #ax1.set_aspect("equal")
+    plt.legend()
+    
+    ax2 = fig.add_subplot(int("%d%d%d"%(1, 3, 3)))
+    plt.plot(skew_timecourse[:, 0]/w1, label = "skew A")
+    plt.plot(skew_timecourse[:, 1]/w2, label = "skew B")
+    #ax2.set_aspect("equal")
+    plt.legend()
+    plt.show()
+    print("-----------------------------------------------------------------")
+    """
+    return Z
+
+def GRN_load_raw(sample_size, filename, loc_species, random_state = None):
+    if random_state is not None:
+        np.random.seed(random_state) # in case one needs a reproducible result
+        
     f = open(filename,'rb')
     input_dic = pickle.load(f)
     f.close()

@@ -23,7 +23,7 @@ import umap
 import seaborn as sns
 
 
-def low_dim_coords(Coords, dim=2, method  = "MDS", n_neighbors = 15, min_dist = None, scale = None):
+def low_dim_coords(Coords, dim=2, method  = "umap", n_neighbors = 15, min_dist = None, scale = None, metric = "euclidean"):
     '''
     @ brief          : embeding of points onto a lower-dimensional manifold of using sklean.manifold
     @ param Coords   : Coords, dim, method
@@ -32,51 +32,45 @@ def low_dim_coords(Coords, dim=2, method  = "MDS", n_neighbors = 15, min_dist = 
     @ method         : sklearn.manifold methods preserves the structure of the distances in the original data : 
                        OPTIONS "MDS" (respect well the distances), "Isomap" (preserves geodesic distances)
     '''
+    if scale == "standard":
+        scaled_coords = StandardScaler().fit_transform(Coords) 
+    elif scale == "pca":
+        scaled_coords = PCA(n_components = 5).fit_transform(Coords) 
+    else:
+        scaled_coords = Coords
+    
     if method == "MDS":
-        embedding = sklm.MDS(n_components = dim, metric = True, dissimilarity = "euclidean")
-        Emb_coords = embedding.fit_transform(Coords)
+        embedding = sklm.MDS(n_components = dim, metric = True, dissimilarity = metric)
+        Emb_coords = embedding.fit_transform(scaled_coords)
     
     elif method == "Isomap":
-        embedding = sklm.Isomap(n_components = dim, metric = 'minkowski', p = 2) # p = 2 is Euclidean, p means is Lp norm
-        Emb_coords = embedding.fit_transform(Coords)
+        embedding = sklm.Isomap(n_components = dim, metric = metric) 
+        Emb_coords = embedding.fit_transform(scaled_coords)
     
     elif method == "MDS_YH":
-        Emb_coords = MDS_YH(Coords, dim)
+        Emb_coords = MDS_YH(scaled_coords, dim)
         
     elif method == "umap":
-        Emb_coords = umap_reducer(Coords, dim, n_neighbors, min_dist, scale)
+        Emb_coords = umap_reducer(scaled_coords, dim, n_neighbors, min_dist)
     
     elif method == "t-SNE":
-        Emb_coords = tSNE_reducer(Coords, dim, n_neighbors, min_dist, scale)
+        Emb_coords = tSNE_reducer(scaled_coords, dim, n_neighbors, metric = metric) 
+       
     return Emb_coords
 
 rand = 0 # fixed initialization for reproducibility of UMAP and Kmeans
-def umap_reducer(Coords, dim, np, min_dist, scale = None):
+def umap_reducer(Coords, dim, np, min_dist):
     if min_dist == None:
         reducer = umap.UMAP(n_neighbors = np, metric = "euclidean", n_components = dim, random_state= rand) # n_neighbor = 2 (local structure) --- 200 (global structure, truncated when larger than dataset size)
     else:
         reducer = umap.UMAP(n_neighbors = np, min_dist = min_dist, metric = "euclidean", n_components = dim, random_state= rand)
-    if scale == "standard":
-        scaled_coords = StandardScaler().fit_transform(Coords) 
-    elif scale == "pca":
-        scaled_coords = PCA(n_components = 5).fit_transform(Coords) 
-    else:
-        scaled_coords = Coords
-    
-    Emb_coords = reducer.fit_transform(scaled_coords)
+    Emb_coords = reducer.fit_transform(Coords)
     return Emb_coords
 
-def tSNE_reducer(Coords, dim, np, min_dist, scale = None):
-    reducer = sklm.TSNE(n_components = dim, perplexity = np, random_state=rand)
-    
-    if scale == "standard":
-        scaled_coords = StandardScaler().fit_transform(Coords) 
-    elif scale == "pca":
-        scaled_coords = PCA(n_components = 5).fit_transform(Coords) 
-    else:
-        scaled_coords = Coords
-        
-    Emb_coords = reducer.fit_transform(scaled_coords)
+
+def tSNE_reducer(Coords, dim, np, metric = "euclidean"):
+    reducer = sklm.TSNE(n_components = dim, perplexity = np, random_state=rand, metric = metric)
+    Emb_coords = reducer.fit_transform(Coords)
     return Emb_coords
 
 def dist_error(tXflat, D, dim):

@@ -28,6 +28,15 @@ def eCDF(X,Y):
     Feature_Y = EmpCDF(Y, interval)
     return Feature_X, Feature_Y  
 
+def Sim_GRN(X, Y, n=1):
+    """ Euclidean similarity and Association distance = Max of paiwise distances between all vector components"""
+    """We know beforehand that there were 3 stacked informations (mean, variance, skewness) so we separate """
+    """We ignore the closeness of similar timeseries with zero skew"""
+    #N = int(len(X[0])//n)
+    Feature_X = X.copy()
+    Feature_Y = Y.copy()
+    return Feature_X, Feature_Y
+
 def Eucl(X, Y):
     """ Euclidean similarity and Association distance = Max of paiwise distances between all vector components"""
     Feature_X = X.copy()
@@ -41,11 +50,15 @@ def covariance(X, Y):
     Feature_Y = np.cov(Y)     
     return Feature_X, Feature_Y
 
+
 def corrcoeff(X, Y):
     """Corrcoef feature"""
     """np.corrcoef computes sample covariance of equal number of observations per samples"""
-    Feature_X = np.corrcoef(X) #np.cov(X)/np.var(X, axis = 1)
-    Feature_Y = np.corrcoef(Y)#np.cov(Y)/np.var(Y, axis = 1)
+    scov = (1/(X.shape[1] - 1))*np.dot(X - np.mean(X, axis = 1)[:, np.newaxis], (Y - np.mean(Y, axis = 1)[:, np.newaxis]).T)
+    scorr = scov/(np.std(X, axis = 1)[:, np.newaxis]*np.std(Y, axis = 1)[np.newaxis, :])
+                  
+    Feature_X = scorr #np.corr(X)#np.cov(X)/np.var(X, axis = 1)
+    Feature_Y = scorr.T #np.corr(Y)#np.cov(Y)/np.var(Y, axis = 1)
     return Feature_X, Feature_Y
 
 def moms(X, Y):
@@ -147,7 +160,7 @@ def get_assoc_func(assoc_type, in_threads = False):
     
     elif assoc_type == "Pearson_pval": ### We want to reject H0 = no correlation, thus we take pval
         #func, ftype = lambda Z: 1e-5 + pearsonr(Z[0], Z[1]).pvalue, "not_vectorized" # expected in future versions
-        func, ftype = lambda Z: 1e-5 +  pearsonr(Z[0], Z[1])[1]/100, "not_vectorized" # old version
+        func, ftype = lambda Z: 1e-5 +  pearsonr(Z[0], Z[1])[1], "not_vectorized" # old version
             
     elif assoc_type == "Spearman_pval": ### We want to reject H0 = no correlation, thus we take pval
         func, ftype = lambda Z: 1e-5 + spearmanr(Z[0], Z[1]).pvalue, "not_vectorized"
@@ -187,9 +200,25 @@ def get_assoc_func(assoc_type, in_threads = False):
     elif assoc_type[:18] == "Granger-Cause-diff":
         #func, ftype = lambda Z: 1e-5 + GrCaus_Test_p_val(Z, diff = True, test = assoc_type[18:]), "not_vectorized"
         if not in_threads:
-            func, ftype = lambda Z: 1e-5 + vect_GrCaus_Test_p_val(Z, diff = True, test = assoc_type[18:]), "vectorized"
+            func, ftype = lambda Z: 1e-5 + GrCaus_Test_p_val(Z, diff = True, test = assoc_type[19:]), "not_vectorized"
         else:
-            func, ftype = lambda Z: 1e-5 + GrCaus_Test_p_val(Z, diff = True, test = assoc_type[18:]), "not_vectorized"
+            func, ftype = lambda Z: 1e-5 + GrCaus_Test_p_val(Z, diff = True, test = assoc_type[19:]), "not_vectorized"
+            
+    elif assoc_type[:19] == "Granger-Cause-2diff":
+        #func, ftype = lambda Z: 1e-5 + GrCaus_Test_p_val(Z, diff = True, test = assoc_type[18:]), "not_vectorized"
+        if not in_threads:
+            func, ftype = lambda Z: 1e-5 + GrCaus_Test_p_val_2(Z, diff = True, test = assoc_type[20:]), "not_vectorized"
+        else:
+            func, ftype = lambda Z: 1e-5 + GrCaus_Test_p_val_2(Z, diff = True, test = assoc_type[20:]), "not_vectorized"
+    
+            
+    elif assoc_type[:19] == "Granger-Cause-3diff":
+        #func, ftype = lambda Z: 1e-5 + GrCaus_Test_p_val(Z, diff = True, test = assoc_type[18:]), "not_vectorized"
+        if not in_threads:
+            func, ftype = lambda Z: 1e-5 + GrCaus_Test_p_val_n(Z, diff = True, test = assoc_type[20:], n = 3), "not_vectorized"
+        else:
+            func, ftype = lambda Z: 1e-5 + GrCaus_Test_p_val_n(Z, diff = True, test = assoc_type[20:], n = 3), "not_vectorized"
+            
     else:
         if in_threads:
             print(assoc_type)
@@ -224,6 +253,78 @@ def GrCaus_Test_p_val(Z, maxlag = 10, diff = False, test = "chi2"):
     p_mes_2 = np.max(np.array(p_values_2))
     res = np.mean([p_mes_1, p_mes_2])
     return res
+
+
+def GrCaus_Test_p_val_2(Z, maxlag = 10, diff = False, test = "chi2"):
+    if test == "ssr":
+        test = "ssr_ftest"
+    elif test == "params":
+        test = "params_ftest"
+    elif test == "lr":
+        test == "lrtest"
+    else:
+        test = "ssr_chi2test"
+    
+    """We know beforehand that there were 2 stacked informations so we separate them """
+    N = int(len(Z[0])//2)
+    res = []
+    for p in range(2):
+        if diff:
+            Z1 = np.diff(Z[0][p*N:(p+1)*N])
+            Z2 = np.diff(Z[1][p*N:(p+1)*N])
+        else:
+            Z1 = Z[0][p*N:(p+1)*N]
+            Z2 = Z[1][p*N:(p+1)*N]
+            
+        # test Z[1] does not Granger Cause Z[0]
+        test_res_1 = GrCausTest(np.column_stack((Z1, Z2)), maxlag = maxlag, verbose = False)
+        p_values_1 = [test_res_1[i+1][0][test][1] for i in range(maxlag)]
+        p_mes_1 = np.min(np.array(p_values_1))
+        
+        # test Z[0] does not Granger Cause Z[1]
+        test_res_2 = GrCausTest(np.column_stack((Z2, Z1)), maxlag = maxlag, verbose = False)
+        p_values_2 = [test_res_2[i+1][0][test][1] for i in range(maxlag)]
+        p_mes_2 = np.min(np.array(p_values_2))
+        res_sub = np.mean([p_mes_1, p_mes_2])
+        res.append(res_sub)
+    return np.mean(res)
+
+def GrCaus_Test_p_val_n(Z, maxlag = 10, diff = False, test = "chi2", n=2):
+    if test == "ssr":
+        test = "ssr_ftest"
+    elif test == "params":
+        test = "params_ftest"
+    elif test == "lr":
+        test == "lrtest"
+    else:
+        test = "ssr_chi2test"
+    
+    """We know beforehand that there were 3 stacked informations so we separate them """
+    N = int(len(Z[0])//n)
+    res = []
+    for p in range(n):
+        if diff:
+            Z1 = np.diff(Z[0][p*N:(p+1)*N])
+            Z2 = np.diff(Z[1][p*N:(p+1)*N])
+        else:
+            Z1 = Z[0][p*N:(p+1)*N]
+            Z2 = Z[1][p*N:(p+1)*N]
+        
+        # test Z[1] does not Granger Cause Z[0]
+        # use an alpha level 0.01 to reject the null 
+        test_res_1 = GrCausTest(np.column_stack((Z1, Z2)), maxlag = maxlag, verbose = False)
+        p_values_1 = np.array([test_res_1[i+1][0][test][1] for i in range(maxlag)])
+        p_mes_1 = np.min(p_values_1)
+        
+        # test Z[0] does not Granger Cause Z[1]
+        test_res_2 = GrCausTest(np.column_stack((Z2, Z1)), maxlag = maxlag, verbose = False)
+        p_values_2 = np.array([test_res_2[i+1][0][test][1] for i in range(maxlag)])
+        p_mes_2 = np.min(p_values_2)
+        
+        res_sub = np.mean([p_mes_1, p_mes_2])
+        res.append(res_sub)
+        
+    return np.mean(res) 
 
 def vect_GrCaus_Test_p_val(Z, diff = False, test = "chi2"):
     X, Y = Z

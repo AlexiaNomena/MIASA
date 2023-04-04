@@ -6,7 +6,7 @@ Created on Sat Dec 31 10:27:56 2022
 @author: raharinirina
 """
 import numpy as np
-from .Generate_Features import eCDF, Eucl, covariance, get_assoc_func
+from .Generate_Features import eCDF, Eucl, Null, covariance, get_assoc_func
 from .Generate_Features import corrcoeff, moms, OR, Cond_proba, Granger_Cause
 from .Core.Generate_Distances import Similarity_Distance, Association_Distance, KS_Distance, KS_Distance_Mixed
 
@@ -15,7 +15,7 @@ from .Core.CosLM import Prox_Mat
 import sys
 import pdb
 
-def NonMetric_Class(X, Y, num_clust, DMat = None, dist_origin = (True, True), metric_method = ("eCDF", "KS-stat"), clust_method = "Kmeans", palette = "tab20", Feature_dic = None, in_threads = True):
+def NonMetric_Class(X, Y, num_clust, DMat = None, dist_origin = (True, True), metric_method = ("eCDF", "KS-stat"), clust_method = "Kmeans", palette = "tab20", Feature_dic = None, in_threads = True, clust_orig = False):
     """Compute features"""
     if metric_method[0] == "eCDF":
        Feature_X, Feature_Y = eCDF(X,Y)
@@ -45,6 +45,10 @@ def NonMetric_Class(X, Y, num_clust, DMat = None, dist_origin = (True, True), me
        Feature_X, Feature_Y= Cond_proba(X, Y) 
        func, ftype = get_assoc_func(assoc_type = metric_method[1], in_threads = in_threads)
     
+    elif metric_method[0] == "Null":
+        Feature_X, Feature_Y = Null(X, Y) 
+        func, ftype = get_assoc_func(assoc_type = metric_method[1], in_threads = in_threads)
+        
     elif metric_method[0][:13] == "Granger-Cause":
        if metric_method[0][14:18] == "orig":
            diff = False
@@ -62,11 +66,11 @@ def NonMetric_Class(X, Y, num_clust, DMat = None, dist_origin = (True, True), me
         except:
             sys.exit("Check implemented metric_methods or give a parameter Feature_dic must be given: keys Feature_X (ndarray), Feature_Y (ndarray), Association_function (func) with tuple argument (X, Y), assoc_func_type (str vectorized or str not_vectorized), DMat direclty given distance matrix, dist_origin bool tuple (orig X?, orig Y) ") 
             
-    Result = get_NMDclass(X, Y, Feature_X, Feature_Y, func, ftype, metric_method, DMat, dist_origin, num_clust, clust_method, palette, in_threads)
+    Result = get_NMDclass(X, Y, Feature_X, Feature_Y, func, ftype, metric_method, DMat, dist_origin, num_clust, clust_method, palette, in_threads, clust_orig = clust_orig)
     return Result
 
     
-def get_NMDclass(X, Y, Feature_X, Feature_Y, func, ftype, metric_method, DMat = None, dist_origin = (True, True), num_clust=None, clust_method = "Kmeans", palette = "tab20", in_threads = False):
+def get_NMDclass(X, Y, Feature_X, Feature_Y, func, ftype, metric_method, DMat = None, dist_origin = (True, True), num_clust=None, clust_method = "Kmeans", palette = "tab20", in_threads = False, clust_orig = False):
     
     M = Feature_X.shape[0]
     N = Feature_Y.shape[0]
@@ -147,34 +151,39 @@ def get_NMDclass(X, Y, Feature_X, Feature_Y, func, ftype, metric_method, DMat = 
             Z = (X, Y)
             DMat = KS_Distance_Mixed(Z, to_use = metric_method)
     
-    try:        
+    try: 
+        if clust_orig:
+            DMat_0 = DMat.copy()
+        else:
+            DMat_0 = Prox_Mat(DX, DY, UX = None, UY = None, fXY = D_assoc)
+            
         if clust_method == "Kmedoids":
             if num_clust == None:
                 sys.exit("Kmedoids requires number of clusters parameter: num_clust")
             else:
-                clust_labels, color_clustered = get_clusters(DMat, num_clust, palette, method = clust_method, metric = "precomputed")
+                clust_labels, color_clustered = get_clusters(DMat_0, num_clust, palette, method = clust_method, metric = "precomputed")
         
         elif clust_method[:13] == "Agglomerative":
-            clust_labels, color_clustered = get_clusters(DMat, num_clust, palette, method = clust_method, metric = "precomputed")
+            clust_labels, color_clustered = get_clusters(DMat_0, num_clust, palette, method = clust_method, metric = "precomputed")
         
         elif clust_method == "Spectral":
-        	clust_labels, color_clustered = get_clusters(DMat, num_clust, palette, method = clust_method, metric = "precomputed")
+        	clust_labels, color_clustered = get_clusters(DMat_0, num_clust, palette, method = clust_method, metric = "precomputed")
             
         elif clust_method == "Simple_Min_Dist":
-            clust_labels, color_clustered = get_clusters(DMat, num_clust, palette, method = clust_method, metric = "precomputed")  
+            clust_labels, color_clustered = get_clusters(DMat_0, num_clust, palette, method = clust_method, metric = "precomputed")  
         
         elif clust_method == "DBSCAN":
-            clust_labels, color_clustered = get_clusters(DMat, num_clust, palette, method = clust_method, metric = "precomputed")
+            clust_labels, color_clustered = get_clusters(DMat_0, num_clust, palette, method = clust_method, metric = "precomputed")
             
         elif clust_method[0] == "MLPClassifier":
-            clust_labels, color_clustered = get_clusters(DMat, num_clust, palette, method = clust_method)
+            clust_labels, color_clustered = get_clusters(DMat_0, num_clust, palette, method = clust_method)
         
         else:
             sys.exit("A non-metric distance clustering method is required for Non Metric Distance \n Available here is Kmedoids")
         
         
         if (dist_origin[0] or dist_origin[1]) & (metric_method not in ("KS-stat-stat", "KS-p1-p1", "KS-p1-stat", "KS-stat-p1")):
-            Class_pred = np.concatenate((clust_labels[:M], clust_labels[M+1:]), axis = 0)
+            Class_pred = np.concatenate((clust_labels[:M], clust_labels[-N:]), axis = 0)
             was_orig = True
         else:
             Class_pred = clust_labels

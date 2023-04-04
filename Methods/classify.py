@@ -140,13 +140,17 @@ import pandas as pd
 
 def plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neighbors = 2, min_dist = 0.99, method = "umap", 
                         scale = None, sub_fig_size = 7, cluster_colors = False, true_colors = None, markers = [("o",20),("o",20)],
-                        show_labels = False, show_orig = True):        
+                        show_labels = False, show_orig = True, metric = "euclidean"):        
     """@brief Plot and Save class figures"""
     
-    Coords = Id_Class["Coords"]
     """Lower Dimensional visualization of clusters"""
     low_meth = method # methods: MDS, Isomap, TSNE
-    Coords_manifold = low_dim_coords(Coords, dim=2, method  = low_meth, n_neighbors = n_neighbors, min_dist = min_dist, scale = scale) 
+    if metric == "precomputed":
+        DMat = Id_Class["DMat"]
+        Coords_manifold = low_dim_coords(DMat, dim = 2, method = low_meth, scale = scale)
+    else:
+        Coords = Id_Class["Coords"]
+        Coords_manifold = low_dim_coords(Coords, dim=2, method  = low_meth, n_neighbors = n_neighbors, min_dist = min_dist, scale = scale) 
     """
     Kmeans and UMAP are already parameterized for reproducibility (random_state = 0 for both).
     However, slight changes could still happen due to the optimization procedure and versions of these packages.
@@ -252,8 +256,8 @@ def plotClass_separated(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neigh
     
     ### Dummy dataframe
     DataFrame = pd.DataFrame({Y_vars[i]:np.zeros(M) for i in range(N)}, index = X_vars)
-    rows_labels = {X_vars[i]:X_vars[i] for i in range(M)}
-    columns_labels = {Y_vars[i]:Y_vars[i] for i in range(N)}
+    rows_labels = {X_vars[i]:X_vars[i][0] for i in range(M)}
+    columns_labels = {Y_vars[i]:Y_vars[i][0] for i in range(N)}
     
     if show_labels:
         AllRows = np.array(DataFrame.index)

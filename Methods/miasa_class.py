@@ -7,7 +7,7 @@ Created on Sun Dec 18 14:03:16 2022
 """
 
 from .Core.Generate_Distances import Similarity_Distance, Association_Distance
-from .Generate_Features import eCDF, Eucl, covariance, get_assoc_func
+from .Generate_Features import eCDF, Eucl, Null, covariance, get_assoc_func
 from .Generate_Features import corrcoeff, moms, OR, Cond_proba, Granger_Cause
 from .Core.Clustering import get_clusters
 from .Core.qEmbedding import Euclidean_Embedding
@@ -18,7 +18,7 @@ import numpy as np
 import pdb
 
 
-def Miasa_Class(X, Y, num_clust, DMat = None, c_dic = None, dist_origin = (True, True), metric_method = ("eCDF", "KS-stat"), clust_method = "Kmeans", palette = "tab20", Feature_dic = None, in_threads = True):
+def Miasa_Class(X, Y, num_clust, DMat = None, c_dic = None, dist_origin = (True, True), metric_method = ("eCDF", "KS-stat"), clust_method = "Kmeans", palette = "tab20", Feature_dic = None, in_threads = True, clust_orig = False):
     """Compute features"""
     if metric_method[0] == "eCDF":
        Feature_X, Feature_Y = eCDF(X,Y)
@@ -41,13 +41,17 @@ def Miasa_Class(X, Y, num_clust, DMat = None, c_dic = None, dist_origin = (True,
         func, ftype = get_assoc_func(assoc_type = metric_method[1], in_threads = in_threads)
     
     elif metric_method[0] == "Eucl":
-       Feature_X, Feature_Y = Eucl(X, Y)
-       func, ftype = get_assoc_func(assoc_type = metric_method[1], in_threads = in_threads)
+        Feature_X, Feature_Y = Eucl(X, Y)
+        func, ftype = get_assoc_func(assoc_type = metric_method[1], in_threads = in_threads)
 
     elif metric_method[0] == "Cond_proba":
-       Feature_X, Feature_Y = Cond_proba(X, Y) 
-       func, ftype = get_assoc_func(assoc_type = metric_method[1], in_threads = in_threads)
+        Feature_X, Feature_Y = Cond_proba(X, Y) 
+        func, ftype = get_assoc_func(assoc_type = metric_method[1], in_threads = in_threads)
     
+    elif metric_method[0] == "Null":
+        Feature_X, Feature_Y = Null(X, Y) 
+        func, ftype = get_assoc_func(assoc_type = metric_method[1], in_threads = in_threads)
+ 
     elif metric_method[0][:13] == "Granger-Cause":
        if metric_method[0][14:18] == "orig":
            diff = False
@@ -63,12 +67,12 @@ def Miasa_Class(X, Y, num_clust, DMat = None, c_dic = None, dist_origin = (True,
         except:
             sys.exit("Check implemented metric_methods or give a parameter Feature_dic must be given: keys Feature_X (ndarray), Feature_Y (ndarray), Association_function (func) with tuple argument (X, Y), assoc_func_type (str vectorized or str not_vectorized), DMat direclty given distance matrix, dist_origin bool tuple (orig X?, orig Y) ")
             
-    Result = get_class(X, Y, Feature_X, Feature_Y, func, ftype, metric_method, c_dic, DMat, dist_origin, num_clust, clust_method, palette, in_threads = in_threads)
+    Result = get_class(X, Y, Feature_X, Feature_Y, func, ftype, metric_method, c_dic, DMat, dist_origin, num_clust, clust_method, palette, in_threads = in_threads, clust_orig = clust_orig)
 
     return Result
     
 
-def get_class(X, Y, Feature_X, Feature_Y, func, ftype, metric_method, c_dic, DMat = None, dist_origin = (True, True), num_clust=None, clust_method = "Kmeans", palette = "tab20", in_threads = True):
+def get_class(X, Y, Feature_X, Feature_Y, func, ftype, metric_method, c_dic, DMat = None, dist_origin = (True, True), num_clust=None, clust_method = "Kmeans", palette = "tab20", in_threads = True, clust_orig = False):
     M = Feature_X.shape[0]
     N = Feature_Y.shape[0]
     
@@ -144,7 +148,11 @@ def get_class(X, Y, Feature_X, Feature_Y, func, ftype, metric_method, c_dic, DMa
     
     if Coords is not None:
         # Thre is no point that is close to the origin as a particular characteristic of the embedding, thus the origin must be removed otherwise it risk to be considered as one cluster
-        Coords_0 = np.row_stack((Coords[:M, :], Coords[-N:, :])) # works even if there was no origin considered
+        if clust_orig:
+            Coords_0 = Coords.copy()
+        else:
+            Coords_0 = np.row_stack((Coords[:M, :], Coords[-N:, :])) # works even if there was no origin considered
+            
         if clust_method == "Kmeans":
             if num_clust == None:
                 sys.exit("Kmeans requires number of clusters parameter: num_clust")
