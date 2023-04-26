@@ -435,7 +435,7 @@ def Plot_2():
             fig = BarPlotClass(acc_list, method_name, ax, fig, labX = labX, labY = labY, stat_lim = stat_lim_list[p], stat_ticks = sticks_list[p], stat_name = "RI scores")
                         
             k += 3
-            
+        
         pdfb = PdfPages("Figures/Final/Paper_Fig_RI_%d_infos.pdf"%set_num)    
         pdfb.savefig(fig, bbox_inches = "tight")
         pdfb.close()
@@ -605,34 +605,31 @@ def Plot_4():
     """ Plot first method set """
     set_num_1 = 1
     save_at_1 = "Class_Data/meth_set_1/"
-    repeat_1 = [2000]
+    repeat_1 = [1000]
     exclude_1 = ("MIASA-(eCDF, KS-stat)--Kmeans", "MIASA-(eCDF, KS-stat)--Kmedoids", "non_MD-(eCDF, KS-stat)--Kmedoids")
     exclude_1_b = ["MIASA-(eCDF, eCDF)--Kmeans", "MIASA-(eCDF, KS-p1)--Kmeans"]
-    slim_1 = (0.5, 1.) # range of statistic to show on final plot
-    slim_1 = (-0.15, 0.9)
+    slim_1 = (-0.15, 0.9)# range of statistic to show on final plot
     sticks_1 = np.arange(-0.15, 0.9, 0.1)
     name_1 = "Dist."
     
     """ Plot second method set """
     set_num_2 = 2
     save_at_2 = "Class_Data/meth_set_2/"
-    repeat_2 = [2000] 
+    repeat_2 = [1000] 
     exclude_2 = ("MIASA-(Corr, Spearman_pval)--Kmeans", "MIASA-(Corr, Spearman_pval)--Kmedoids", "non_MD-(Corr, Spearman_pval)--Kmedoids")
     exclude_2_b = ["MIASA-(Corr, dCorr)--Kmeans", "MIASA-(Corr, Pearson_pval)--Kmeans"]
-    slim_2 = (0.7, 0.73) # range of statistic to show on final plot
-    slim_2 = (-0.01, 0.01)
+    slim_2 = (-0.01, 0.01) # range of statistic to show on final plot
     sticks_2 = np.arange(-0.01, 0.03+0.01, 0.01)
     name_2 = "Corr."
     
     """ Plot third method set"""
     set_num_3 = 3
     save_at_3 = "Class_Data/meth_set_3/"
-    repeat_3 = [400, 401, 402, 403, 404]
-    exclude_3 = ("MIASA-(Corr, Granger-Cause-diff-params)--Kmeans", "MIASA-(Corr, Granger-Cause-diff-params)--Kmedoids", "non_MD-(Corr, Granger-Cause-diff-params)--Kmedoids")
+    repeat_3 = [200, 201, 202, 203, 204]
+    exclude_3 = ("MIASA-(Eucl, Granger-Cause-3diff-chi2)--Agglomerative_ward","MIASA-(Eucl, Granger-Cause-3diff-chi2)--Kmedoids", "non_MD-(Eucl, Granger-Cause-3diff-chi2)--Kmedoids")
     exclude_3_b = ["MIASA-(Corr, dCorr)--Kmeans", "MIASA-(Corr, Granger-Cause-diff-chi2)--Kmeans"]
-    slim_3 = (0.59, 0.65)#0.64) # range of statistic to show on final plot
-    slim_3 = (0.05, 0.11)
-    sticks_3 = np.arange(0.05, 0.11+0.01, 0.01)
+    slim_3 = (-0.05, 0.7) # range of statistic to show on final plot
+    sticks_3 = np.arange(slim_3[0], slim_3[1]+0.1, 0.1)
     name_3 = "GRN"
     
     ''' Separated & Together '''
@@ -666,7 +663,7 @@ def Plot_4():
         exclude = exclude_list[p]
     
         PreFig(xsize = 16, ysize = 16)
-        fig = plt.figure(figsize = (20, 10))
+        fig = plt.figure(figsize = (25, 10))
         k = 1
         for j in range(len(var_data_list_labs)):
             acc_dic = {}
@@ -690,13 +687,15 @@ def Plot_4():
                             acc_dic[meth] = np.concatenate((acc_dic[meth], acc_list_n[i, :].compressed()))
                         except:
                             acc_dic[meth] = acc_list_n[i, :].compressed() ##  for mehods that is still not in dic ### normaly, by the way we run the simulations, this should only happen when n = 0
-            
+        
             method_name = list(acc_dic.keys())
             
             acc_list_2 = []
             method_name_2 = []
             for i in range(len(method_name)):
                 meth = method_name[i]
+                acc_list_2.append(acc_dic[meth])
+                method_name_2.append(meth)
                 if meth not in exclude_all[p]:
                     acc_list_2.append(acc_dic[meth])
                     method_name_2.append(meth)
@@ -704,9 +703,9 @@ def Plot_4():
             
             vert = True
             if k_all+k in (1, 4):
-                fig_all = BarPlotClass(acc_list_2, method_name_2, ax_all, fig_all, vert, labX = False, labY = True, stat_lim = stat_lim_list[p], stat_ticks = sticks_list[p], whis = (15, 95), stat_name = "RI scores")
+                fig_all = BarPlotClass(acc_list_2, method_name_2, ax_all, fig_all, vert, labX = False, labY = True, stat_lim = stat_lim_list[p], stat_ticks = sticks_list[p], whis = (5, 95), stat_name = "ARI scores")
             else:
-                fig_all = BarPlotClass(acc_list_2, method_name_2, ax_all, fig_all, vert, labX = False, labY = True, stat_lim = stat_lim_list[p], stat_ticks = sticks_list[p], whis = (15, 95), stat_name = "RI scores")
+                fig_all = BarPlotClass(acc_list_2, method_name_2, ax_all, fig_all, vert, labX = False, labY = True, stat_lim = stat_lim_list[p], stat_ticks = sticks_list[p], whis = (5, 95), stat_name = "ARI scores")
                 
                 """
                 if vert:
@@ -747,7 +746,7 @@ def Plot_4():
             if k != 1:
                 labY = False
             
-            fig = BarPlotClass(acc_list, method_name, ax, fig, labX = labX, labY = labY, stat_lim = stat_lim_list[p], stat_ticks = sticks_list[p], stat_name = "RI scores")
+            fig = BarPlotClass(acc_list, method_name, ax, fig, labX = labX, labY = labY, stat_lim = stat_lim_list[p], stat_ticks = sticks_list[p], stat_name = "ARI scores")
                         
             k += 3
             
