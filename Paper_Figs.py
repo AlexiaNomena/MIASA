@@ -30,10 +30,12 @@ def BarPlotClass(data, method_name, ax, fig, vert = True, labX = True, labY = Tr
             
         if method_name[i][:5] == "MIASA":
             #colors.append((0.745, 0.498, 0.678))
-            colors.append((0.804, 0.533, 0.686))
+            #colors.append((0.804, 0.533, 0.686))
+            colors.append((0.553, 0.812, 0.541))
         else:
             #colors.append((0.314, 0.631, 0.384))
-            colors.append((0.671, 0.867, 0.576))
+            #colors.append((0.671, 0.867, 0.576))
+            colors.append((1.00, 0.682, 0.667))
         
     bplot = ax.boxplot(data, notch = False, vert=vert, patch_artist = True, whis = whis, widths = .5, showfliers=False) # showfliers = False remove outliers
     
@@ -42,7 +44,7 @@ def BarPlotClass(data, method_name, ax, fig, vert = True, labX = True, labY = Tr
     
     if vert:
         if labX:
-            plt.xticks(np.cumsum(np.ones(len(method_name))), method_name, rotation = 90)
+            ax.set_xticks(np.cumsum(np.ones(len(method_name))), method_name, rotation = 90)
         if labY:
             plt.ylabel(stat_name, fontsize = 20)
         if stat_lim is not None:
@@ -56,7 +58,7 @@ def BarPlotClass(data, method_name, ax, fig, vert = True, labX = True, labY = Tr
             
     else:      
         if labY:
-            plt.yticks(np.cumsum(np.ones(len(method_name))), method_name)
+            ax.set_yticks(np.cumsum(np.ones(len(method_name))), method_name)
         if labX:
             plt.xlabel(stat_name, fontsize = 20)
         if stat_lim is not None:
@@ -148,7 +150,7 @@ def Plot_ARI():
     repeat_1 = [1000]
     select_1 = ("MIASA-(eCDF, KS-p1)--Agglomerative_ward", "MIASA-(eCDF, KS-p1)--Kmedoids", "non_MD-(eCDF, KS-p1)--Kmedoids")
     select_1_MW = select_1 ## included it MW test
-    slim_1 = (-0.15, 0.9)# range of statistic to show on final plot
+    slim_1 = (-0.1, 0.8)# range of statistic to show on final plot
     sticks_1 = np.arange(slim_1[0], slim_1[1]+0.1, 0.1)
     name_1 = "Distribution"
     
@@ -156,9 +158,9 @@ def Plot_ARI():
     set_num_2 = 2
     save_at_2 = "Class_Data/meth_set_2/"
     repeat_2 = [1000] 
-    select_2 = [] #("MIASA-(Corr, Spearman_pval)--Kmeans", "MIASA-(Corr, Spearman_pval)--Kmedoids", "non_MD-(Corr, Spearman_pval)--Kmedoids")
+    select_2 = ("MIASA-(eCDF, Pearson_pval)--Agglomerative_ward", "MIASA-(eCDF, Pearson_pval)--Kmedoids", "non_MD-(eCDF, Pearson_pval)--Kmedoids")
     select_2_MW = select_2
-    slim_2 = (-0.5, 1) # (-0.01, 0.9) # range of statistic to show on final plot
+    slim_2 = (-0.1, 0.9) # (-0.01, 0.9) # range of statistic to show on final plot
     sticks_2 = np.arange(slim_2[0], slim_2[1]+0.1, 0.1)
     name_2 = "Correlation"
     
@@ -166,9 +168,9 @@ def Plot_ARI():
     set_num_3 = 3
     save_at_3 = "Class_Data/meth_set_3/"
     repeat_3 = [200, 201, 202, 203, 204]
-    select_3 = []#("MIASA-(Eucl, Granger-Cause-3diff-chi2)--Agglomerative_ward","MIASA-(Eucl, Granger-Cause-3diff-chi2)--Kmedoids", "non_MD-(Eucl, Granger-Cause-3diff-chi2)--Kmedoids")
+    select_3 = ("MIASA-(Eucl, Granger-Cause-3diff-chi2)--Agglomerative_ward","MIASA-(Eucl, Granger-Cause-3diff-chi2)--Kmedoids", "non_MD-(Eucl, Granger-Cause-3diff-chi2)--Kmedoids")
     select_3_MW = select_3#["MIASA-(Corr, dCorr)--Kmeans", "MIASA-(Corr, Granger-Cause-diff-chi2)--Kmeans"]
-    slim_3 = (-0.5, 1) #(-0.05, 0.7) # range of statistic to show on final plot
+    slim_3 = (-0.1, 0.7) #(-0.05, 0.7) # range of statistic to show on final plot
     sticks_3 = np.arange(slim_3[0], slim_3[1]+0.1, 0.1)
     name_3 = "GRN"
     
@@ -185,7 +187,8 @@ def Plot_ARI():
     
     pdfb_all = PdfPages("Figures/Final/Paper_Fig_ARI.pdf")
     PreFig(xsize = 20, ysize = 20)
-    fig_all = plt.figure(figsize = (30, 20))
+    #fig_all = plt.figure(figsize = (30, 20))
+    fig_all = plt.figure(figsize = (20, 30))
     plt.subplots_adjust(bottom = 0.06, right = 0.95, left = 0.06, top = 0.90, wspace = 0.25, hspace = 0.1)
     
     pdfb_all_MW = PdfPages("Figures/Final/Paper_MW_ARI.pdf")
@@ -207,7 +210,7 @@ def Plot_ARI():
             ax = fig.add_subplot(int("%d%d%d"%(1, 2, j+1)))
             ax.set_title("%s"%Fig_title[j])
 
-            ax_all = fig_all.add_subplot(int("%d%d%d"%(2, 3, k_all+k)))
+            ax_all = fig_all.add_subplot(int("%d%d%d"%(3, 2, k_all+k)))
             ax_MW_1 = fig_all_MW_1.add_subplot(int("%d%d%d"%(6, 1, k_all+k)))
 
             for n in range(len(repeat_list)): 
@@ -251,18 +254,16 @@ def Plot_ARI():
             
             
             vert = True
-            if k_all+k in (1, 4):
-                fig_all = BarPlotClass(acc_list, method_name, ax_all, fig_all, vert, labX = True, labY = True, stat_lim = stat_lim_list[p], stat_ticks = sticks_list[p], whis = (5, 95), stat_name = "ARI scores")
-            else:
-                fig_all = BarPlotClass(acc_list, method_name, ax_all, fig_all, vert, labX = True, labY = True, stat_lim = stat_lim_list[p], stat_ticks = sticks_list[p], whis = (5, 95), stat_name = "ARI scores")
+            
+            fig_all = BarPlotClass(acc_list, method_name, ax_all, fig_all, vert, labX = True, labY = True, stat_lim = stat_lim_list[p], stat_ticks = sticks_list[p], whis = (5, 95), stat_name = "ARI scores")
                 
-                """
-                # if all methods have the same
-                if vert:
-                    ax_all.set_yticks(sticks_list[p],[" " for s in range(len(sticks_list[p]))])
-                else:
-                    ax_all.set_xticks(sticks_list[p],[" " for s in range(len(sticks_list[p]))])
-                """
+            """
+            # if all methods have the same
+            if vert:
+                ax_all.set_yticks(sticks_list[p],[" " for s in range(len(sticks_list[p]))])
+            else:
+                ax_all.set_xticks(sticks_list[p],[" " for s in range(len(sticks_list[p]))])
+            """
             
             ax_all.set_ylim(stat_lim_list[p])
             
@@ -279,14 +280,14 @@ def Plot_ARI():
             
             P1, U1, Eff_size1, Full1, ColCell1 = pairwise_MW(acc_list_2, acc_list_2, method_name_2, method_name_2, typeEs = "Kerby", snf_color = "yellow")
             ax_MW_1.set_title("(%s) %s, H0: col = row. H1 col > row"%(meth_list[p], Fig_title[j]))
-            pd.plotting.table(ax_MW_1, Full1, loc = "center", cellColours = ColCell1, colWidths = [1.5/len(method_name_2)]*len(method_name_2))            
+            pd.plotting.table(ax_MW_1, Full1, loc = "center", cellColours = ColCell1, colWidths = [1/len(method_name_2)]*len(method_name_2))            
             #pd.plotting.table(ax_MW_1, P1, loc = "upper center", colWidths = [0.75/len(method_name_2)]*len(method_name_2))
             #pd.plotting.table(ax_MW_1, U1, loc = "center", colWidths = [0.75/len(method_name_2)]*len(method_name_2))
             #pd.plotting.table(ax_MW_1, Eff_size1, loc = "lower center", colWidths = [0.75/len(method_name_2)]*len(method_name_2))
             ax_MW_1.axis("off")
                         
             """Plot all together"""
-            fig = BarPlotClass(acc_list, method_name, ax, fig, labX = True, labY = True, stat_lim = stat_lim_list[p], stat_ticks = sticks_list[p], whis = (5, 95), stat_name = "ARI scores")
+            fig = BarPlotClass(acc_list, method_name, ax, fig, vert, labX = True, labY = True, stat_lim = stat_lim_list[p], stat_ticks = sticks_list[p], whis = (5, 95), stat_name = "ARI scores")
             
 
             k += 3
@@ -295,7 +296,7 @@ def Plot_ARI():
         pdfb.savefig(fig, bbox_inches = "tight")
         pdfb.close()
         
-        k_all +=1
+        k_all +=2
     
     pdfb_all.savefig(fig_all, bbox_inches = "tight")
     pdfb_all.close()
