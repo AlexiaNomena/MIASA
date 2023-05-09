@@ -262,9 +262,9 @@ def Plot_ARI():
             
             vert = True
             if k_all+k in (1, 4):
-                fig_all = BarPlotClass(acc_list_2, method_name_2, ax_all, fig_all, vert, labX = False, labY = True, stat_lim = stat_lim_list[p], stat_ticks = sticks_list[p], whis = (5, 95), stat_name = "ARI scores")
+                fig_all = BarPlotClass(acc_list, method_name, ax_all, fig_all, vert, labX = False, labY = True, stat_lim = stat_lim_list[p], stat_ticks = sticks_list[p], whis = (5, 95), stat_name = "ARI scores")
             else:
-                fig_all = BarPlotClass(acc_list_2, method_name_2, ax_all, fig_all, vert, labX = False, labY = True, stat_lim = stat_lim_list[p], stat_ticks = sticks_list[p], whis = (5, 95), stat_name = "ARI scores")
+                fig_all = BarPlotClass(acc_list, method_name, ax_all, fig_all, vert, labX = False, labY = True, stat_lim = stat_lim_list[p], stat_ticks = sticks_list[p], whis = (5, 95), stat_name = "ARI scores")
                 
                 """
                 # if all methods have the same
@@ -285,15 +285,8 @@ def Plot_ARI():
             #else:
             #ax1.set_xticks(())
             """
-            ticks = np.cumsum(np.ones(len(method_name_2)))
-            if vert:
-                if k_all + k <= 3:
-                    ax_all.set_xticks(ticks, method_name_2, rotation = 90)
-                else:
-                    ax_all.set_xticks(ticks, ["" for t in ticks])
-            else:
-                ax_all.set_yticks(ticks, ["" for t in ticks])
-
+            
+            
             P1, U1, Eff_size1, Full1, ColCell1 = pairwise_MW(acc_list_2, acc_list_2, method_name_2, method_name_2, typeEs = "Kerby", snf_color = "yellow")
             ax_MW_1.set_title("(%s) %s, H0: col = row. H1 col > row"%(meth_list[p], Fig_title[j]))
             pd.plotting.table(ax_MW_1, Full1, loc = "center", cellColours = ColCell1, colWidths = [1.5/len(method_name_2)]*len(method_name_2))            
@@ -301,15 +294,11 @@ def Plot_ARI():
             #pd.plotting.table(ax_MW_1, U1, loc = "center", colWidths = [0.75/len(method_name_2)]*len(method_name_2))
             #pd.plotting.table(ax_MW_1, Eff_size1, loc = "lower center", colWidths = [0.75/len(method_name_2)]*len(method_name_2))
             ax_MW_1.axis("off")
-            
-            labX, labY = True, True
-            if k != 1:
-                labY = False
-            
+                        
             """Plot all together"""
-            fig = BarPlotClass(acc_list, method_name, ax, fig, labX = labX, labY = labY, stat_lim = stat_lim_list[p], stat_ticks = sticks_list[p], stat_name = "ARI scores")
-            if p == 1:
-                pdb.set_trace()
+            fig = BarPlotClass(acc_list_2, method_name_2, ax, fig, labX = True, labY = True, stat_lim = stat_lim_list[p], stat_ticks = sticks_list[p], stat_name = "ARI scores")
+            
+
             k += 3
             
         pdfb = PdfPages("Figures/Final/Paper_Fig_ARI_%d_infos.pdf"%set_num)    
