@@ -203,7 +203,7 @@ def Plot_ARI():
         fig = plt.figure(figsize = (25, 10))
         k = 1
         for j in range(len(var_data_list_labs)):
-            acc_dic = {}
+            acc_dic_all = {}
             ax = fig.add_subplot(int("%d%d%d"%(1, 2, j+1)))
             ax.set_title("%s"%Fig_title[j])
 
@@ -218,53 +218,43 @@ def Plot_ARI():
                 
                 unused_acc_list_n, acc_list_n, method_name_n = AcData["accuracy_list"], AcData["adjusted_accuracy_list"], AcData["method_name"]
                 
-                method_name = []
-                acc_list_2 = []
-                method_name_2 = []
-                acc_list = []
-                
                 for i in range(len(method_name_n)):
                     meth = method_name_n[i]
-                    method_name.append(meth)
-                    acc_list.append(acc_list_n[i, :].compressed())
-                    
-                    if len(select_list) != 0:
-                        if meth in select_list:
-                            try:
-                                acc_dic[meth] = np.concatenate((acc_dic[meth], acc_list_n[i, :].compressed()))
-                            except:
-                                acc_dic[meth] = acc_list_n[i, :].compressed() ##  for mehods that is still not in dic ### normaly, by the way we run the simulations, this should only happen when n = 0
-                        
-                            acc_list_2.append(acc_dic[meth])
-                            method_name_2.append(meth)
-                            if len(select_for_MW[p]) != 0:
-                                if meth in select_for_MW[p]:
-                                    acc_list_2.append(acc_dic[meth])
-                                    method_name_2.append(meth)
-                            else:
-                                method_name_2.append(method_name[i])
-                    
+                    if n == 0:
+                        acc_dic_all[meth] = acc_list_n[i, :].compressed()
                     else:
-                        try:
-                            acc_dic[meth] = np.concatenate((acc_dic[meth], acc_list_n[i, :].compressed()))
-                        except:
-                            acc_dic[meth] = acc_list_n[i, :].compressed() ##  for mehods that is still not in dic ### normaly, by the way we run the simulations, this should only happen when n = 0
-                        
-                        acc_list_2.append(acc_dic[meth])
-                        method_name_2.append(meth)
-                        if len(select_for_MW[p]) != 0:
-                            if meth in select_for_MW[p]:
-                                acc_list_2.append(acc_dic[meth])
-                                method_name_2.append(meth)
-                        else:
-                            method_name_2.append(method_name[i])
+                        acc_dic_all[meth] = np.concatenate((acc_dic_all[meth], acc_list_n[i, :].compressed()))
                 
+            acc_list = []
+            acc_list_2 = []
+            method_name_all = list(acc_dic_all.keys())
+            method_name = []
+            method_name_2 = []
+            
+            for i in range(len(method_name_all)):
+                meth = method_name_all[i]
+                if len(select_list) != 0:
+                    if meth in select_list:
+                        acc_list.append(acc_dic_all[meth])
+                        method_name.append(meth)
+                else:
+                    acc_list.append(acc_dic_all[meth])
+                    method_name.append(meth)
+                    
+                if len(select_for_MW[p]) != 0:    
+                    if meth in select_for_MW[p]:
+                        acc_list_2.append(acc_dic_all[meth])
+                        method_name_2.append(meth)
+                else:
+                    acc_list_2.append(acc_dic_all[meth])
+                    method_name_2.append(meth)
+            
             
             vert = True
             if k_all+k in (1, 4):
-                fig_all = BarPlotClass(acc_list, method_name, ax_all, fig_all, vert, labX = False, labY = True, stat_lim = stat_lim_list[p], stat_ticks = sticks_list[p], whis = (5, 95), stat_name = "ARI scores")
+                fig_all = BarPlotClass(acc_list, method_name, ax_all, fig_all, vert, labX = True, labY = True, stat_lim = stat_lim_list[p], stat_ticks = sticks_list[p], whis = (5, 95), stat_name = "ARI scores")
             else:
-                fig_all = BarPlotClass(acc_list, method_name, ax_all, fig_all, vert, labX = False, labY = True, stat_lim = stat_lim_list[p], stat_ticks = sticks_list[p], whis = (5, 95), stat_name = "ARI scores")
+                fig_all = BarPlotClass(acc_list, method_name, ax_all, fig_all, vert, labX = True, labY = True, stat_lim = stat_lim_list[p], stat_ticks = sticks_list[p], whis = (5, 95), stat_name = "ARI scores")
                 
                 """
                 # if all methods have the same
@@ -296,7 +286,7 @@ def Plot_ARI():
             ax_MW_1.axis("off")
                         
             """Plot all together"""
-            fig = BarPlotClass(acc_list_2, method_name_2, ax, fig, labX = True, labY = True, stat_lim = stat_lim_list[p], stat_ticks = sticks_list[p], stat_name = "ARI scores")
+            fig = BarPlotClass(acc_list, method_name, ax, fig, labX = True, labY = True, stat_lim = stat_lim_list[p], stat_ticks = sticks_list[p], whis = (5, 95), stat_name = "ARI scores")
             
 
             k += 3
