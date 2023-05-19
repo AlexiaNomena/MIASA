@@ -160,157 +160,6 @@ def generate_data_correlated(var_data = False, noise = False, palette = "tab20",
     
     return data_dic, class_dic, num_clust, dtp
 
-def generate_data_correlated_ver2(var_data = False, noise = False, palette = "tab20", random_state = None):
-    
-    if random_state is not None:
-        np.random.seed(random_state) # in case one needs a reproducible result
-        
-    """Generate Artificial data from bivariate distributions """
-    per_spl = 300 # Num of iid observation in each samples 
-    data_dic = {}
-    class_type1 = ["1a", "1b", "1c", "1d", "1e", "1f", "1g", "1h", "1i", "1j"] # bivariate Normal Dist
-    
-    #mean_list = np.array([[0, 0], [10, 10], [0, 10], [10, 0], [20, 10], [10, 20]]) # not allowing repeating means
-    #pdb.set_trace()
-    #var1 = np.column_stack((2*(np.ones((len(class_type1)))), 2*(np.ones((len(class_type1))))))
-    #cov1 = np.ones(len(class_type1))
-    
-    mean_list = np.random.choice(50, size = (len(class_type1), 2), replace = False) # not allowing repeating means
-    var1 =  np.random.uniform(5, 10, size = (len(class_type1), 2)) # 2*np.ones((len(class_type1), 2)) # fix variance for stability of stimulations
-    cov1 = np.random.uniform(-3, 3, size = len(class_type1)) # always has to be less than the variance for a PSD covariance matrix (Gershgorin)
-    
-    class_type2 = ["2a", "2b", "2c", "2d", "2e", "2f", "2g", "2h", "2i", "2j"] # bivariate t Dist
-    nu = 3 ##
-    loc_list = 2*np.random.choice(50, size = (len(class_type1), 2), replace = False) # not allowing repeating means
-    var2 = np.random.uniform(5, 10, size = (len(class_type1), 2)) # 2*np.ones((len(class_type1), 2)) # fix variance for stability of stimulations
-    sigma2 = np.random.uniform(-3, 3, size = len(class_type2))
-
-    
-    num_clust = len(class_type1) + len(class_type2)
-    labs = np.cumsum(np.ones(num_clust)) - 1
-    
-    colors_dic = {}
-    colors = sns.color_palette(palette, num_clust)
-    
-    # Number of samples per classes
-    MaxNumVar = 25
-    if var_data:
-        num_var_list = np.random.choice(np.arange(2, MaxNumVar), size = len(labs))
-        num_var = {labs[k]: num_var_list[k] for k in range(len(labs))}
-    else:
-        num_var = {labs[k]:MaxNumVar for k in range(len(labs))}
-    
-    ## collecting separated samples
-    data_dic["X_vars"] = []
-    data_dic["Y_vars"] = []
-    
-    class_dic = {}
-    k = 0
-    for i in range(10):
-        lab = labs[k:k+2]
-        for j in range(MaxNumVar + 1):
-            if j < num_var[lab[0]]:
-                cov_i = np.array([[0, cov1[i]], [cov1[i], 0]]) + np.diag(var1[i, :])
-                Z = np.random.multivariate_normal(mean_list[i, :], cov_i, size = per_spl)
-                data_dic[class_type1[i]+"%d_%d"%(j+1, 0)] = Z[:, 0]
-                class_dic[class_type1[i]+"%d_%d"%(j+1, 0)] = lab[0]
-                colors_dic[class_type1[i]+"%d_%d"%(j+1, 0)] =  colors[k]
-                data_dic["X_vars"].append(class_type1[i]+"%d_%d"%(j+1, 0))
-                
-                data_dic[class_type1[i]+"%d_%d"%(j+1, 1)] = Z[:, 1]
-                class_dic[class_type1[i]+"%d_%d"%(j+1, 1)] = lab[0]
-                colors_dic[class_type1[i]+"%d_%d"%(j+1, 1)] = colors[k]
-                data_dic["Y_vars"].append(class_type1[i]+"%d_%d"%(j+1, 1))
-                
-
-               
-            if j < num_var[lab[1]]:
-                SIGMA = ((nu-2)/nu)*np.array([[0, sigma2[i]], [sigma2[i], 0]]) + np.diag(var2[i, :]) 
-                frozen_t = stats.multivariate_t(loc_list[i, :], SIGMA, df = nu) # the covariance is given by (nu/(nu - 2))SIGMA for nu>3 (https://en.wikipedia.org/wiki/Multivariate_t-distribution)
-                Z = frozen_t.rvs(size = per_spl)
-                data_dic[class_type2[i]+"%d_%d"%(j+1, 0)] = Z[:, 0]
-                class_dic[class_type2[i]+"%d_%d"%(j+1, 0)] = lab[1]
-                colors_dic[class_type2[i]+"%d_%d"%(j+1, 0)] =  colors[k+1]
-                data_dic["X_vars"].append(class_type2[i]+"%d_%d"%(j+1, 0))
-
-                data_dic[class_type2[i]+"%d_%d"%(j+1, 1)] = Z[:, 1]
-                class_dic[class_type2[i]+"%d_%d"%(j+1, 1)] = lab[1]
-                colors_dic[class_type2[i]+"%d_%d"%(j+1, 1)] = colors[k+1]
-                data_dic["Y_vars"].append(class_type2[i]+"%d_%d"%(j+1, 1))
-               
-        k += 2   
-    dtp = (str, str)  #This is the type of the labels checked from printing
-    
-    data_dic["true_colors"] = colors_dic
-    
-    return data_dic, class_dic, num_clust, dtp
-
-
-def generate_data_correlated_2(var_data = False, noise = False, palette = "tab20", random_state = None):
-    
-    if random_state is not None:
-        np.random.seed(random_state) # in case one needs a reproducible result
-        
-    """Generate Artificial data from bivariate distributions """
-    per_spl = 200 # Num of iid observation in each samples 
-    data_dic = {}
-    class_type1 = ["1a", "1b", "1c"] # bivariate Normal Dist
-    mean_list1 = np.random.choice(10, size = (len(class_type1), 2), replace = False) # not allowing repeating means
-    var1 =  np.random.uniform(2, 5, size = (len(class_type1), 2)) # 2*np.ones((len(class_type1), 2)) # fix variance for stability of stimulations
-    corr1 = np.random.uniform(-1, 1, size = len(class_type1)) # always has to be less than the variance for a PSD covariance matrix (Gershgorin)
-    
-    class_type2 = ["2a", "2b", "2c"] # bivariate_Normal Dist
-    mean_list2 = np.random.choice(15, size = (len(class_type2), 2), replace = False)
-    var2 = np.random.uniform(2, 5, size = (len(class_type1), 2)) # 2*np.ones((len(class_type1), 2)) # fix variance for stability of stimulations
-    corr2 = np.random.uniform(-1, 1, size = len(class_type2))
-    
-    
-    num_clust = len(class_type1) + len(class_type2)
-    labs = np.cumsum(np.ones(num_clust)) - 1
-    
-    # Number of samples per classes
-    MaxNumVar = 25
-    if var_data:
-        num_var_list = np.random.choice(np.arange(2, MaxNumVar), size = len(labs))
-        num_var = {labs[k]: num_var_list[k] for k in range(len(labs))}
-    else:
-        num_var = {labs[k]:MaxNumVar for k in range(len(labs))}
-    
-    ## collecting separated samples
-    data_dic["X_vars"] = []
-    data_dic["Y_vars"] = []
-    
-    class_dic = {}
-    k = 0
-    for i in range(3):
-        lab = labs[k:k+2]
-        for j in range(MaxNumVar + 1):
-            if j < num_var[lab[0]]:
-                cov_i = np.array([[0, corr1[i]], [corr1[i], 0]]) + np.diag(var1[i, :])
-                Z = np.random.multivariate_normal(mean_list1[i, :], cov_i, size = per_spl)
-                data_dic[class_type1[i]+"%d_%d"%(j+1, 0)] = Z[:, 0]
-                class_dic[class_type1[i]+"%d_%d"%(j+1, 0)] = lab[0]
-                data_dic["X_vars"].append(class_type1[i]+"%d_%d"%(j+1, 0))
-                
-                data_dic[class_type1[i]+"%d_%d"%(j+1, 1)] = Z[:, 1]
-                class_dic[class_type1[i]+"%d_%d"%(j+1, 1)] = lab[0]
-                data_dic["Y_vars"].append(class_type1[i]+"%d_%d"%(j+1, 1))
-
-            if j < num_var[lab[1]]:
-                cov_i = np.array([[0, corr2[i]], [corr2[i], 0]]) + np.diag(var2[i, :])
-                Z = np.random.multivariate_normal(mean_list2[i, :], cov_i, size = per_spl)
-                
-                data_dic[class_type2[i]+"%d_%d"%(j+1, 0)] = Z[:, 0]
-                class_dic[class_type2[i]+"%d_%d"%(j+1, 0)] = lab[1]
-                data_dic["X_vars"].append(class_type2[i]+"%d_%d"%(j+1, 0))
-
-                data_dic[class_type2[i]+"%d_%d"%(j+1, 1)] = Z[:, 1]
-                class_dic[class_type2[i]+"%d_%d"%(j+1, 1)] = lab[1]
-                data_dic["Y_vars"].append(class_type2[i]+"%d_%d"%(j+1, 1))
-
-        k += 2    
-    dtp = (str, str) 
-    return data_dic, class_dic, num_clust, dtp
 
 """ Classification Experiment on random samples from SSA of two Gene Regulation Network """
 """ GRN_Models folder containing all relevant modules Can be downloaded from https://github.com/vikramsunkara/ScRNAseqMoments"""
@@ -327,114 +176,7 @@ from .GRN_Models.B_MRNA_No_UpRegulation import propensities as prop_NoI_G2 # ext
 from .GRN_Models.MRNA_Single_UpRegulation import propensities as prop_Up_G1 # extract M1, M2
 from .GRN_Models.MRNA_Double_UpRegulation import propensities as prop_Up_G1G2 # extract M1, M2
 
-
-def generate_data_twoGRN(var_data = False, noise = False, palette = "tab20", random_state = None):
-    if random_state is not None:
-        np.random.seed(random_state) # in case one needs a reproducible result
     
-    """Generate Artificial data from SSA of two Gene Regulation Network """
-    per_spl = 100 #200 # Num of iid observation in each samples 
-    T = np.linspace(0.0, 60.0, per_spl)
-    #T = np.linspace(0.0, 5, per_spl)
-    initial_state = np.array([0,0,0,0,0,0]) # ssa functions return trajectories of species in the order ('G1','G2','P1','P2', 'M1','M2'), 
-    loc_mRNA = np.array([4, 5]) # M1, M2 are the simulated mRNA counts
-    
-    data_dic = {}
-    class_type1 = ["NoI", "S_Up", "D_Up"]
-    ssa_func_list = [ssa_func, ssa_func, ssa_func, ssa_func] # can exclude change of parameters in this form
-    trans = [(trans_NoI_G1, trans_NoI_G2), (trans_Up_G1, ), (trans_Up_G1G2, )]
-    propens = [(prop_NoI_G1, prop_NoI_G2), (prop_Up_G1, ), (prop_Up_G1G2, )]
-    
-    num_clust = len(class_type1)
-    labs = np.cumsum(np.ones(num_clust)) - 1
-    
-    # Number of samples per classes
-    MaxNumVar = 25
-    if var_data:
-        num_var_list = np.random.choice(np.arange(2, MaxNumVar), size = len(labs), replace = False)
-        num_var = {labs[k]: num_var_list[k] for k in range(len(labs))}
-    else:
-        num_var = {labs[k]:MaxNumVar for k in range(len(labs))}
-    
-    
-    ## collecting separated samples
-    data_dic["X_vars"] = []
-    data_dic["Y_vars"] = []
-    
-    class_dic = {}
-    k = 0
-    """
-    for i in range(len(class_type1)):
-        lab = [labs[k]]
-        for j in range(MaxNumVar + 1):
-            print(i, j)
-            if j < num_var[lab[0]]:
-                data_dic["X_vars"].append(class_type1[i]+"%d_%d"%(j+1, 0))
-                data_dic["Y_vars"].append(class_type1[i]+"%d_%d"%(j+1, 1))
-                if class_type1[i] != "NoI":
-                    ssa_i = ssa_func_list[i](Stochiometry = trans[i][0], Propensities = propens[i][0], X_0 = initial_state, T_Obs_Points = T)
-                    Z = ssa_i[loc_mRNA, :]
-                    data_dic[class_type1[i]+"%d_%d"%(j+1, 0)] = Z[0, :]
-                    data_dic[class_type1[i]+"%d_%d"%(j+1, 1)] = Z[1, :]
-                    class_dic[class_type1[i]+"%d_%d"%(j+1, 0)] = lab[0]
-                    class_dic[class_type1[i]+"%d_%d"%(j+1, 1)] = lab[0]  
-                else:
-                    ssa_i_0 = ssa_func_list[i](Stochiometry = trans[i][0], Propensities = propens[i][0], X_0 = initial_state, T_Obs_Points = T)
-                    data_dic[class_type1[i]+"%d_%d"%(j+1, 0)] = ssa_i_0[loc_mRNA[0], :]
-                    ssa_i_1 = ssa_func_list[i](Stochiometry = trans[i][1], Propensities = propens[i][1], X_0 = initial_state, T_Obs_Points = T)
-                    data_dic[class_type1[i]+"%d_%d"%(j+1, 1)] = ssa_i_1[loc_mRNA[1], :]
-                    class_dic[class_type1[i]+"%d_%d"%(j+1, 0)] = lab[0]
-                    class_dic[class_type1[i]+"%d_%d"%(j+1, 1)] = max(labs)+1+lab[0] # separate label for non-interacting species
-
-        k += 1    
-    """
-    for i in range(len(class_type1)):
-        lab = [labs[k]]
-        ## Run SSA separately with Joblib because each of then is slow
-        GRN_sub_p = partial(GRN_sub, i=i, num_var=num_var, lab=lab, 
-                            class_type = class_type1, ssa_func_list=ssa_func_list, 
-                            loc_mRNA = loc_mRNA, trans = trans, propens = propens, 
-                            initial_state = initial_state, T = T)
-        
-        res_list = jb.Parallel(n_jobs = 8)(jb.delayed(GRN_sub_p)(j) for j in range(MaxNumVar + 1))
-        ## place the runs into the data_dic 
-        for j in range(MaxNumVar + 1):
-            if j < num_var[lab[0]]:
-                Z = res_list[j]
-                data_dic["X_vars"].append(class_type1[i]+"%d_%d"%(j+1, 0))
-                data_dic["Y_vars"].append(class_type1[i]+"%d_%d"%(j+1, 1))
-                if class_type1[i] != "NoI":
-                    data_dic[class_type1[i]+"%d_%d"%(j+1, 0)] = Z[0, :]
-                    data_dic[class_type1[i]+"%d_%d"%(j+1, 1)] = Z[1, :]
-                    class_dic[class_type1[i]+"%d_%d"%(j+1, 0)] = lab[0]
-                    class_dic[class_type1[i]+"%d_%d"%(j+1, 1)] = lab[0]
-                else:
-                    data_dic[class_type1[i]+"%d_%d"%(j+1, 0)] = Z[0]
-                    data_dic[class_type1[i]+"%d_%d"%(j+1, 1)] = Z[1]
-                    class_dic[class_type1[i]+"%d_%d"%(j+1, 0)] = lab[0]
-                    class_dic[class_type1[i]+"%d_%d"%(j+1, 1)] = max(labs)+1+lab[0] # separate label for non-interacting species
-    
-    num_clust = num_clust + 1 # the 2 Genes in the NoI was assigned to different classes
-    dtp = (str, str) #This is the type of the labels checked from printing
-    return data_dic, class_dic, num_clust, dtp
-
-
-def GRN_sub(j, i, num_var, lab, class_type, ssa_func_list, loc_mRNA, trans, propens, initial_state, T):
-    if j < num_var[lab[0]]:
-
-        if class_type[i] != "NoI":
-            ssa_i = ssa_func_list[i](Stochiometry = trans[i][0], Propensities = propens[i][0], X_0 = initial_state, T_Obs_Points = T)
-            Z = ssa_i[loc_mRNA, :]
-            
-        else:
-            ssa_i_0 = ssa_func_list[i](Stochiometry = trans[i][0], Propensities = propens[i][0], X_0 = initial_state, T_Obs_Points = T)
-            ssa_i_1 = ssa_func_list[i](Stochiometry = trans[i][1], Propensities = propens[i][1], X_0 = initial_state, T_Obs_Points = T)
-            Z = (ssa_i_0[loc_mRNA[0], :], ssa_i_1[loc_mRNA[1], :])
-          
-            
-        return Z
-    
-
 def load_data_twoGRN(var_data = False, noise = False, palette = "tab20", random_state = None):
     
     #if random_state is not None:
@@ -563,3 +305,237 @@ def GRN_load_raw(sample_size, filename, loc_species, random_state = None):
     return Z
 
  
+"""---------------------------- Prev functions --------------------------------------------------------"""
+def generate_data_correlated_2(var_data = False, noise = False, palette = "tab20", random_state = None):
+    
+    if random_state is not None:
+        np.random.seed(random_state) # in case one needs a reproducible result
+        
+    """Generate Artificial data from bivariate distributions """
+    per_spl = 200 # Num of iid observation in each samples 
+    data_dic = {}
+    class_type1 = ["1a", "1b", "1c"] # bivariate Normal Dist
+    mean_list1 = np.random.choice(10, size = (len(class_type1), 2), replace = False) # not allowing repeating means
+    var1 =  np.random.uniform(2, 5, size = (len(class_type1), 2)) # 2*np.ones((len(class_type1), 2)) # fix variance for stability of stimulations
+    corr1 = np.random.uniform(-1, 1, size = len(class_type1)) # always has to be less than the variance for a PSD covariance matrix (Gershgorin)
+    
+    class_type2 = ["2a", "2b", "2c"] # bivariate_Normal Dist
+    mean_list2 = np.random.choice(15, size = (len(class_type2), 2), replace = False)
+    var2 = np.random.uniform(2, 5, size = (len(class_type1), 2)) # 2*np.ones((len(class_type1), 2)) # fix variance for stability of stimulations
+    corr2 = np.random.uniform(-1, 1, size = len(class_type2))
+    
+    
+    num_clust = len(class_type1) + len(class_type2)
+    labs = np.cumsum(np.ones(num_clust)) - 1
+    
+    # Number of samples per classes
+    MaxNumVar = 25
+    if var_data:
+        num_var_list = np.random.choice(np.arange(2, MaxNumVar), size = len(labs))
+        num_var = {labs[k]: num_var_list[k] for k in range(len(labs))}
+    else:
+        num_var = {labs[k]:MaxNumVar for k in range(len(labs))}
+    
+    ## collecting separated samples
+    data_dic["X_vars"] = []
+    data_dic["Y_vars"] = []
+    
+    class_dic = {}
+    k = 0
+    for i in range(3):
+        lab = labs[k:k+2]
+        for j in range(MaxNumVar + 1):
+            if j < num_var[lab[0]]:
+                cov_i = np.array([[0, corr1[i]], [corr1[i], 0]]) + np.diag(var1[i, :])
+                Z = np.random.multivariate_normal(mean_list1[i, :], cov_i, size = per_spl)
+                data_dic[class_type1[i]+"%d_%d"%(j+1, 0)] = Z[:, 0]
+                class_dic[class_type1[i]+"%d_%d"%(j+1, 0)] = lab[0]
+                data_dic["X_vars"].append(class_type1[i]+"%d_%d"%(j+1, 0))
+                
+                data_dic[class_type1[i]+"%d_%d"%(j+1, 1)] = Z[:, 1]
+                class_dic[class_type1[i]+"%d_%d"%(j+1, 1)] = lab[0]
+                data_dic["Y_vars"].append(class_type1[i]+"%d_%d"%(j+1, 1))
+
+            if j < num_var[lab[1]]:
+                cov_i = np.array([[0, corr2[i]], [corr2[i], 0]]) + np.diag(var2[i, :])
+                Z = np.random.multivariate_normal(mean_list2[i, :], cov_i, size = per_spl)
+                
+                data_dic[class_type2[i]+"%d_%d"%(j+1, 0)] = Z[:, 0]
+                class_dic[class_type2[i]+"%d_%d"%(j+1, 0)] = lab[1]
+                data_dic["X_vars"].append(class_type2[i]+"%d_%d"%(j+1, 0))
+
+                data_dic[class_type2[i]+"%d_%d"%(j+1, 1)] = Z[:, 1]
+                class_dic[class_type2[i]+"%d_%d"%(j+1, 1)] = lab[1]
+                data_dic["Y_vars"].append(class_type2[i]+"%d_%d"%(j+1, 1))
+
+        k += 2    
+    dtp = (str, str) 
+    return data_dic, class_dic, num_clust, dtp
+
+def generate_data_twoGRN(var_data = False, noise = False, palette = "tab20", random_state = None):
+    if random_state is not None:
+        np.random.seed(random_state) # in case one needs a reproducible result
+    
+    """Generate Artificial data from SSA of two Gene Regulation Network """
+    per_spl = 100 # Num of observation in each samples 
+    T = np.linspace(0.0, 60.0, per_spl)
+    #T = np.linspace(0.0, 5, per_spl)
+    initial_state = np.array([0,0,0,0,0,0]) # ssa functions return trajectories of species in the order ('G1','G2','P1','P2', 'M1','M2'), 
+    loc_mRNA = np.array([4, 5]) # M1, M2 are the simulated mRNA counts
+    
+    data_dic = {}
+    class_type1 = ["NoI", "S_Up", "D_Up"]
+    ssa_func_list = [ssa_func, ssa_func, ssa_func, ssa_func] # can exclude change of parameters in this form
+    trans = [(trans_NoI_G1, trans_NoI_G2), (trans_Up_G1, ), (trans_Up_G1G2, )]
+    propens = [(prop_NoI_G1, prop_NoI_G2), (prop_Up_G1, ), (prop_Up_G1G2, )]
+    
+    num_clust = len(class_type1)
+    labs = np.cumsum(np.ones(num_clust)) - 1
+    
+    # Number of samples per classes
+    MaxNumVar = 25
+    if var_data:
+        num_var_list = np.random.choice(np.arange(2, MaxNumVar), size = len(labs), replace = False)
+        num_var = {labs[k]: num_var_list[k] for k in range(len(labs))}
+    else:
+        num_var = {labs[k]:MaxNumVar for k in range(len(labs))}
+    
+    
+    ## collecting separated samples
+    data_dic["X_vars"] = []
+    data_dic["Y_vars"] = []
+    
+    class_dic = {}
+    k = 0
+
+    for i in range(len(class_type1)):
+        lab = [labs[k]]
+        ## Run SSA separately with Joblib because each of then is slow
+        GRN_sub_p = partial(GRN_sub, i=i, num_var=num_var, lab=lab, 
+                            class_type = class_type1, ssa_func_list=ssa_func_list, 
+                            loc_mRNA = loc_mRNA, trans = trans, propens = propens, 
+                            initial_state = initial_state, T = T)
+        
+        res_list = jb.Parallel(n_jobs = 8)(jb.delayed(GRN_sub_p)(j) for j in range(MaxNumVar + 1))
+        ## place the runs into the data_dic 
+        for j in range(MaxNumVar + 1):
+            if j < num_var[lab[0]]:
+                Z = res_list[j]
+                data_dic["X_vars"].append(class_type1[i]+"%d_%d"%(j+1, 0))
+                data_dic["Y_vars"].append(class_type1[i]+"%d_%d"%(j+1, 1))
+                if class_type1[i] != "NoI":
+                    data_dic[class_type1[i]+"%d_%d"%(j+1, 0)] = Z[0, :]
+                    data_dic[class_type1[i]+"%d_%d"%(j+1, 1)] = Z[1, :]
+                    class_dic[class_type1[i]+"%d_%d"%(j+1, 0)] = lab[0]
+                    class_dic[class_type1[i]+"%d_%d"%(j+1, 1)] = lab[0]
+                else:
+                    data_dic[class_type1[i]+"%d_%d"%(j+1, 0)] = Z[0]
+                    data_dic[class_type1[i]+"%d_%d"%(j+1, 1)] = Z[1]
+                    class_dic[class_type1[i]+"%d_%d"%(j+1, 0)] = lab[0]
+                    class_dic[class_type1[i]+"%d_%d"%(j+1, 1)] = max(labs)+1+lab[0] # separate label for non-interacting species
+    
+    num_clust = num_clust + 1 # the 2 Genes in the NoI was assigned to different classes
+    dtp = (str, str) #This is the type of the labels checked from printing
+    return data_dic, class_dic, num_clust, dtp
+
+
+def GRN_sub(j, i, num_var, lab, class_type, ssa_func_list, loc_mRNA, trans, propens, initial_state, T):
+    if j < num_var[lab[0]]:
+
+        if class_type[i] != "NoI":
+            ssa_i = ssa_func_list[i](Stochiometry = trans[i][0], Propensities = propens[i][0], X_0 = initial_state, T_Obs_Points = T)
+            Z = ssa_i[loc_mRNA, :]
+            
+        else:
+            ssa_i_0 = ssa_func_list[i](Stochiometry = trans[i][0], Propensities = propens[i][0], X_0 = initial_state, T_Obs_Points = T)
+            ssa_i_1 = ssa_func_list[i](Stochiometry = trans[i][1], Propensities = propens[i][1], X_0 = initial_state, T_Obs_Points = T)
+            Z = (ssa_i_0[loc_mRNA[0], :], ssa_i_1[loc_mRNA[1], :])
+          
+            
+        return Z
+
+def generate_data_correlated_ver2(var_data = False, noise = False, palette = "tab20", random_state = None):
+    
+    if random_state is not None:
+        np.random.seed(random_state) # in case one needs a reproducible result
+        
+    """Generate Artificial data from bivariate distributions """
+    per_spl = 300 # Num of iid observation in each samples 
+    data_dic = {}
+    class_type1 = ["1a", "1b", "1c", "1d", "1e", "1f", "1g", "1h", "1i", "1j"] # bivariate Normal Dist
+    
+    #mean_list = np.array([[0, 0], [10, 10], [0, 10], [10, 0], [20, 10], [10, 20]]) # not allowing repeating means
+    #pdb.set_trace()
+    #var1 = np.column_stack((2*(np.ones((len(class_type1)))), 2*(np.ones((len(class_type1))))))
+    #cov1 = np.ones(len(class_type1))
+    
+    mean_list = np.random.choice(50, size = (len(class_type1), 2), replace = False) # not allowing repeating means
+    var1 =  np.random.uniform(5, 10, size = (len(class_type1), 2)) # 2*np.ones((len(class_type1), 2)) # fix variance for stability of stimulations
+    cov1 = np.random.uniform(-3, 3, size = len(class_type1)) # always has to be less than the variance for a PSD covariance matrix (Gershgorin)
+    
+    class_type2 = ["2a", "2b", "2c", "2d", "2e", "2f", "2g", "2h", "2i", "2j"] # bivariate t Dist
+    nu = 3 ##
+    loc_list = 2*np.random.choice(50, size = (len(class_type1), 2), replace = False) # not allowing repeating means
+    var2 = np.random.uniform(5, 10, size = (len(class_type1), 2)) # 2*np.ones((len(class_type1), 2)) # fix variance for stability of stimulations
+    sigma2 = np.random.uniform(-3, 3, size = len(class_type2))
+
+    
+    num_clust = len(class_type1) + len(class_type2)
+    labs = np.cumsum(np.ones(num_clust)) - 1
+    
+    colors_dic = {}
+    colors = sns.color_palette(palette, num_clust)
+    
+    # Number of samples per classes
+    MaxNumVar = 25
+    if var_data:
+        num_var_list = np.random.choice(np.arange(2, MaxNumVar), size = len(labs))
+        num_var = {labs[k]: num_var_list[k] for k in range(len(labs))}
+    else:
+        num_var = {labs[k]:MaxNumVar for k in range(len(labs))}
+    
+    ## collecting separated samples
+    data_dic["X_vars"] = []
+    data_dic["Y_vars"] = []
+    
+    class_dic = {}
+    k = 0
+    for i in range(10):
+        lab = labs[k:k+2]
+        for j in range(MaxNumVar + 1):
+            if j < num_var[lab[0]]:
+                cov_i = np.array([[0, cov1[i]], [cov1[i], 0]]) + np.diag(var1[i, :])
+                Z = np.random.multivariate_normal(mean_list[i, :], cov_i, size = per_spl)
+                data_dic[class_type1[i]+"%d_%d"%(j+1, 0)] = Z[:, 0]
+                class_dic[class_type1[i]+"%d_%d"%(j+1, 0)] = lab[0]
+                colors_dic[class_type1[i]+"%d_%d"%(j+1, 0)] =  colors[k]
+                data_dic["X_vars"].append(class_type1[i]+"%d_%d"%(j+1, 0))
+                
+                data_dic[class_type1[i]+"%d_%d"%(j+1, 1)] = Z[:, 1]
+                class_dic[class_type1[i]+"%d_%d"%(j+1, 1)] = lab[0]
+                colors_dic[class_type1[i]+"%d_%d"%(j+1, 1)] = colors[k]
+                data_dic["Y_vars"].append(class_type1[i]+"%d_%d"%(j+1, 1))
+                
+
+               
+            if j < num_var[lab[1]]:
+                SIGMA = ((nu-2)/nu)*np.array([[0, sigma2[i]], [sigma2[i], 0]]) + np.diag(var2[i, :]) 
+                frozen_t = stats.multivariate_t(loc_list[i, :], SIGMA, df = nu) # the covariance is given by (nu/(nu - 2))SIGMA for nu>3 (https://en.wikipedia.org/wiki/Multivariate_t-distribution)
+                Z = frozen_t.rvs(size = per_spl)
+                data_dic[class_type2[i]+"%d_%d"%(j+1, 0)] = Z[:, 0]
+                class_dic[class_type2[i]+"%d_%d"%(j+1, 0)] = lab[1]
+                colors_dic[class_type2[i]+"%d_%d"%(j+1, 0)] =  colors[k+1]
+                data_dic["X_vars"].append(class_type2[i]+"%d_%d"%(j+1, 0))
+
+                data_dic[class_type2[i]+"%d_%d"%(j+1, 1)] = Z[:, 1]
+                class_dic[class_type2[i]+"%d_%d"%(j+1, 1)] = lab[1]
+                colors_dic[class_type2[i]+"%d_%d"%(j+1, 1)] = colors[k+1]
+                data_dic["Y_vars"].append(class_type2[i]+"%d_%d"%(j+1, 1))
+               
+        k += 2   
+    dtp = (str, str)  #This is the type of the labels checked from printing
+    
+    data_dic["true_colors"] = colors_dic
+    
+    return data_dic, class_dic, num_clust, dtp
+

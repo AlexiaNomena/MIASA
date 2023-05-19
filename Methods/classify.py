@@ -140,7 +140,7 @@ import pandas as pd
 
 def plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neighbors = 2, min_dist = 0.99, method = "umap", 
                         scale = None, sub_fig_size = 7, cluster_colors = False, true_colors = None, markers = [("o",20),("o",20)],
-                        show_labels = False, show_orig = True, metric = "euclidean"):        
+                        show_labels = False, show_orig = True, metric = "euclidean", legend = True):        
     """@brief Plot and Save class figures"""
     
     """Lower Dimensional visualization of clusters"""
@@ -199,7 +199,7 @@ def plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neighbors = 2, 
     
     col_to_use = (col_rows, col_cols)
     marker_to_use = markers #[("o",20),("o",20)]
-    fig, xy_rows, xy_cols, gs, center = Display(Rows_manifold, 
+    fig, ax, xy_rows, xy_cols, gs, center = Display(Rows_manifold, 
                                                  Cols_manifold, 
                                                  Inertia, 
                                                  DataFrame,
@@ -218,13 +218,33 @@ def plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neighbors = 2, 
                                                  model={"model":"stand"}, 
                                                  ColName = ColName, 
                                                  RowName = RowName,
-                                                 lims = False) # crop fig
+                                                 lims = False,
+                                                 give_ax = True) # crop fig
     
-    pdf.savefig(fig, bbox_inches = "tight")    
+         
+    if legend & (not cluster_colors):
+         col_done = []
+         for i in range(len(X_vars)):
+             if true_colors[X_vars[i]] not in col_done:
+                 ax.scatter(np.zeros(1), np.zeros(1), marker = marker_to_use[0][0], s =  marker_to_use[0][1], color = true_colors[X_vars[i]], label = rows_labels[X_vars[i]])
+                 col_done.append(true_colors[X_vars[i]])
+         
+         ax.annotate("place_holder", xy=(0,0), 
+                  xytext= (5, 5), textcoords='offset points', ha='center', va='bottom',
+                  bbox=dict(boxstyle='circle', fc = "white"),
+                  arrowprops=dict(arrowstyle='->', color = "black"),  #connectionstyle='arc3,rad=0.5'),
+                  color= "black",
+                  fontsize = 6
+                   )
+         plt.legend()
+         
+        
+    pdf.savefig(fig, bbox_inches = "tight")
+         
 
 def plotClass_separated(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neighbors = 2, min_dist = 0.99, method = "umap", 
                         scale = None, sub_fig_size = 7, num_row_col = None, cluster_colors = False, true_colors = None, markers = [("o",10),("o",10)], 
-                        show_labels = False, show_orig = False, show_separation = False):   
+                        show_labels = False, show_orig = False, show_separation = False, legend = True):   
     """@brief Plot and Save class figures"""
     
     Coords = Id_Class["Coords"]
