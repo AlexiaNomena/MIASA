@@ -13,8 +13,12 @@ from numpy.ma import masked_array
 from sklearn.metrics import rand_score, adjusted_rand_score
 import pdb
 import sys
+from copy import copy
 
 import matplotlib.pyplot as plt
+from matplotlib.patches import Ellipse, Polygon
+
+from .Wraps import find_ellipse_params, convex_hull
 
 """ Classification general setting """
 def one_classification(r, repeat, method_dic_list, var_data, generate_data, c_dic = "default", in_threads = True, separation = False):
@@ -140,7 +144,8 @@ import pandas as pd
 
 def plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neighbors = 2, min_dist = 0.99, method = "umap", 
                         scale = None, sub_fig_size = 7, cluster_colors = False, true_colors = None, markers = [("o",20),("o",20)],
-                        show_labels = False, show_orig = True, metric = "euclidean", legend = True):        
+                        show_labels = False, show_orig = True, metric = "euclidean", legend = True, place_holder = (0, 0), 
+                        wrap_clusters = False, wrap_type = "ellipse"):        
     """@brief Plot and Save class figures"""
     
     """Lower Dimensional visualization of clusters"""
@@ -175,8 +180,10 @@ def plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neighbors = 2, 
     
     ### Dummy dataframe
     DataFrame = pd.DataFrame({Y_vars[i]:np.zeros(M) for i in range(N)}, index = X_vars)
-    rows_labels = {X_vars[i]:X_vars[i] for i in range(M)}
-    columns_labels = {Y_vars[i]:Y_vars[i] for i in range(N)}
+    
+    rows_labels = {X_vars[i]:X_vars[i][:2] for i in range(M)}
+    columns_labels = {Y_vars[i]:Y_vars[i][:2] for i in range(N)}
+   
     
     if show_labels:
         rows_to_Annot = np.array(DataFrame.index)
@@ -199,34 +206,36 @@ def plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neighbors = 2, 
     
     col_to_use = (col_rows, col_cols)
     marker_to_use = markers #[("o",20),("o",20)]
-    fig, ax, xy_rows, xy_cols, gs, center = Display(Rows_manifold, 
-                                                 Cols_manifold, 
-                                                 Inertia, 
-                                                 DataFrame,
-                                                 center = Origin_manifold, 
-                                                 rows_to_Annot = rows_to_Annot,  # row items to annotate, if None then no annotation (None if none)
-                                                 cols_to_Annot = cols_to_Annot,  # column items to annotate (None if none)
-                                                 Label_rows = rows_labels, # dictionary of labels respectivelly corresponding to the row items (None if none)
-                                                 Label_cols = columns_labels,     # dictionary of labels respectivelly corresponding to the column items that (None if none)
-                                                 markers = marker_to_use,# pyplot markertypes, markersize: [(marker for the row items, size), (marker for the columb items, size)] 
-                                                 col = col_to_use,        # pyplot colortypes : [color for the row items, color for the column items] 
-                                                 figtitle = "method = %s (%d)"%(low_meth, run_num), 
-                                                 outliers = (True, True),
-                                                 dtp = dtp, 
-                                                 chosenAxes = np.array([0,1]), 
-                                                 show_inertia = False, 
-                                                 model={"model":"stand"}, 
-                                                 ColName = ColName, 
-                                                 RowName = RowName,
-                                                 lims = False,
-                                                 give_ax = True) # crop fig
     
+    fig, ax, xy_rows, xy_cols, gs, center = Display(Rows_manifold, 
+                                                     Cols_manifold, 
+                                                     Inertia, 
+                                                     DataFrame,
+                                                     center = Origin_manifold, 
+                                                     rows_to_Annot = rows_to_Annot,  # row items to annotate, if None then no annotation (None if none)
+                                                     cols_to_Annot = cols_to_Annot,  # column items to annotate (None if none)
+                                                     Label_rows = rows_labels, # dictionary of labels respectivelly corresponding to the row items (None if none)
+                                                     Label_cols = columns_labels,     # dictionary of labels respectivelly corresponding to the column items that (None if none)
+                                                     markers = marker_to_use,# pyplot markertypes, markersize: [(marker for the row items, size), (marker for the columb items, size)] 
+                                                     col = col_to_use,        # pyplot colortypes : [color for the row items, color for the column items] 
+                                                     figtitle = "method = %s (%d)"%(low_meth, run_num), 
+                                                     outliers = (True, True),
+                                                     dtp = dtp, 
+                                                     chosenAxes = np.array([0,1]), 
+                                                     show_inertia = False, 
+                                                     model={"model":"stand"}, 
+                                                     ColName = ColName, 
+                                                     RowName = RowName,
+                                                     lims = False,
+                                                     give_ax = True) # crop fig
+        
+        
          
-    if legend & (not cluster_colors):
+    if legend & (not cluster_colors) & (not wrap_clusters):
          col_done = []
          for i in range(len(X_vars)):
              if true_colors[X_vars[i]] not in col_done:
-                 ax.scatter(np.zeros(1), np.zeros(1), marker = marker_to_use[0][0], s =  marker_to_use[0][1], color = true_colors[X_vars[i]], label = rows_labels[X_vars[i]])
+                 ax.scatter(np.zeros(1), np.zeros(1), marker = marker_to_use[0][0], s =  marker_to_use[0][1], color = true_colors[X_vars[i]], label = rows_labels[X_vars[i]][:2])
                  col_done.append(true_colors[X_vars[i]])
          
          ax.annotate("place_holder", xy=(0,0), 
@@ -236,15 +245,100 @@ def plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neighbors = 2, 
                   color= "black",
                   fontsize = 6
                    )
+         
          plt.legend()
          
-        
+    if wrap_clusters:
+        pred_class = np.unique(Id_Class["Class_pred"])
+        for i in range(len(pred_class)):
+            
+            class_row = Id_Class["Class_pred"][:M] == pred_class[i]
+            class_col =  Id_Class["Class_pred"][M:] == pred_class[i]
+
+            coords_row = Rows_manifold[class_row, :]
+            coords_col = Cols_manifold[class_col, :]
+            
+            
+            X_var_sub = [X_vars[class_row][i] for i in range(coords_row.shape[0])] # the first two letters are always the true class labels
+            Y_var_sub = [Y_vars[class_col][i] for i in range(coords_col.shape[0])]
+            
+            X_var_sub2 = [X_vars[class_row][i][:2] for i in range(coords_row.shape[0])] # the first two letters are always the true class labels
+            Y_var_sub2 = [Y_vars[class_col][i][:2] for i in range(coords_col.shape[0])]
+            
+            class_labs = np.unique(X_var_sub2 + Y_var_sub2)
+            
+            X_var_sub = np.array(X_var_sub)
+            Y_var_sub = np.array(Y_var_sub)
+            
+            X_var_sub2 = np.array(X_var_sub2)
+            Y_var_sub2 = np.array(Y_var_sub2)
+            
+            done = []
+            done2 = []
+            for cl in class_labs:
+                points = np.row_stack((coords_row[X_var_sub2 == cl, :], coords_col[Y_var_sub2 == cl, :]))
+                cl_var = list(X_var_sub[X_var_sub2 == cl]) + list(Y_var_sub[Y_var_sub2 == cl])
+
+                if wrap_type == "ellipse":
+                    if points.shape[0] >= 3:
+                        
+                        height, width, angle, center = find_ellipse_params(points)
+                        ellipse = Ellipse(xy = (center[0], center[1]), width = width, height = height, angle = angle, fill = True, edgecolor = true_colors[cl_var[0]], alpha = 0.25, lw = 2)
+                        ellcopy = copy(ellipse)
+                        ax.add_patch(ellcopy)
+                    
+                    elif points.shape[0] == 2:
+                        plt.plot(points[:, 0], points[:, 1], color = true_colors[cl_var[0]], linewidth = 1)
+                    
+                elif wrap_type == "convexhull":
+               
+                    cl_var = list(X_var_sub[X_var_sub2 == cl]) + list(Y_var_sub[Y_var_sub2 == cl])
+                    if points.shape[0] >= 3:
+                        hull = convex_hull(points)
+                        #plt.plot(points[hull.vertices, 0], points[hull.vertices,1], "-", linewidth = 1, color = true_colors[cl_var[0]])
+                        #plt.plot([points[hull.vertices, :][0, 0], points[hull.vertices, :][-1, 0]], [points[hull.vertices, :][0, 1], points[hull.vertices, :][-1, 1]], "-", linewidth = 1, color = true_colors[cl_var[0]])
+                        
+                        Vertices = np.row_stack((points[hull.vertices, :]))
+                        if cl_var[0][:2] not in done:
+                            try:
+                                Poly = Polygon(Vertices, edgecolor = true_colors[cl_var[0]], facecolor = true_colors[cl_var[0]], fill = True, label = rows_labels[cl_var[0]][:2], alpha = 0.25)
+                            except:
+                                Poly = Polygon(Vertices, edgecolor = true_colors[cl_var[0]], facecolor = true_colors[cl_var[0]], fill = True, label = columns_labels[cl_var[0]][:2], alpha = 0.25)
+                        else:
+                            Poly = Polygon(Vertices, edgecolor = true_colors[cl_var[0]], facecolor = true_colors[cl_var[0]], fill = True)
+                        
+                        ax.add_patch(copy(Poly))
+                        done.append(cl_var[0][:2])
+
+                    elif points.shape[0] == 2:
+                        if cl_var[0][:2] not in done2:
+                            try:
+                                plt.plot(points[:, 0], points[:, 1], marker = "o", markersize =  marker_to_use[0][1], color = true_colors[cl_var[0]], fillstyle = "none", label = rows_labels[cl_var[0]][:2], linestyle = "")
+                            except:
+                                plt.plot(points[:, 0], points[:, 1], marker = "o" , markersize =  marker_to_use[1][1], color = true_colors[cl_var[0]], fillstyle = "none", label = columns_labels[cl_var[0]][:2], linestyle = "")
+                        
+                        else:
+                            plt.plot(points[:, 0], points[:, 1], marker = "o", markersize =  marker_to_use[0][1], color = true_colors[cl_var[0]], fillstyle = "none", linestyle = "")
+                        
+                        done2.append(cl_var[0][:2])
+            
+                if legend & (not cluster_colors):
+                    plt.legend(ncol = 3)
+                
+    """
+    ylim = ax.get_ylim()
+    xlim = ax.get_xlim()
+
+    ax.set_xlim(xlim)
+    ax.set_ylim(ylim)      
+    """
     pdf.savefig(fig, bbox_inches = "tight")
+    
          
 
 def plotClass_separated(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neighbors = 2, min_dist = 0.99, method = "umap", 
                         scale = None, sub_fig_size = 7, num_row_col = None, cluster_colors = False, true_colors = None, markers = [("o",10),("o",10)], 
-                        show_labels = False, show_orig = False, show_separation = False, legend = True):   
+                        show_labels = False, show_orig = False, show_separation = False, legend = True, shorten_annots = True):   
     """@brief Plot and Save class figures"""
     
     Coords = Id_Class["Coords"]
@@ -276,8 +370,12 @@ def plotClass_separated(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neigh
     
     ### Dummy dataframe
     DataFrame = pd.DataFrame({Y_vars[i]:np.zeros(M) for i in range(N)}, index = X_vars)
-    rows_labels = {X_vars[i]:X_vars[i][0] for i in range(M)}
-    columns_labels = {Y_vars[i]:Y_vars[i][0] for i in range(N)}
+    if shorten_annots:
+        rows_labels = {X_vars[i]:X_vars[i][:2] for i in range(M)}
+        columns_labels = {Y_vars[i]:Y_vars[i][:2] for i in range(N)}
+    else:
+        rows_labels = {X_vars[i]:X_vars[i] for i in range(M)}
+        columns_labels = {Y_vars[i]:Y_vars[i] for i in range(N)}
     
     if show_labels:
         AllRows = np.array(DataFrame.index)

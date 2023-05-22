@@ -187,7 +187,6 @@ def Display(Coords_rows, Coords_cols, Inertia, Data, rows_to_Annot, cols_to_Anno
     @brief: display results
     """                           
 
-    
     # plot 2 components
     PreFig()    
     if len(chosenAxes) == 2:
@@ -435,6 +434,7 @@ def Display(Coords_rows, Coords_cols, Inertia, Data, rows_to_Annot, cols_to_Anno
             ax.set_xscale("symlog")
         else:
             ax.set_aspect("equal")
+        
         ax.set_xticks(())
         ax.set_yticks(())
         
