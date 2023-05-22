@@ -16,7 +16,7 @@ import seaborn as sns
 """ Classification Experiment on random samples from specific probability distributions """
 
 
-def generate_data_dist(var_data = False, noise = False, palette = "tab20", random_state = None):
+def generate_data_dist(var_data = False, noise = False, palette = "tab20", custom_palette = False, random_state = None):
     
     if random_state is not None:
         np.random.seed(random_state) # in case one needs a reproducible result
@@ -47,7 +47,11 @@ def generate_data_dist(var_data = False, noise = False, palette = "tab20", rando
     labs = np.cumsum(np.ones(num_clust)) - 1
     
     colors_dic = {}
-    colors = sns.color_palette(palette, num_clust)
+    
+    if not custom_palette:
+        colors = sns.color_palette(palette, num_clust)
+    else:
+        colors = palette
     
     # Number of samples per classes
     MaxNumVar = 25
@@ -71,7 +75,7 @@ def generate_data_dist(var_data = False, noise = False, palette = "tab20", rando
             if j < num_var[lab[1]]:
                 data_dic[class_type2[i]+"%d"%(j+1)] = np.random.uniform(val2[i][0], val2[i][1], size = per_spl)
                 class_dic[class_type2[i]+"%d"%(j+1)] = lab[1]
-                colors_dic[class_type2[i]+"%d"%(j+1)] = colors[k+1]
+                colors_dic[class_type2[i] +"%d"%(j+1)] = colors[k+1]
 
               
             if j < num_var[lab[2]]:

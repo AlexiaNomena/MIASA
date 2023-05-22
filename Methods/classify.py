@@ -14,6 +14,7 @@ from sklearn.metrics import rand_score, adjusted_rand_score
 import pdb
 import sys
 from copy import copy
+import scipy.spatial as spsp
 
 import matplotlib.pyplot as plt
 from matplotlib.patches import Ellipse, Polygon
@@ -145,7 +146,7 @@ import pandas as pd
 def plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neighbors = 2, min_dist = 0.99, method = "umap", 
                         scale = None, sub_fig_size = 7, cluster_colors = False, true_colors = None, markers = [("o",20),("o",20)],
                         show_labels = False, show_orig = True, metric = "euclidean", legend = True, place_holder = (0, 0), 
-                        wrap_clusters = False, wrap_type = "ellipse"):        
+                        wrap_true = False, wrap_predicted = False, oultiers_markers = ("o", "^", 5),  wrap_type = "convexhull"):        
     """@brief Plot and Save class figures"""
     
     """Lower Dimensional visualization of clusters"""
@@ -231,7 +232,7 @@ def plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neighbors = 2, 
         
         
          
-    if legend & (not cluster_colors) & (not wrap_clusters):
+    if legend & (not cluster_colors) & (not wrap_true):
          col_done = []
          for i in range(len(X_vars)):
              if true_colors[X_vars[i]] not in col_done:
@@ -247,9 +248,12 @@ def plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neighbors = 2, 
                    )
          
          plt.legend()
+        
+    
          
-    if wrap_clusters:
+    if wrap_true:
         pred_class = np.unique(Id_Class["Class_pred"])
+        lab_point = False
         for i in range(len(pred_class)):
             
             class_row = Id_Class["Class_pred"][:M] == pred_class[i]
@@ -257,8 +261,7 @@ def plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neighbors = 2, 
 
             coords_row = Rows_manifold[class_row, :]
             coords_col = Cols_manifold[class_col, :]
-            
-            
+        
             X_var_sub = [X_vars[class_row][i] for i in range(coords_row.shape[0])] # the first two letters are always the true class labels
             Y_var_sub = [Y_vars[class_col][i] for i in range(coords_col.shape[0])]
             
@@ -287,9 +290,13 @@ def plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neighbors = 2, 
                         ellcopy = copy(ellipse)
                         ax.add_patch(ellcopy)
                     
-                    elif points.shape[0] == 2:
-                        plt.plot(points[:, 0], points[:, 1], color = true_colors[cl_var[0]], linewidth = 1)
-                    
+                    else:
+                        if not lab_point:
+                            plt.plot(points[:, 0], points[:, 1], marker = "o", markersize =  marker_to_use[0][1], color = "grey", fillstyle = "full", linestyle = "")
+                            lab_point = True
+                        else:
+                            plt.plot(points[:, 0], points[:, 1], marker = "o", markersize =  marker_to_use[0][1], color = true_colors[cl_var[0]], fillstyle = "none", linestyle = "")
+
                 elif wrap_type == "convexhull":
                
                     cl_var = list(X_var_sub[X_var_sub2 == cl]) + list(Y_var_sub[Y_var_sub2 == cl])
@@ -298,7 +305,7 @@ def plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neighbors = 2, 
                         #plt.plot(points[hull.vertices, 0], points[hull.vertices,1], "-", linewidth = 1, color = true_colors[cl_var[0]])
                         #plt.plot([points[hull.vertices, :][0, 0], points[hull.vertices, :][-1, 0]], [points[hull.vertices, :][0, 1], points[hull.vertices, :][-1, 1]], "-", linewidth = 1, color = true_colors[cl_var[0]])
                         
-                        Vertices = np.row_stack((points[hull.vertices, :]))
+                        Vertices = points[hull.vertices, :]
                         if cl_var[0][:2] not in done:
                             try:
                                 Poly = Polygon(Vertices, edgecolor = true_colors[cl_var[0]], facecolor = true_colors[cl_var[0]], fill = True, label = rows_labels[cl_var[0]][:2], alpha = 0.25)
@@ -310,20 +317,89 @@ def plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neighbors = 2, 
                         ax.add_patch(copy(Poly))
                         done.append(cl_var[0][:2])
 
-                    elif points.shape[0] == 2:
+                    else:
                         if cl_var[0][:2] not in done2:
+                            """
                             try:
-                                plt.plot(points[:, 0], points[:, 1], marker = "o", markersize =  marker_to_use[0][1], color = true_colors[cl_var[0]], fillstyle = "none", label = rows_labels[cl_var[0]][:2], linestyle = "")
+                                plt.plot(points[:, 0], points[:, 1], marker = "o", markersize =  marker_to_use[0][1], color = true_colors[cl_var[0]], fillstyle = "full",  label = rows_labels[cl_var[0]][:2], linestyle = "")
                             except:
-                                plt.plot(points[:, 0], points[:, 1], marker = "o" , markersize =  marker_to_use[1][1], color = true_colors[cl_var[0]], fillstyle = "none", label = columns_labels[cl_var[0]][:2], linestyle = "")
-                        
+                                if not lab_point:
+                                    plt.plot(points[:, 0], points[:, 1], marker = "o" , markersize =  marker_to_use[1][1], color = true_colors[cl_var[0]], fillstyle = "full", label = columns_labels[cl_var[0]][:2], linestyle = "")
+                                    lab_point = True
+                            """
+                            if not lab_point:
+                                plt.plot(points[:, 0], points[:, 1], marker = oultiers_markers[0], markersize =  oultiers_markers[2], color = "grey", fillstyle = "full",  label = "Outliers", linestyle = "")
+                                plt.plot(points[:, 0], points[:, 1], marker = oultiers_markers[0], markersize =  oultiers_markers[2], color = true_colors[cl_var[0]], fillstyle = "full", linestyle = "")
+
+                                lab_point = True
+                            else:
+                                plt.plot(points[:, 0], points[:, 1], marker = oultiers_markers[0], markersize =  oultiers_markers[2], color = true_colors[cl_var[0]], fillstyle = "full", linestyle = "")
+
                         else:
-                            plt.plot(points[:, 0], points[:, 1], marker = "o", markersize =  marker_to_use[0][1], color = true_colors[cl_var[0]], fillstyle = "none", linestyle = "")
+                            plt.plot(points[:, 0], points[:, 1], marker = oultiers_markers[0], markersize =  oultiers_markers[2], color = true_colors[cl_var[0]], fillstyle = "full", linestyle = "")
                         
                         done2.append(cl_var[0][:2])
+    
+    if wrap_predicted:
+        pred_class = np.unique(Id_Class["Class_pred"])
+        lab_point = False
+
+        for i in range(len(pred_class)):
+            class_row = Id_Class["Class_pred"][:M] == pred_class[i]
+            class_col =  Id_Class["Class_pred"][M:] == pred_class[i]
+    
+            coords_row = Rows_manifold[class_row, :]
+            coords_col = Cols_manifold[class_col, :]
+            points = np.row_stack((coords_row, coords_col))
             
-                if legend & (not cluster_colors):
-                    plt.legend(ncol = 3)
+            dp = spsp.distance.pdist(points)
+            dp = spsp.distance.squareform(dp)
+            
+            limit = np.percentile(dp.flatten(), 50, interpolation = "midpoint")
+            
+            remove = np.sum(dp > 1.05*limit, axis = 1) > 0.95*points.shape[0]
+            outliers = points[remove, :]
+            points = points[~remove,  :]
+            
+            
+            col_class = color_clustered[Id_Class["Class_pred"] == pred_class[i]][0]
+            if wrap_type == "ellipse":
+                if points.shape[0] >= 3 and i == 0:
+                    
+                    height, width, angle, center = find_ellipse_params(points)
+                    ellipse = Ellipse(xy = (center[0], center[1]), width = width, height = height, angle = angle, linestyle = "--", fill = False, edgecolor = col_class, lw = 1)
+                    ellcopy = copy(ellipse)
+                    ax.add_patch(ellcopy)
+                else:
+                    plt.plot(points[:, 0], points[:, 1], marker = "o", markersize =  marker_to_use[0][1], color = col_class, fillstyle = "full", linestyle = "")
+            
+            elif wrap_type == "convexhull":
+                if points.shape[0] >= 3:
+                    hull = convex_hull(points)
+                    Vertices = points[hull.vertices, :]
+                    if i == 0:
+                        Poly = Polygon(Vertices, edgecolor = "grey", fill = False, label = "predicted", linestyle = "--", linewidth = 1)
+                    else:
+                        Poly = Polygon(Vertices, edgecolor = col_class, fill = False, linestyle = "--", linewidth = 1)
+                    ax.add_patch(copy(Poly))
+                
+                else:
+                    if not lab_point:
+                        plt.plot(points[:, 0], points[:, 1], marker = oultiers_markers[1], markersize =  oultiers_markers[2], color = "grey", fillstyle = "full", linestyle = "", label = "predicted (outliers)")
+                        lab_point = True
+                    else:
+                        plt.plot(points[:, 0], points[:, 1], marker = oultiers_markers[1], markersize =  oultiers_markers[2], color = col_class, fillstyle = "full", linestyle = "")
+    
+            if np.sum(remove) > 1:   
+                if not lab_point:
+                    plt.plot(outliers[:, 0], outliers[:, 1], marker = oultiers_markers[1], markersize =  oultiers_markers[2], color = "grey", fillstyle = "full", linestyle = "", label = "predicted (outliers)")
+                    lab_point = True
+
+                else:
+                    plt.plot(outliers[:, 0], outliers[:, 1], marker = oultiers_markers[1], markersize =  oultiers_markers[2], color = col_class, fillstyle = "full", linestyle = "")
+    
+    if legend & (not cluster_colors):
+        plt.legend(ncol = 3)
                 
     """
     ylim = ax.get_ylim()
