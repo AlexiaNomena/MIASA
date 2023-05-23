@@ -146,7 +146,8 @@ import pandas as pd
 def plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neighbors = 2, min_dist = 0.99, method = "umap", 
                         scale = None, sub_fig_size = 7, cluster_colors = False, true_colors = None, markers = [("o",20),("o",20)],
                         show_labels = False, show_orig = True, metric = "euclidean", legend = True, place_holder = (0, 0), 
-                        wrap_true = False, wrap_predicted = False, oultiers_markers = ("o", "^", 5),  wrap_type = "convexhull"):        
+                        wrap_true = False, wrap_predicted = False, oultiers_markers = ("o", "^", 5),  wrap_type = "convexhull",
+                        def_pred_outliers = (2, 0.95),show_pred_outliers = False):        
     """@brief Plot and Save class figures"""
     
     """Lower Dimensional visualization of clusters"""
@@ -315,7 +316,10 @@ def plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neighbors = 2, 
                             Poly = Polygon(Vertices, edgecolor = true_colors[cl_var[0]], facecolor = true_colors[cl_var[0]], fill = True)
                         
                         ax.add_patch(copy(Poly))
+                        
                         done.append(cl_var[0][:2])
+                        
+                        
 
                     else:
                         if cl_var[0][:2] not in done2:
@@ -340,6 +344,7 @@ def plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neighbors = 2, 
                         
                         done2.append(cl_var[0][:2])
     
+    
     if wrap_predicted:
         pred_class = np.unique(Id_Class["Class_pred"])
         lab_point = False
@@ -355,49 +360,65 @@ def plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neighbors = 2, 
             dp = spsp.distance.pdist(points)
             dp = spsp.distance.squareform(dp)
             
-            limit = np.percentile(dp.flatten(), 50, interpolation = "midpoint")
+            a, b = def_pred_outliers
+            limit = np.std(dp.flatten())
             
-            remove = np.sum(dp > 1.05*limit, axis = 1) > 0.95*points.shape[0]
+            remove = np.sum(dp > a*limit, axis = 1) > (b)*points.shape[0]
             outliers = points[remove, :]
             points = points[~remove,  :]
             
             
             col_class = color_clustered[Id_Class["Class_pred"] == pred_class[i]][0]
             if wrap_type == "ellipse":
-                if points.shape[0] >= 3 and i == 0:
+                if points.shape[0] >= 3:
                     
                     height, width, angle, center = find_ellipse_params(points)
-                    ellipse = Ellipse(xy = (center[0], center[1]), width = width, height = height, angle = angle, linestyle = "--", fill = False, edgecolor = col_class, lw = 1)
+                    if i == 0:
+                        ellipse = Ellipse(xy = (center[0], center[1]), width = width, height = height, angle = angle, linestyle = "-", fill = False, edgecolor = "grey", lw = 1, label = "predicted")
+                        ellipse = Ellipse(xy = (center[0], center[1]), width = width, height = height, angle = angle, linestyle = "-", fill = False, edgecolor = col_class, lw = 1)
+    
+                    else:
+                        ellipse = Ellipse(xy = (center[0], center[1]), width = width, height = height, angle = angle, linestyle = "-", fill = False, edgecolor = col_class, lw = 1)
+    
                     ellcopy = copy(ellipse)
                     ax.add_patch(ellcopy)
                 else:
-                    plt.plot(points[:, 0], points[:, 1], marker = "o", markersize =  marker_to_use[0][1], color = col_class, fillstyle = "full", linestyle = "")
-            
+                    if not lab_point:
+                        plt.plot(points[:, 0], points[:, 1], marker = oultiers_markers[1], markersize =  marker_to_use[0][1], color = "grey", fillstyle = "full", linestyle = "", label = "predicted (outliers)")
+                    else:
+                        plt.plot(points[:, 0], points[:, 1], marker = oultiers_markers[1], markersize =  marker_to_use[0][1], color = col_class, fillstyle = "full", linestyle = "", label = "predicted (outliers)")
+
             elif wrap_type == "convexhull":
                 if points.shape[0] >= 3:
                     hull = convex_hull(points)
                     Vertices = points[hull.vertices, :]
                     if i == 0:
-                        Poly = Polygon(Vertices, edgecolor = "grey", fill = False, label = "predicted", linestyle = "--", linewidth = 1)
+                        #Poly = Polygon(Vertices, edgecolor = "grey", fill = False, label = "predicted", linestyle = "-", linewidth = 1)
+                        Poly = Polygon(Vertices, edgecolor = col_class, fill = False, label = "predicted %s"%(i+1), linestyle = "-", linewidth = 1)
+
                     else:
-                        Poly = Polygon(Vertices, edgecolor = col_class, fill = False, linestyle = "--", linewidth = 1)
+                        #Poly = Polygon(Vertices, edgecolor = col_class, fill = False, linestyle = "-", linewidth = 1)
+                        Poly = Polygon(Vertices, edgecolor = col_class, fill = False, label = "predicted %s"%(i+1), linestyle = "-", linewidth = 1)
+
                     ax.add_patch(copy(Poly))
                 
                 else:
+                    if show_pred_outliers:
+                        if not lab_point:
+                            plt.plot(points[:, 0], points[:, 1], marker = oultiers_markers[1], markersize =  oultiers_markers[2], color = "grey", fillstyle = "full", linestyle = "", label = "predicted (outliers)")
+                            lab_point = True
+                        else:
+                            plt.plot(points[:, 0], points[:, 1], marker = oultiers_markers[1], markersize =  oultiers_markers[2], color = col_class, fillstyle = "full", linestyle = "")
+                    
+            if show_pred_outliers:
+                if np.sum(remove) > 1:   
                     if not lab_point:
-                        plt.plot(points[:, 0], points[:, 1], marker = oultiers_markers[1], markersize =  oultiers_markers[2], color = "grey", fillstyle = "full", linestyle = "", label = "predicted (outliers)")
+                        plt.plot(outliers[:, 0], outliers[:, 1], marker = oultiers_markers[1], markersize =  oultiers_markers[2], color = "grey", fillstyle = "full", linestyle = "", label = "predicted (outliers)")
                         lab_point = True
+    
                     else:
-                        plt.plot(points[:, 0], points[:, 1], marker = oultiers_markers[1], markersize =  oultiers_markers[2], color = col_class, fillstyle = "full", linestyle = "")
-    
-            if np.sum(remove) > 1:   
-                if not lab_point:
-                    plt.plot(outliers[:, 0], outliers[:, 1], marker = oultiers_markers[1], markersize =  oultiers_markers[2], color = "grey", fillstyle = "full", linestyle = "", label = "predicted (outliers)")
-                    lab_point = True
-
-                else:
-                    plt.plot(outliers[:, 0], outliers[:, 1], marker = oultiers_markers[1], markersize =  oultiers_markers[2], color = col_class, fillstyle = "full", linestyle = "")
-    
+                        plt.plot(outliers[:, 0], outliers[:, 1], marker = oultiers_markers[1], markersize =  oultiers_markers[2], color = col_class, fillstyle = "full", linestyle = "")
+                
     if legend & (not cluster_colors):
         plt.legend(ncol = 3)
                 
