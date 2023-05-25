@@ -147,7 +147,7 @@ def plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neighbors = 2, 
                         scale = None, sub_fig_size = 7, cluster_colors = False, true_colors = None, markers = [("o",20),("o",20)],
                         show_labels = False, show_orig = True, metric = "euclidean", legend = True, place_holder = (0, 0), 
                         wrap_true = False, wrap_predicted = False, oultiers_markers = ("o", "^", 5),  wrap_type = "convexhull",
-                        def_pred_outliers = (2, 0.95),show_pred_outliers = False):        
+                        def_pred_outliers = (2, 0.95),show_pred_outliers = False, group_annot_size = 15, dataname = None):        
     """@brief Plot and Save class figures"""
     
     """Lower Dimensional visualization of clusters"""
@@ -163,6 +163,8 @@ def plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neighbors = 2, 
     However, slight changes could still happen due to the optimization procedure and versions of these packages.
     """
     
+    X_vars = np.array(X_vars)
+    Y_vars = np.array(Y_vars)
     """Coordinate system for regular projection on principal axes"""
     was_orig = Id_Class["was_orig"]
     M, N = Id_Class["shape"]
@@ -233,7 +235,7 @@ def plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neighbors = 2, 
         
         
          
-    if legend & (not cluster_colors) & (not wrap_true):
+    if legend & (not cluster_colors) & (not wrap_true) & (not wrap_predicted) :
          col_done = []
          for i in range(len(X_vars)):
              if true_colors[X_vars[i]] not in col_done:
@@ -262,7 +264,7 @@ def plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neighbors = 2, 
 
             coords_row = Rows_manifold[class_row, :]
             coords_col = Cols_manifold[class_col, :]
-        
+            
             X_var_sub = [X_vars[class_row][i] for i in range(coords_row.shape[0])] # the first two letters are always the true class labels
             Y_var_sub = [Y_vars[class_col][i] for i in range(coords_col.shape[0])]
             
@@ -282,7 +284,8 @@ def plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neighbors = 2, 
             for cl in class_labs:
                 points = np.row_stack((coords_row[X_var_sub2 == cl, :], coords_col[Y_var_sub2 == cl, :]))
                 cl_var = list(X_var_sub[X_var_sub2 == cl]) + list(Y_var_sub[Y_var_sub2 == cl])
-
+                
+                
                 if wrap_type == "ellipse":
                     if points.shape[0] >= 3:
                         
@@ -297,16 +300,20 @@ def plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neighbors = 2, 
                             lab_point = True
                         else:
                             plt.plot(points[:, 0], points[:, 1], marker = "o", markersize =  marker_to_use[0][1], color = true_colors[cl_var[0]], fillstyle = "none", linestyle = "")
-
+                    
                 elif wrap_type == "convexhull":
                
                     cl_var = list(X_var_sub[X_var_sub2 == cl]) + list(Y_var_sub[Y_var_sub2 == cl])
-                    if points.shape[0] >= 3:
+                    if points.shape[0] >= 5:
                         hull = convex_hull(points)
                         #plt.plot(points[hull.vertices, 0], points[hull.vertices,1], "-", linewidth = 1, color = true_colors[cl_var[0]])
                         #plt.plot([points[hull.vertices, :][0, 0], points[hull.vertices, :][-1, 0]], [points[hull.vertices, :][0, 1], points[hull.vertices, :][-1, 1]], "-", linewidth = 1, color = true_colors[cl_var[0]])
-                        
                         Vertices = points[hull.vertices, :]
+                        
+                        mark = rename_labels(cl, dataname)
+                        
+                        plt.plot([Vertices[:, 0].mean()], [Vertices[:, 1].mean()], marker = "%s"%mark, markersize = group_annot_size, color = true_colors[cl_var[0]])
+                        
                         if cl_var[0][:2] not in done:
                             try:
                                 Poly = Polygon(Vertices, edgecolor = true_colors[cl_var[0]], facecolor = true_colors[cl_var[0]], fill = True, label = rows_labels[cl_var[0]][:2], alpha = 0.25)
@@ -318,6 +325,8 @@ def plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neighbors = 2, 
                         ax.add_patch(copy(Poly))
                         
                         done.append(cl_var[0][:2])
+                        
+                        
                         
                         
 
@@ -343,7 +352,7 @@ def plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neighbors = 2, 
                             plt.plot(points[:, 0], points[:, 1], marker = oultiers_markers[0], markersize =  oultiers_markers[2], color = true_colors[cl_var[0]], fillstyle = "full", linestyle = "")
                         
                         done2.append(cl_var[0][:2])
-    
+                    
     
     if wrap_predicted:
         pred_class = np.unique(Id_Class["Class_pred"])
@@ -429,13 +438,39 @@ def plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neighbors = 2, 
     ax.set_xlim(xlim)
     ax.set_ylim(ylim)      
     """
-    pdf.savefig(fig, bbox_inches = "tight")
+    return fig, ax
     
          
+import re
+def rename_labels(cl, dataname):
+    if dataname in ("Dist", "Corr"):
+        if cl[0] == "1":
+            mark = "$N_%s$"%cl[1]
+        elif cl[0] == "2":
+            mark = "$U_%s$"%cl[1]
+        elif cl[0] == "3":
+            mark = "$Pa_%s$"%cl[1]
+        elif cl[0] == "4":
+            mark = "$Poi_%s$"%cl[1]
+        
+    elif dataname == "GRN":
+        if cl[0] == "D":
+            mark = "$D$"
+        elif cl[0] == "S":
+            mark = "$S$"
+        elif cl[0] == "N":
+            mark  = "$N$"
+            
+    else:
+        mark = " ".join(re.split("[^a-zA-Z]*", cl))
+        mark = mark.replace(" ", "")
+        mark = "%s"%mark
+    return mark
+                        
 
 def plotClass_separated(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neighbors = 2, min_dist = 0.99, method = "umap", 
                         scale = None, sub_fig_size = 7, num_row_col = None, cluster_colors = False, true_colors = None, markers = [("o",10),("o",10)], 
-                        show_labels = False, show_orig = False, show_separation = False, legend = True, shorten_annots = True):   
+                        show_labels = False, show_orig = False, show_separation = False, legend = True, shorten_annots = True, dataname = None):   
     """@brief Plot and Save class figures"""
     
     Coords = Id_Class["Coords"]
@@ -446,6 +481,9 @@ def plotClass_separated(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neigh
     Kmeans and UMAP are already parameterized for reproducibility (random_state = 0 for both).
     However, slight changes could still happen due to the optimization procedure and versions of these packages.
     """
+    
+    X_vars = np.array(X_vars)
+    Y_vars = np.array(Y_vars)
     
     """Coordinate system for regular projection on principal axes"""
     was_orig = Id_Class["was_orig"]
@@ -468,11 +506,11 @@ def plotClass_separated(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neigh
     ### Dummy dataframe
     DataFrame = pd.DataFrame({Y_vars[i]:np.zeros(M) for i in range(N)}, index = X_vars)
     if shorten_annots:
-        rows_labels = {X_vars[i]:X_vars[i][:2] for i in range(M)}
-        columns_labels = {Y_vars[i]:Y_vars[i][:2] for i in range(N)}
+        rows_labels = {X_vars[i]:rename_labels(X_vars[i][:2], dataname) for i in range(M)}
+        columns_labels = {Y_vars[i]:rename_labels(Y_vars[i][:2], dataname) for i in range(N)}
     else:
-        rows_labels = {X_vars[i]:X_vars[i] for i in range(M)}
-        columns_labels = {Y_vars[i]:Y_vars[i] for i in range(N)}
+        rows_labels = {X_vars[i]:rename_labels(X_vars[i][:2], dataname)+X_vars[i][2:] for i in range(M)}
+        columns_labels = {Y_vars[i]:rename_labels(Y_vars[i][:2], dataname)+Y_vars[i][2:] for i in range(N)}
     
     if show_labels:
         AllRows = np.array(DataFrame.index)
@@ -551,7 +589,8 @@ def plotClass_separated(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neigh
             ax.axis("on")
         else:
             ax.axis("off")
-    pdf.savefig(fig, bbox_inches = "tight")
+        
+    return fig, ax
 
 def BarPlotClass(data, method_name, pdf, stat_name = None):
     PreFig()
