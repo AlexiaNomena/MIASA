@@ -814,6 +814,8 @@ def plotClass_separated(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neigh
         
         if show_separation:
             ax.axis("on")
+            ax.margins(0.1, 0.1)
+
         else:
             ax.axis("off")
                 
@@ -948,6 +950,8 @@ def plotClass_separated_ver0(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_
         
         if show_separation:
             ax.axis("on")
+            ax.margins(0.1, 0.1)
+            
         else:
             ax.axis("off")
         
