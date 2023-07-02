@@ -186,13 +186,13 @@ def Plot_ARI():
 
     
     pdfb_all = PdfPages("Figures/Final/Paper_Fig_ARI.pdf")
-    PreFig(xsize = 20, ysize = 20)
+    PreFig(xsize = 30, ysize = 30)
     #fig_all = plt.figure(figsize = (30, 20))
-    fig_all = plt.figure(figsize = (20, 30))
+    fig_all = plt.figure(figsize = (15, 9))
     plt.subplots_adjust(bottom = 0.06, right = 0.95, left = 0.06, top = 0.90, wspace = 0.25, hspace = 0.1)
     
     pdfb_all_MW = PdfPages("Figures/Final/Paper_MW_ARI.pdf")
-    PreFig(xsize = 20, ysize = 20)
+    PreFig(xsize = 30, ysize = 30)
     fig_all_MW_1 = plt.figure(figsize = (10, 35))
     
     k_all = 0
@@ -203,14 +203,14 @@ def Plot_ARI():
         select_list = select_for_final_fig[p]
     
         PreFig(xsize = 16, ysize = 16)
-        fig = plt.figure(figsize = (25, 10))
+        fig = plt.figure(figsize = (7, 21))
         k = 1
         for j in range(len(var_data_list_labs)):
             acc_dic_all = {}
             ax = fig.add_subplot(int("%d%d%d"%(1, 2, j+1)))
             ax.set_title("%s"%Fig_title[j])
 
-            ax_all = fig_all.add_subplot(int("%d%d%d"%(3, 2, k_all+k)))
+            ax_all = fig_all.add_subplot(int("%d%d%d"%(2, 3, k_all+k)))
             ax_MW_1 = fig_all_MW_1.add_subplot(int("%d%d%d"%(6, 1, k_all+k)))
 
             for n in range(len(repeat_list)): 
@@ -288,15 +288,18 @@ def Plot_ARI():
                         
             """Plot all together"""
             fig = BarPlotClass(acc_list, method_name, ax, fig, vert, labX = True, labY = True, stat_lim = stat_lim_list[p], stat_ticks = sticks_list[p], whis = (5, 95), stat_name = "ARI scores")
+            ax.axhline(y = 0, xmin = 0, xmax = len(method_name), ls = "--", linewidth = 1, color = "grey")
             
-
+            ax_all.axhline(y = 0, xmin = 0, xmax = len(method_name), ls = "--", linewidth = 1, color = "grey")
+            
             k += 3
             
         pdfb = PdfPages("Figures/Final/Paper_Fig_ARI_%d_infos.pdf"%set_num)    
         pdfb.savefig(fig, bbox_inches = "tight")
         pdfb.close()
         
-        k_all +=2
+        
+        k_all +=1
     
     pdfb_all.savefig(fig_all, bbox_inches = "tight")
     pdfb_all.close()
