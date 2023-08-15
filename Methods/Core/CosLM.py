@@ -33,10 +33,11 @@ def CosLM(DX, DY, UX = None, UY = None, fXY = None, c = None):
     # compute zeta_f
     CC = np.zeros(CL_Mat0.shape)
     if (UX is not None) or (UY is not None):
-        # only pick the components involving f(X,Y) 
+        # only pick the components involving f(X,Y) -- the antidiagonal blocks excluding positions of origin 
         CC[:M, M+1:] = CL_Mat0[:M, M+1:] 
         CC[M+1:,:M] = CL_Mat0[M+1: , :M]
     else:
+    	# only pick the components involving f(X,Y) -- the antidiagonal blocks
         CC[:M, M:] = CL_Mat0[:M, M:] 
         CC[M:,:M] = CL_Mat0[M:,:M]
     
