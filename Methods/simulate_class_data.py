@@ -542,4 +542,3 @@ def generate_data_correlated_ver2(var_data = False, noise = False, palette = "ta
     data_dic["true_colors"] = colors_dic
     
     return data_dic, class_dic, num_clust, dtp
-

@@ -160,10 +160,17 @@ def get_assoc_func(assoc_type, in_threads = False):
     
     elif assoc_type == "Pearson_pval": ### We want to reject H0 = no correlation, thus we take pval
         #func, ftype = lambda Z: 1e-5 + pearsonr(Z[0], Z[1]).pvalue, "not_vectorized" # expected in future versions
-        func, ftype = lambda Z: 1e-5 +  pearsonr(Z[0], Z[1])[1], "not_vectorized" # old version
+        func, ftype = lambda Z: 1e-5 +  pearsonr(Z[0], Z[1])[1], "not_vectorized" 
+    
+    elif assoc_type == "Pearson_R": ### We want to reject H0 = no correlation, thus we take pval
+        #func, ftype = lambda Z: 1e-5 + pearsonr(Z[0], Z[1]).pvalue, "not_vectorized" # expected in future versions
+        func, ftype = lambda Z: 1e-5 +  1 - np.abs(pearsonr(Z[0], Z[1])[0]), "not_vectorized" 
             
     elif assoc_type == "Spearman_pval": ### We want to reject H0 = no correlation, thus we take pval
         func, ftype = lambda Z: 1e-5 + spearmanr(Z[0], Z[1]).pvalue, "not_vectorized"
+    
+    elif assoc_type == "Spearman_R": ### We want to reject H0 = no correlation, thus we take pval
+        func, ftype = lambda Z: 1e-5 + 1 - np.abs(spearmanr(Z[0], Z[1]).correlation), "not_vectorized"
     
     elif assoc_type == "Sub_Eucl":
         func, ftype = lambda Z: np.max(np.abs(Z[0][:, np.newaxis] - Z[1][np.newaxis, :])), "vectorized"

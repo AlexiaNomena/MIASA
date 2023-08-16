@@ -135,6 +135,7 @@ def get_class(X, Y, Feature_X, Feature_Y, func, ftype, metric_method, c_dic, DMa
         a = 1. - 1./(M+N)
         b = 2.*c2/(M+N)
         c3 =  min(((2.*c1 + c2) - b)/a, 2*c2+2)
+        #c1, c2, c3 = np.random.uniform(0, 5, size = 3)
         c_dic = {"c1":c1, "c2":c2, "c3":c3}
     else:
         c_dic = c_dic
