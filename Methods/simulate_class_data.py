@@ -79,7 +79,7 @@ def generate_data_dist(var_data = False, noise = False, palette = "tab20", custo
 
               
             if j < num_var[lab[2]]:
-                data_dic[class_type3[i]+"%d"%(j+1)] = np.random.pareto(val3[i][0], size = per_spl)*val3[i][1]
+                data_dic[class_type3[i]+"%d"%(j+1)] = (np.random.pareto(val3[i][0], size = per_spl) + 1)*val3[i][1] ### according to the doc
                 class_dic[class_type3[i]+"%d"%(j+1)] = lab[2]
                 colors_dic[class_type3[i]+"%d"%(j+1)] = colors[k+2]
 

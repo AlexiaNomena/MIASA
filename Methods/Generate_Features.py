@@ -153,8 +153,11 @@ def get_assoc_func(assoc_type, in_threads = False):
         func, ftype = lambda Z: 1e-5 + np.abs(ks_2samp(Z[0], Z[1]).statistic), "not_vectorized"
         
     elif assoc_type == "KS-p1":
-        func, ftype = lambda Z: 1e-5 + 1 - ks_2samp(Z[0], Z[1]).pvalue, "not_vectorized" # H0: dist are equal, small p_value = reject the null, we do not want to reject the null by definition of association, thus we take 1 - p_val
-        
+        func, ftype = lambda Z: (1e-5 + 1 - ks_2samp(Z[0], Z[1]).pvalue), "not_vectorized" # H0: dist are equal, small p_value = reject the null, we do not want to reject the null by definition of association, thus we take 1 - p_val
+    
+    elif assoc_type == "KS-p1-v2":
+        func, ftype = lambda Z: 1.5*(1e-5 + 1 - ks_2samp(Z[0], Z[1]).pvalue), "not_vectorized" # H0: dist are equal, small p_value = reject the null, we do not want to reject the null by definition of association, thus we take 1 - p_val
+            
     elif assoc_type == "KS-p2":
         func, ftype = lambda Z: np.exp(-500*ks_2samp(Z[0], Z[1]).pvalue), "not_vectorized"
     
@@ -512,4 +515,24 @@ def Moments_feature(Z):
     M3 = skew(Z, axis = 1)
     M4 = kurtosis(Z, axis = 1)
     res = np.column_stack((M1, M2, M3, M4))
+    
+    # min-max scaling per momemts
+    #res = (res - np.min(res, axis = 0)[np.newaxis, :])/(np.max(res, axis = 0)[np.newaxis, :] - np.min(res, axis = 0)[np.newaxis, :])
+    #res = (res - np.min(res))/(np.max(res) - np.min(res))
+    
+    return res
+
+def Histogram_feature(Z):
+    #Z = (Z - np.min(Z, axis = 0))/(np.max(Z, axis = 0) - np.min(Z, axis = 0))
+    #Z = (Z - np.min(Z))/(np.max(Z) - np.min(Z))
+    res = []
+    for i in range(Z.shape[0]):
+        hist, bin_edges = np.histogram(Z[i, :])
+        res.append(hist)
+        
+    res = np.array(res)
+    return res
+
+def Zero_Dist(Z):
+    res = np.zeros(Z.shape)
     return res
