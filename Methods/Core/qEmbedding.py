@@ -49,7 +49,6 @@ def Euclidean_Embedding(DX, DY, UX, UY, fXY, c_dic, in_threads = False):
             sigma[np.isclose(sigma, np.zeros(len(sigma)))] = 0
             test = np.sum(sigma<0)
             sc += 1
-
         sort = np.argsort(sigma)[::-1] # descending order
         sigma = sigma[sort]
         U = U[:, sort]

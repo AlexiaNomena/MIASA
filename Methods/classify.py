@@ -51,7 +51,7 @@ def split_data(data_dic, class_dic, separation = False):
     else:
         """Split data in two random groups of the same size"""
         samples = np.array(list(data_dic.keys()))
-        samples = samples[~(samples == "true_colors")]
+        samples = samples[~((samples == "true_colors")|(samples == "X_vars")|(samples == "Y_vars"))]
         np.random.shuffle(samples)
         X_vars = samples[:len(samples)//2]
         Y_vars = samples[len(X_vars):]

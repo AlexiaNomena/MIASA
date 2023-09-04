@@ -12,47 +12,52 @@ from functools import partial
 import pdb
 import seaborn as sns
 
-
-""" Classification Experiment on random samples from specific probability distributions """
-
-
+""" Classification Experiment on random samples from FAMILIES of probability distributions with two replicates X,Y for each samples"""
 def generate_data_dist(var_data = False, noise = False, palette = "tab20", custom_palette = False, random_state = None):
     
     if random_state is not None:
         np.random.seed(random_state) # in case one needs a reproducible result
     
-    """Generate Artificial dinstinct distributions data"""
+    """Generate Artificial dinstinct distributions data but group them by familly"""
     per_spl = 300 # Num of iid observation in each samples 
     data_dic = {}
     class_type1 = ["1a", "1b", "1c", "1d", "1e", "1f", "1g", "1h", "1i", "1j"] # Normal Dist
+    #class_type1 = ["1a", "1b", "1c", "1d", "1e"] # Family of Normal Dist
     val1_mean = np.random.choice(15, size = len(class_type1), replace = False) # not allowing repeating means
     val1_std = np.random.uniform(1, 8, size = len(class_type1)) 
     val1 = [(val1_mean[k], val1_std[k]) for k in range(len(class_type1))]
     
     class_type2 = ["2a", "2b", "2c", "2d", "2e", "2f", "2g", "2h", "2i", "2j"] # Uniform Dist
+    #class_type2 = ["2a", "2b", "2c", "2d", "2e"] # Family Uniform Dist
+
     val2_a = np.random.choice(10, size = len(class_type2)) # allowing repeating start
     val2_b = np.random.choice(15, size = len(class_type2), replace = False) # not allowing repeated end
     val2 = [(val2_a[k], val2_a[k] + val2_b[k]) for k in range(len(class_type2))]
     
     class_type3 = ["3a", "3b", "3c", "3d", "3e", "3f", "3g", "3h", "3i", "3j"] # Pareto Dist
-    val3_shape = np.random.choice(np.arange(1, 15), size = len(class_type3), replace = False)
+    #class_type3 = ["3a", "3b", "3c", "3d", "3e"] # Family of Pareto Dist
+    
+    val3_shape = np.random.choice(np.arange(3, 15), size = len(class_type3), replace = False)
     val3_scale = np.random.choice(np.arange(1, 15), size = len(class_type3), replace = False)
     val3 = [(val3_shape[k], val3_scale[k]) for k in range(len(class_type3))]
     
     class_type4 = ["4a", "4b", "4c", "4d", "4e", "4f", "4g", "4h", "4i", "4j"] # Poisson Dist
+    #class_type4 = ["4a", "4b", "4c", "4d", "4e"] # Family of Poisson Dist
     val4 = np.random.choice(np.arange(1, 15), size = len(class_type4), replace = False)
     
     
-    num_clust = len(class_type1) + len(class_type2) + len(class_type3) + len(class_type4)
-    labs = np.cumsum(np.ones(num_clust)) - 1
+    num_dist = len(class_type1) + len(class_type2) + len(class_type3) + len(class_type4)
+
+    labs = np.cumsum(np.ones(num_dist)) - 1
     
     colors_dic = {}
     
     if not custom_palette:
-        colors = sns.color_palette(palette, num_clust)
+        colors = sns.color_palette(palette, num_dist)
     else:
         colors = palette
     
+    num_clust = num_dist
     # Number of samples per classes
     MaxNumVar = 25
     if var_data:
@@ -61,39 +66,75 @@ def generate_data_dist(var_data = False, noise = False, palette = "tab20", custo
     else:
         num_var = {labs[k]:MaxNumVar for k in range(len(labs))}
     
+    ## collecting separated duplicates of samples
+    data_dic["X_vars"] = []
+    data_dic["Y_vars"] = []
     
     class_dic = {}
     k = 0
-    for i in range(10):
+    for i in range(5):
         lab = labs[k:k+4]
         for j in range(MaxNumVar + 1):
             if j < num_var[lab[0]]:
-                data_dic[class_type1[i]+"%d"%(j+1)] = np.random.normal(val1[i][0], val1[i][1], size = per_spl)
-                class_dic[class_type1[i]+"%d"%(j+1)] = lab[0]
-                colors_dic[class_type1[i]+"%d"%(j+1)] = colors[k]
+                Z = np.random.normal(val1[i][0], val1[i][1], size = (2, per_spl))
                 
+                data_dic[class_type1[i]+"%d_%d"%(j+1, 0)] = Z[0, :]
+                class_dic[class_type1[i]+"%d_%d"%(j+1, 0)] = 1 
+                colors_dic[class_type1[i]+"%d_%d"%(j+1, 0)] = colors[k]
+                data_dic["X_vars"].append(class_type1[i]+"%d_%d"%(j+1, 0))
+                
+                data_dic[class_type1[i]+"%d_%d"%(j+1, 1)] = Z[1, :]
+                class_dic[class_type1[i]+"%d_%d"%(j+1, 1)] = 1 
+                colors_dic[class_type1[i]+"%d_%d"%(j+1, 1)] = colors[k]
+                data_dic["Y_vars"].append(class_type1[i]+"%d_%d"%(j+1, 1))
+
             if j < num_var[lab[1]]:
-                data_dic[class_type2[i]+"%d"%(j+1)] = np.random.uniform(val2[i][0], val2[i][1], size = per_spl)
-                class_dic[class_type2[i]+"%d"%(j+1)] = lab[1]
-                colors_dic[class_type2[i] +"%d"%(j+1)] = colors[k+1]
-
-              
-            if j < num_var[lab[2]]:
-                data_dic[class_type3[i]+"%d"%(j+1)] = (np.random.pareto(val3[i][0], size = per_spl) + 1)*val3[i][1] ### according to the doc
-                class_dic[class_type3[i]+"%d"%(j+1)] = lab[2]
-                colors_dic[class_type3[i]+"%d"%(j+1)] = colors[k+2]
-
+                Z = np.random.uniform(val2[i][0], val2[i][1], size = (2, per_spl))
                 
+                data_dic[class_type2[i]+"%d_%d"%(j+1, 0)] = Z[0, :]
+                class_dic[class_type2[i]+"%d_%d"%(j+1, 0)] = 2
+                colors_dic[class_type2[i] +"%d_%d"%(j+1, 0)] = colors[k+1]
+                data_dic["X_vars"].append(class_type2[i]+"%d_%d"%(j+1, 0))
+                
+                data_dic[class_type2[i]+"%d_%d"%(j+1, 1)] = Z[1, :]
+                class_dic[class_type2[i]+"%d_%d"%(j+1, 1)] = 2
+                colors_dic[class_type2[i]+"%d_%d"%(j+1, 1)] = colors[k+1]
+                data_dic["Y_vars"].append(class_type2[i]+"%d_%d"%(j+1, 1))
+                
+            if j < num_var[lab[2]]:
+                Z = (np.random.pareto(val3[i][0], size = (2, per_spl)) + 1)*val3[i][1] ### according to the doc
+                
+                data_dic[class_type3[i]+"%d_%d"%(j+1, 0)] = Z[0, :]
+                class_dic[class_type3[i]+"%d_%d"%(j+1, 0)] = 3
+                colors_dic[class_type3[i]+"%d_%d"%(j+1, 0)] = colors[k+2]
+                data_dic["X_vars"].append(class_type3[i]+"%d_%d"%(j+1, 0))
+                
+                data_dic[class_type3[i]+"%d_%d"%(j+1, 1)] = Z[1, :]
+                class_dic[class_type3[i]+"%d_%d"%(j+1, 1)] = 3
+                colors_dic[class_type3[i]+"%d_%d"%(j+1, 1)] = colors[k+2]
+                data_dic["Y_vars"].append(class_type3[i]+"%d_%d"%(j+1, 1))
+            
+            
             if j <= num_var[lab[3]]:
-                data_dic[class_type4[i]+"%d"%(j+1)] = np.random.poisson(val4[i], size = per_spl)
-                class_dic[class_type4[i]+"%d"%(j+1)] = lab[3]
-                colors_dic[class_type4[i]+"%d"%(j+1)] = colors[k+3]
-
+                Z = np.random.poisson(val4[i], size = (2, per_spl))
+                
+                data_dic[class_type4[i]+"%d_%d"%(j+1, 0)] = Z[0, :]
+                class_dic[class_type4[i]+"%d_%d"%(j+1, 0)] = 4
+                colors_dic[class_type4[i]+"%d_%d"%(j+1, 0)] = colors[k+3]
+                data_dic["X_vars"].append(class_type4[i]+"%d_%d"%(j+1, 0))
+                
+                data_dic[class_type4[i]+"%d_%d"%(j+1, 1)] = Z[1, :]
+                class_dic[class_type4[i]+"%d_%d"%(j+1, 1)] = 4
+                colors_dic[class_type4[i]+"%d_%d"%(j+1, 1)] = colors[k+3]
+                data_dic["Y_vars"].append(class_type4[i]+"%d_%d"%(j+1, 1))
+                     
         k += 4   
     
     data_dic["true_colors"] = colors_dic
     dtp = (str, str)
     return data_dic, class_dic, num_clust, dtp
+
+
 
 """ Classification Experiment on random samples from bivariate probability distributions """
 
@@ -193,10 +234,10 @@ def load_data_twoGRN(var_data = False, noise = False, palette = "tab20", random_
     files = ["Data/2mRNA_100000/two_MRNA_No_Up_data_100000.pck", "Data/2mRNA_100000/two_MRNA_Single_Up_data_100000.pck", "Data/2mRNA_100000/two_MRNA_Double_Up_data_100000.pck"]
     
     labs = np.cumsum(np.ones(len(class_type1))) - 1
-    num_clust = len(class_type1) # + 1 if the 2 Genes in the NoI was assigned to different classes (does not make much difference)
+    num_clust = len(class_type1) + 1 #if the 2 Genes in the NoI was assigned to different classes (does not make much difference)
     
     # Number of samples per classes
-    MaxNumVar = 25
+    MaxNumVar = 25#25
     if var_data:
         num_var_list = np.random.choice(np.arange(2, MaxNumVar), size = len(labs), replace = False)
         num_var = {labs[k]: num_var_list[k] for k in range(len(labs))}
@@ -232,7 +273,7 @@ def load_data_twoGRN(var_data = False, noise = False, palette = "tab20", random_
                     colors_dic[class_type1[i]+"%d_%d"%(j+1, 1)] = colors[i]
                 else:
                     class_dic[class_type1[i]+"%d_%d"%(j+1, 0)] = lab[0]
-                    class_dic[class_type1[i]+"%d_%d"%(j+1, 1)] = lab[0]#max(labs)+1+lab[0] # if separate label for non-interacting species (does not make much difference)
+                    class_dic[class_type1[i]+"%d_%d"%(j+1, 1)] = max(labs)+1+lab[0] #lab[0]#max(labs)+1+lab[0] # if separate label for non-interacting species (does not make much difference)
                     colors_dic[class_type1[i]+"%d_%d"%(j+1, 0)] = colors[i]
                     colors_dic[class_type1[i]+"%d_%d"%(j+1, 1)] = colors[i] #colors[-1] # if separate label for non-interacting species (does not make much difference)
         
@@ -245,26 +286,50 @@ import pickle
 import matplotlib.pyplot as plt
 
 def GRN_load(sample_size, filename, loc_species, random_state = None):
-    #if random_state is not None:
-    #    np.random.seed(random_state) # in case one needs a reproducible result   
+    if random_state is not None:
+        np.random.seed(random_state) # in case one needs a reproducible result   
     
-    for s in range(sample_size):
+    if random_state is not None:
+        for s in range(sample_size):
+            f = open(filename,'rb')
+            input_dic = pickle.load(f)
+            f.close()
+            
+            Sim_data = input_dic['Obs'] # -> numpy array           (#Time, #Dim, #Repeats)
+            inds = np.arange(0,Sim_data.shape[-1],1,dtype=np.int) # repeats indexes, i.e., different cells
+            sampled_inds = np.random.choice(inds, size=10000, replace=False) # No repeating samples
+            Samples = Sim_data[:, loc_species][:, :, sampled_inds]
+            mean_timecourse = np.mean(Samples, axis = 2)
+            variance_timecourse = np.var(Samples, axis = 2)
+            skew_timecourse = stats.skew(Samples, axis = 2)
+            Z_sub = np.row_stack((mean_timecourse, variance_timecourse, skew_timecourse))      
+            if s == 0:
+                Z = Z_sub[:, :, np.newaxis]
+            else:
+                Z = np.concatenate((Z, Z_sub[:, :, np.newaxis]), axis = 2)
+    else:
         f = open(filename,'rb')
         input_dic = pickle.load(f)
         f.close()
         
         Sim_data = input_dic['Obs'] # -> numpy array           (#Time, #Dim, #Repeats)
         inds = np.arange(0,Sim_data.shape[-1],1,dtype=np.int) # repeats indexes, i.e., different cells
-        sampled_inds = np.random.choice(inds, size=10000, replace=False) # No repeating samples
-        Samples = Sim_data[:, loc_species][:, :, sampled_inds]
-        mean_timecourse = np.mean(Samples, axis = 2)
-        variance_timecourse = np.var(Samples, axis = 2)
-        skew_timecourse = stats.skew(Samples, axis = 2)
-        Z_sub = np.row_stack((mean_timecourse, variance_timecourse, skew_timecourse))#, skew_timecourse, variance_timecourse))
-        if s == 0:
-            Z = Z_sub[:, :, np.newaxis]
-        else:
-            Z = np.concatenate((Z, Z_sub[:, :, np.newaxis]), axis = 2)
+        sampled_inds = np.random.choice(inds, size=(4000, sample_size), replace = False) ### allow repeating cells because there is not enough population data
+        
+        for s in range(sample_size):
+            Samples = Sim_data[:, loc_species][:, :, sampled_inds[:, s]]
+            mean_timecourse = np.mean(Samples, axis = 2)
+            variance_timecourse = np.var(Samples, axis = 2)
+            skew_timecourse = stats.skew(Samples, axis = 2)
+        
+            Z_sub = np.row_stack((mean_timecourse, variance_timecourse, skew_timecourse))      
+            if s == 0:
+                Z = Z_sub[:, :, np.newaxis]
+            else:
+                Z = np.concatenate((Z, Z_sub[:, :, np.newaxis]), axis = 2)
+    
+    ### min-max normalization to bring the central moments on the same scale
+    Z = (Z - np.min(Z))/(np.max(Z) - np.min(Z))
     
     """
     w1 = 1#(1e-20+ np.linalg.norm(skew_timecourse[20:, 0]))
@@ -310,6 +375,87 @@ def GRN_load_raw(sample_size, filename, loc_species, random_state = None):
 
  
 """---------------------------- Prev functions --------------------------------------------------------"""
+
+""" Classification Experiment on random samples from specific probability distributions """
+def generate_data_dist_ver0(var_data = False, noise = False, palette = "tab20", custom_palette = False, random_state = None):
+    
+    if random_state is not None:
+        np.random.seed(random_state) # in case one needs a reproducible result
+    
+    """Generate Artificial dinstinct distributions data"""
+    per_spl = 300 # Num of iid observation in each samples 
+    data_dic = {}
+    class_type1 = ["1a", "1b", "1c", "1d", "1e", "1f", "1g", "1h", "1i", "1j"] # Normal Dist
+    val1_mean = np.random.choice(15, size = len(class_type1), replace = False) # not allowing repeating means
+    val1_std = np.random.uniform(1, 8, size = len(class_type1)) 
+    val1 = [(val1_mean[k], val1_std[k]) for k in range(len(class_type1))]
+    
+    class_type2 = ["2a", "2b", "2c", "2d", "2e", "2f", "2g", "2h", "2i", "2j"] # Uniform Dist
+    val2_a = np.random.choice(10, size = len(class_type2)) # allowing repeating start
+    val2_b = np.random.choice(15, size = len(class_type2), replace = False) # not allowing repeated end
+    val2 = [(val2_a[k], val2_a[k] + val2_b[k]) for k in range(len(class_type2))]
+    
+    class_type3 = ["3a", "3b", "3c", "3d", "3e", "3f", "3g", "3h", "3i", "3j"] # Pareto Dist
+    val3_shape = np.random.choice(np.arange(1, 15), size = len(class_type3), replace = False)
+    val3_scale = np.random.choice(np.arange(1, 15), size = len(class_type3), replace = False)
+    val3 = [(val3_shape[k], val3_scale[k]) for k in range(len(class_type3))]
+    
+    class_type4 = ["4a", "4b", "4c", "4d", "4e", "4f", "4g", "4h", "4i", "4j"] # Poisson Dist
+    val4 = np.random.choice(np.arange(1, 15), size = len(class_type4), replace = False)
+    
+    
+    num_clust = len(class_type1) + len(class_type2) + len(class_type3) + len(class_type4)
+    labs = np.cumsum(np.ones(num_clust)) - 1
+    
+    colors_dic = {}
+    
+    if not custom_palette:
+        colors = sns.color_palette(palette, num_clust)
+    else:
+        colors = palette
+    
+    # Number of samples per classes
+    MaxNumVar = 25
+    if var_data:
+        num_var_list = np.random.choice(np.arange(2, MaxNumVar), size = len(labs))
+        num_var = {labs[k]: num_var_list[k] for k in range(len(labs))}
+    else:
+        num_var = {labs[k]:MaxNumVar for k in range(len(labs))}
+    
+    
+    class_dic = {}
+    k = 0
+    for i in range(10):
+        lab = labs[k:k+4]
+        for j in range(MaxNumVar + 1):
+            if j < num_var[lab[0]]:
+                data_dic[class_type1[i]+"%d"%(j+1)] = np.random.normal(val1[i][0], val1[i][1], size = per_spl)
+                class_dic[class_type1[i]+"%d"%(j+1)] = lab[0]
+                colors_dic[class_type1[i]+"%d"%(j+1)] = colors[k]
+                
+            if j < num_var[lab[1]]:
+                data_dic[class_type2[i]+"%d"%(j+1)] = np.random.uniform(val2[i][0], val2[i][1], size = per_spl)
+                class_dic[class_type2[i]+"%d"%(j+1)] = lab[1]
+                colors_dic[class_type2[i] +"%d"%(j+1)] = colors[k+1]
+
+              
+            if j < num_var[lab[2]]:
+                data_dic[class_type3[i]+"%d"%(j+1)] = (np.random.pareto(val3[i][0], size = per_spl) + 1)*val3[i][1] ### according to the doc
+                class_dic[class_type3[i]+"%d"%(j+1)] = lab[2]
+                colors_dic[class_type3[i]+"%d"%(j+1)] = colors[k+2]
+
+                
+            if j <= num_var[lab[3]]:
+                data_dic[class_type4[i]+"%d"%(j+1)] = np.random.poisson(val4[i], size = per_spl)
+                class_dic[class_type4[i]+"%d"%(j+1)] = lab[3]
+                colors_dic[class_type4[i]+"%d"%(j+1)] = colors[k+3]
+
+        k += 4   
+    
+    data_dic["true_colors"] = colors_dic
+    dtp = (str, str)
+    return data_dic, class_dic, num_clust, dtp
+
 def generate_data_correlated_2(var_data = False, noise = False, palette = "tab20", random_state = None):
     
     if random_state is not None:
