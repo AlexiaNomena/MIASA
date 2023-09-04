@@ -143,9 +143,9 @@ def get_class(X, Y, Feature_X, Feature_Y, func, ftype, metric_method, c_dic, DMa
     
     alpha =  0 # np.max(D_assoc) adding a constant to the Euclidean distances to statisfy one of the conditions for embedding (obsolete)
     if (Orows is not None) or (Ocols is not None):
-        Coords, vareps = Euclidean_Embedding(DX+alpha, DY+alpha, Orows+alpha, Ocols+alpha, D_assoc, c_dic, in_threads = in_threads)
+        Coords, vareps, num_it = Euclidean_Embedding(DX+alpha, DY+alpha, Orows+alpha, Ocols+alpha, D_assoc, c_dic, in_threads = in_threads, num_iterations = True)
     else:
-        Coords, vareps = Euclidean_Embedding(DX+alpha, DY+alpha, None, None, D_assoc, c_dic, in_threads = in_threads)
+        Coords, vareps, num_it = Euclidean_Embedding(DX+alpha, DY+alpha, None, None, D_assoc, c_dic, in_threads = in_threads, num_iterations = True)
     
     if Coords is not None:
         # Thre is no point that is close to the origin as a particular characteristic of the embedding, thus the origin must be removed otherwise it risk to be considered as one cluster
@@ -206,7 +206,7 @@ def get_class(X, Y, Feature_X, Feature_Y, func, ftype, metric_method, c_dic, DMa
             was_orig = False
        
         DMat = Prox_Mat(DX, DY, UX = Orows, UY = Ocols, fXY = D_assoc)
-        Result = {"Coords": Coords, "shape":(M, N), "was_orig":was_orig, "vareps":vareps, "Class_pred":Class_pred, "clust_labels":clust_labels, "color_clustered":color_clustered, "DMat":DMat, "X":X, "Y":Y}
+        Result = {"Coords": Coords, "shape":(M, N), "was_orig":was_orig, "vareps":vareps, "Class_pred":Class_pred, "clust_labels":clust_labels, "color_clustered":color_clustered, "DMat":DMat, "X":X, "Y":Y, "num_iteration":num_it}
     
     else:
         
