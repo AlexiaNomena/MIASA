@@ -26,15 +26,16 @@ def one_classification(r, repeat, method_dic_list, var_data, generate_data, c_di
     data_dic, class_dic, num_clust, dtp = generate_data(var_data) # use the same dataset for all methods
     X, Y, Class_True, X_vars, Y_vars = split_data(data_dic, class_dic, separation)
     data_dic2 = {"X":X, "Y":Y, "Class_True":Class_True, "X_vars":X_vars, "Y_vars":Y_vars}
-    acc_res = []
+    acc_res_v0 = []
+    acc_res_v1 = []
     num_it_list = []
     DMat = None
     for i in range(len(method_dic_list)):
         if method_dic_list[i]["class_method"] == "MIASA":
-            Id_Class, X_vars, Y_vars, acc_r, num_it = Classify_general(data_dic2, class_dic, num_clust, method_dic = method_dic_list[i], DMat = DMat, c_dic = c_dic, in_threads = in_threads)
+            Id_Class, X_vars, Y_vars, acc_r_v0, acc_r_v1, num_it = Classify_general(data_dic2, class_dic, num_clust, method_dic = method_dic_list[i], DMat = DMat, c_dic = c_dic, in_threads = in_threads)
             num_it_list.append(num_it)
         else:
-            Id_Class, X_vars, Y_vars, acc_r = Classify_general(data_dic2, class_dic, num_clust, method_dic = method_dic_list[i], DMat = DMat, c_dic = c_dic, in_threads = in_threads)
+            Id_Class, X_vars, Y_vars, acc_r_v0, acc_r_v1 = Classify_general(data_dic2, class_dic, num_clust, method_dic = method_dic_list[i], DMat = DMat, c_dic = c_dic, in_threads = in_threads)
         print("Case %d -- method num %d/%d"%(var_data*1, i+1, len(method_dic_list)), "-- run %d/%d"%(r+1,repeat))
         
         # since this is the same dataset, if the metric_method is the same, then pass DMat directly to avoid recomputing it everytime for method with MIASA and Non_MD
@@ -44,9 +45,10 @@ def one_classification(r, repeat, method_dic_list, var_data, generate_data, c_di
             else:
                 DMat = Id_Class["DMat"]
         
-        acc_res.append(acc_r)
+        acc_res_v0.append(acc_r_v0)
+        acc_res_v1.append(acc_r_v1)
     
-    return acc_res, num_it_list
+    return acc_res_v0, acc_res_v1, num_it_list
 
 
 def split_data(data_dic, class_dic, separation = False):
@@ -75,30 +77,35 @@ import joblib as jb
 from functools import partial
 def repeated_classifications(repeat, method_dic_list, generate_data, var_data = False, n_jobs = -1, plot = True, c_dic = "default", in_threads = True, separation = False): 
     repeat = 10 + repeat 
-    acc_list = []
+    acc_v0_list = []
+    acc_v1_list = []
     mut_it_list = []
     ### plot and save the first 10 classification runs
     if plot:
         start = 10
         for r in range(10):
-            sub_list = []
+            sub_list_v0 = []
+            sub_list_v1 = []
             data_dic, class_dic, num_clust, dtp = generate_data(var_data)
             X, Y, Class_True, X_vars, Y_vars = split_data(data_dic, class_dic, separation)
             data_dic2 = {"X":X, "Y":Y, "Class_True":Class_True, "X_vars":X_vars, "Y_vars":Y_vars}
             for i in range(len(method_dic_list)): 
                 print("method num %d/%d"%(i+1, len(method_dic_list)), "run %d/%d"%(r+1,repeat))
                 if method_dic_list[i]["class_method"] == "MIASA":
-                    Id_Class, X_vars, Y_vars, acc_r, num_it = Classify_general(data_dic2, class_dic, num_clust, method_dic = method_dic_list[i], DMat = None, c_dic = c_dic, in_threads = in_threads)
+                    Id_Class, X_vars, Y_vars, acc_r_v0, acc_r_v1, num_it = Classify_general(data_dic2, class_dic, num_clust, method_dic = method_dic_list[i], DMat = None, c_dic = c_dic, in_threads = in_threads)
                 elif method_dic_list[i]["class_method"] == "non_MD":
-                    Id_Class, X_vars, Y_vars, acc_r = Classify_general(data_dic2, class_dic, num_clust, method_dic = method_dic_list[i], DMat = None, c_dic = c_dic, in_threads = in_threads)
+                    Id_Class, X_vars, Y_vars, acc_r_v0, acc_r_v1 = Classify_general(data_dic2, class_dic, num_clust, method_dic = method_dic_list[i], DMat = None, c_dic = c_dic, in_threads = in_threads)
                 
                 if method_dic_list[i]["class_method"] == "MIASA":
                     pdf = method_dic_list[i]["fig"]
                     plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = r, n_neighbors = 15, method = "UMAP")
                     plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = r, n_neighbors = 30, method = "t-SNE")
-                sub_list.append(acc_r)
+                sub_list_v0.append(acc_r_v0)
+                sub_list_v1.append(acc_r_v1)
                 
-            acc_list.append(sub_list)
+            acc_v0_list = acc_v0_list + sub_list_v0
+            acc_v1_list = acc_v1_list + sub_list_v1
+            
     else:
         start = 0
     
@@ -107,24 +114,32 @@ def repeated_classifications(repeat, method_dic_list, generate_data, var_data = 
         # n_jobs = -1 means use all CPUs
         pfunc = partial(one_classification, repeat = repeat, method_dic_list = method_dic_list, var_data = var_data, generate_data = generate_data, c_dic = c_dic, in_threads = in_threads, separation = separation)
         
-        res = list(jb.Parallel(n_jobs = n_jobs, prefer = "threads")(jb.delayed(pfunc)(r) for r in range(start, repeat)))
-        acc_list = acc_list + res[0]
-        mut_it_list = mut_it_list + res[1]
+        res = np.array(jb.Parallel(n_jobs = n_jobs, prefer = "threads")(jb.delayed(pfunc)(r) for r in range(start, repeat)))
+        acc_v0_list = acc_v0_list + res[:, 0]
+        acc_v1_list = acc_v1_list + res[:, 1]
+        mut_it_list = mut_it_list + res[:, 2]
     else:
         pfunc = partial(one_classification, repeat = repeat-10, method_dic_list = method_dic_list, var_data = var_data, generate_data = generate_data, c_dic = c_dic, in_threads = in_threads, separation = separation)
         for r in range(repeat-10):
-            res = pfunc(r) 
-            acc_list.append(res[0])
-            mut_it_list.append(res[1])
-    Acc = np.array(acc_list)
-    all_acc_list = masked_array(Acc, mask = Acc == None)
-    acc_list = all_acc_list[:, :, 0].T
-    adjusted_acc_list = all_acc_list[:, :, 1].T
+            pfunc(r) 
+            acc_v0_list.append(res[0])
+            acc_v1_list.append(res[1])
+            mut_it_list.append(res[2])
+            
+    Acc_v0 = np.array(acc_v0_list)
+    all_acc_list_v0 = masked_array(Acc_v0, mask = Acc_v0 == None)
+    acc_list_v0 = all_acc_list_v0[:, :, 0].T
+    adjusted_acc_list_v0 = all_acc_list_v0[:, :, 1].T
+    
+    Acc_v1 = np.array(acc_v1_list)
+    all_acc_list_v1 = masked_array(Acc_v1, mask = Acc_v1 == None)
+    acc_list_v1 = all_acc_list_v1[:, :, 0].T
+    adjusted_acc_list_v1 = all_acc_list_v1[:, :, 1].T
     
     if len(mut_it_list) != 0:
-        return acc_list.astype(float), adjusted_acc_list.astype(float), mut_it_list
+        return acc_list_v0.astype(float), acc_list_v1.astype(float), adjusted_acc_list_v0.astype(float), adjusted_acc_list_v1.astype(float), mut_it_list
     else:
-        return acc_list.astype(float), adjusted_acc_list.astype(float)
+        return acc_list_v0.astype(float), acc_list_v1.astype(float), adjusted_acc_list_v0.astype(float), adjusted_acc_list_v1.astype(float)
 
 
 """ Identification of Classes """
@@ -147,13 +162,16 @@ def Classify_general(data_dic, class_dic, num_clust, method_dic, DMat = None, c_
     """Compute accuracy metric = rand_index metric"""
     if Id_Class is not None:
         Class_pred = Id_Class["Class_pred"]
-        acc_metric = rand_score(Class_True, Class_pred),  adjusted_rand_score(Class_True, Class_pred)
+        acc_metric_v0 = rand_score(Class_True, Class_pred),  adjusted_rand_score(Class_True, Class_pred)
+        acc_metric_v1 = rand_score(Class_True, Class_pred),  adjusted_rand_score(Class_True, Class_pred)
     else:
-        acc_metric = None, None
+        acc_metric_v0 = None, None
+        acc_metric_v1 = None, None
+        
     if class_method == "MIASA":
-        return Id_Class, X_vars, Y_vars, acc_metric, Id_Class["num_it"]
+        return Id_Class, X_vars, Y_vars, acc_metric_v0, acc_metric_v1, Id_Class["num_iterations"]
     else:
-        return Id_Class, X_vars, Y_vars, acc_metric
+        return Id_Class, X_vars, Y_vars, acc_metric_v0, acc_metric_v1
 
 
 """Visualization of classes"""

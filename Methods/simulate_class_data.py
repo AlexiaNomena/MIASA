@@ -297,7 +297,7 @@ def GRN_load(sample_size, filename, loc_species, random_state = None):
             
             Sim_data = input_dic['Obs'] # -> numpy array           (#Time, #Dim, #Repeats)
             inds = np.arange(0,Sim_data.shape[-1],1,dtype=np.int) # repeats indexes, i.e., different cells
-            sampled_inds = np.random.choice(inds, size=10000, replace=False) # No repeating samples
+            sampled_inds = np.random.choice(inds, size=10000, replace=False) # No repeating celles
             Samples = Sim_data[:, loc_species][:, :, sampled_inds]
             mean_timecourse = np.mean(Samples, axis = 2)
             variance_timecourse = np.var(Samples, axis = 2)
@@ -314,7 +314,7 @@ def GRN_load(sample_size, filename, loc_species, random_state = None):
         
         Sim_data = input_dic['Obs'] # -> numpy array           (#Time, #Dim, #Repeats)
         inds = np.arange(0,Sim_data.shape[-1],1,dtype=np.int) # repeats indexes, i.e., different cells
-        sampled_inds = np.random.choice(inds, size=(4000, sample_size), replace = False) ### allow repeating cells because there is not enough population data
+        sampled_inds = np.random.choice(inds, size=(4000, sample_size), replace = False) ### No repeating cells
         
         for s in range(sample_size):
             Samples = Sim_data[:, loc_species][:, :, sampled_inds[:, s]]
