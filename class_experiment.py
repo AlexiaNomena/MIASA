@@ -13,20 +13,21 @@ import pickle
 import time
 import sys
 
-repeat_list = [100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 1]
+repeat_list = [200, 201, 202, 203, 204]
 
 """ Classification experiments for different data types """
-repeat = 204 # Number of replicates of each experiments used for the barplots
+#repeat = repeat_list[int(sys.argv[1]) - 1] # Number of replicates of each experiments used for the barplots
 var_data_list = [False, True] # fixed: False , variable: True, number of points per true clusters
 var_data_list_labs = ["False", "True"]
 
 """ Test method """
-"""
+
+repeat = 10
 set_num = 0
-save_at = ""
+save_at = "Class_Data_v0/"
 classifiers = ["MIASA"]
-clust_methods = ["Kmeans"] # Must be of the same length as classifiers and with a one-to-one mapping i.e. classifiers[i] uses clust_method[i]
-metric_methods = [("eCDF", "KS-stat"), ("eCDF", "KS-p1")] # (similarity, association) used by all couple (classifiers[i], clust_method[i])
+clust_methods = ["Agglomerative_ward"] # Must be of the same length as classifiers and with a one-to-one mapping i.e. classifiers[i] uses clust_method[i]
+metric_methods = [("eCDF", "KS-stat")] # (similarity, association) used by all couple (classifiers[i], clust_method[i])
 
 # Already separated X, Y samples otherwise randomly separate the dataset into two equal number of sample sets
 sep_vars = False
@@ -37,7 +38,7 @@ generate_data = generate_data_dist
 c_dic = "default" 
 in_threads = True # avoid broken runs when using parallel jobs (repeat>10)
 plotfew = False # first run and plot 10 repeats (umap visualization) saved in Figures/
-"""
+
 
 """ First methods set"""
 """
