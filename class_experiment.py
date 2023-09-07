@@ -13,14 +13,25 @@ import pickle
 import time
 import sys
 
-repeat_list = [3]#[200, 201, 202, 203, 204]
+type_list = ["Dist", "Corr", "GRN"]
+repeat_list = [100, 101, 102, 103, 104, 105, 106, 107, 108, 109]
+
+sim_list = []
+### 1-30th 
+for tp in type_list:
+    for rep in repeat_list:
+        sim_list.append((tp, rep))
+
+sim_list.append(("Test", None)) ### len(type_list)*len(repeat_list) - th
+
+to_sim = sim_list[int(sys.argv[1]) - 1] 
 
 """ Classification experiments for different data types """
-#repeat = repeat_list[int(sys.argv[1]) - 1] # Number of replicates of each experiments used for the barplots
+repeat = repeat_list[to_sim[1]] # Number of replicates of each experiments used for the barplots
 var_data_list = [False, True] # fixed: False , variable: True, number of points per true clusters
 var_data_list_labs = ["False", "True"]
 
-if sys.argv[2] == 1:
+if to_sim[0] == "Dist":
     """ First methods set"""
     set_num = 1
     save_at = "Class_Data/meth_set_1/" #sample size = 300
@@ -37,14 +48,14 @@ if sys.argv[2] == 1:
     in_threads = True # avoid broken runs when using parallel jobs (repeat>10)
     plotfew = False # first run and plot 10 repeats (umap visualization) saved in Figures/
 
-elif sys.argv[2] == 2:
+elif to_sim[0] == "Corr":
     """ Second methods set: Saved/meth_set_2/"""
     set_num = 2
     save_at = "Class_Data/meth_set_2/"
     classifiers = ["MIASA"]*2 + ["non_MD"]*1 # non_MD = Non_Metric_Distance = Non_MIASA
     clust_methods = ["Agglomerative_ward", "Kmedoids"] # for MIASA
     clust_methods = clust_methods + ["Kmedoids"] # for non_MD
-    metric_methods = [("eCDF", "Spearman_R")] # Chosen runs, only normally distributed samples, samples size = 300 , already separated X, Y samples, i.e. , sep_vars = True
+    metric_methods = [("eCDF", "Pearson_pval"), ("eCDF", "Pearson_R"), ("eCDF", "Spearman_pval"), ("eCDF", "Spearman_R")] # Chosen runs, only normally distributed samples, samples size = 300 , already separated X, Y samples, i.e. , sep_vars = True
     
     # Already separated X, Y samples otherwise randomly separate the dataset into two equal number of sample sets
     sep_vars = True
@@ -54,7 +65,8 @@ elif sys.argv[2] == 2:
     c_dic = "default" 
     in_threads = True # avoid broken runs when using parallel jobs (repeat>10)
     plotfew = False # first run and plot 10 repeats (umap visualization) saved in Figures/
-elif sys.argv[2] == 3:
+    
+elif to_sim[0] == "GRN":
     """ Third methods set"""
     set_num = 3
     save_at = "Class_Data/meth_set_3/"
@@ -71,13 +83,14 @@ elif sys.argv[2] == 3:
     # Euclidean embedding pameters only used in MIASA (includes a finite number of auto adjustements)
     c_dic = "default" 
     in_threads = True # avoid broken runs when using parallel jobs (repeat>10)
-    plotfew = False # first run and plot 10 repeats (umap visualization) saved in Figures/
+    plotfew = True # first run and plot 10 repeats (umap visualization) saved in Figures/
+    
 else:
     """ Test method """
     print("Run Test")
     repeat = 5
     set_num = 0
-    save_at = "Class_Data_v0/"
+    save_at = ""
     classifiers = ["MIASA", "non_MD"]
     clust_methods = ["Agglomerative_ward", "Kmedoids"] # Must be of the same length as classifiers and with a one-to-one mapping i.e. classifiers[i] uses clust_method[i]
     metric_methods = [("eCDF", "KS-stat")] # (similarity, association) used by all couple (classifiers[i], clust_method[i])
@@ -94,7 +107,7 @@ else:
     
 """ Simulations """
 t0 = time.time()
-for j in range(1):#len(var_data_list)):
+for j in range(len(var_data_list)):
     
     method_dic_list = []
     method_name = []
@@ -109,11 +122,8 @@ for j in range(1):#len(var_data_list)):
             method_dic_list.append(dic_meth)
             method_name.append(classifiers[i]+"-(%s, %s)-"%metric_methods[k]+"-"+clust_methods[i])
     
-    if dic_meth["class_method"] == "MIASA":
-        acc_list_v0, adjusted_acc_list_v0, acc_list_v1, adjusted_acc_list_v1, num_it_list = repeated_classifications(repeat, method_dic_list, generate_data = generate_data, c_dic = c_dic, var_data = var_data_list[j], n_jobs = 8, plot = plotfew, in_threads = in_threads, separation = sep_vars)    
-    else:
-        acc_list_v0, adjusted_acc_list_v0, acc_list_v1, adjusted_acc_list_v1 = repeated_classifications(repeat, method_dic_list, generate_data = generate_data, c_dic = c_dic, var_data = var_data_list[j], n_jobs = 8, plot = plotfew, in_threads = in_threads, separation = sep_vars)    
-    
+    acc_list_v0, adjusted_acc_list_v0, acc_list_v1, adjusted_acc_list_v1, num_it_list = repeated_classifications(repeat, method_dic_list, generate_data = generate_data, c_dic = c_dic, var_data = var_data_list[j], n_jobs = 10, plot = plotfew, in_threads = in_threads, separation = sep_vars)    
+
     if plotfew:
         for i in range(len(method_dic_list)):
             if method_dic_list[i]["class_method"] == "MIASA":
@@ -130,7 +140,7 @@ for j in range(1):#len(var_data_list)):
         
     file = open(save_at + "Accuracy_set_%d_%d_varS%s.pck"%(set_num, repeat, var_data_list_labs[j]), "rb")
     AcData = pickle.load(file)
-    acc_list, adjusted_acc_list, method_name = AcData["accuracy_list"], AcData["adjusted_accuracy_list"], AcData["method_name"]
+    acc_list, adjusted_acc_list, method_name = AcData["accuracy_list"], AcData["miasa_adjusted_accuracy_list"], AcData["method_name"]
     file.close()
     pdfb= PdfPages("Figures/RI_set_%d_%d_varS%s.pdf"%(set_num, repeat, var_data_list_labs[j]))    
     BarPlotClass(acc_list, method_name, pdfb, stat_name = "RI scores")

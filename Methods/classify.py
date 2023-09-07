@@ -99,7 +99,15 @@ def repeated_classifications(repeat, method_dic_list, generate_data, var_data = 
                     num_it = None, None
                 if method_dic_list[i]["class_method"] == "MIASA":
                     pdf = method_dic_list[i]["fig"]
-                    fig, ax = plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = r, n_neighbors = 15, method = "umap", true_colors=data_dic["true_colors"])
+                    fig, ax = plotClass_separated_ver0(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = r, n_neighbors = 30, method = "umap", true_colors=data_dic["true_colors"], 
+                                                               scale = False, # scale = "pca", "standard", anything esle is taken as no scaling 
+                                                               cluster_colors = False, # chosed_color: if False, true_colors bellow must be given 
+                                                               markers = [("o",500),("^",500)], # optional markers list and their size for X and Y
+                                                               sub_fig_size = 10, # optional sub figure size (as a square)
+                                                               show_labels = False, # optional show the labels of X and Y
+                                                               show_orig = False, # optional show the the axis lines going through origin 
+                                                               show_separation = True, # optional separate all subfigs
+                                                               )
                     #plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = r, n_neighbors = 30, method = "t-SNE", true_colors=data_dic["true_colors"])
                     pdf.savefig(fig, bbox_inches = "tight")
                 sub_list_v0.append(acc_r_v0)
@@ -109,11 +117,7 @@ def repeated_classifications(repeat, method_dic_list, generate_data, var_data = 
             acc_v0_list.append(sub_list_v0)
             acc_v1_list.append(sub_list_v1)
             num_it_list.append(sub_list_it)
-        
-        for i in range(len(method_dic_list)): 
-            pdf = method_dic_list[i]["fig"]
-            pdf.close()
-
+            
     else:
         start = 0
     
@@ -122,7 +126,10 @@ def repeated_classifications(repeat, method_dic_list, generate_data, var_data = 
         # n_jobs = -1 means use all CPUs
         
         pfunc = partial(one_classification, repeat = repeat, method_dic_list = method_dic_list, var_data = var_data, generate_data = generate_data, c_dic = c_dic, in_threads = in_threads, separation = separation)
-        res = np.array(jb.Parallel(n_jobs = n_jobs, prefer = "threads")(jb.delayed(pfunc)(r) for r in range(repeat)))
+        try:
+            res = np.array(jb.Parallel(n_jobs = n_jobs, prefer = "threads")(jb.delayed(pfunc)(r) for r in range(repeat)))
+        except:
+            res = np.array(jb.Parallel(n_jobs = n_jobs)(jb.delayed(pfunc)(r) for r in range(repeat)))
         
         if len(acc_v0_list) != 0:
             acc_v0_list = np.row_stack((np.array(acc_v0_list), res[:, 0, :, :]))
@@ -139,7 +146,7 @@ def repeated_classifications(repeat, method_dic_list, generate_data, var_data = 
         else:
             num_it_list = res[:, 2, :, :] 
 
-    else:
+    elif repeat>0:
         pfunc = partial(one_classification, repeat = repeat, method_dic_list = method_dic_list, var_data = var_data, generate_data = generate_data, c_dic = c_dic, in_threads = in_threads, separation = separation)
         for r in range(repeat):
             res = np.array(pfunc(r)) 
@@ -158,10 +165,8 @@ def repeated_classifications(repeat, method_dic_list, generate_data, var_data = 
     adjusted_acc_list_v1 = all_acc_list_v1[:, :, 1].T
     
     num_it_list_final = np.array(num_it_list)[:, :, 0]
-    if len(num_it_list) != 0:
-        return acc_list_v0.astype(float), acc_list_v1.astype(float), adjusted_acc_list_v0.astype(float), adjusted_acc_list_v1.astype(float), np.array(num_it_list_final).T
-    else:
-        return acc_list_v0.astype(float), acc_list_v1.astype(float), adjusted_acc_list_v0.astype(float), adjusted_acc_list_v1.astype(float)
+    
+    return acc_list_v0.astype(float), acc_list_v1.astype(float), adjusted_acc_list_v0.astype(float), adjusted_acc_list_v1.astype(float), np.array(num_it_list_final).T
 
 
 """ Identification of Classes """
@@ -199,7 +204,7 @@ def Classify_general(data_dic, class_dic, num_clust, method_dic, DMat = None, c_
         return Id_Class, X_vars, Y_vars, acc_metric_v0, acc_metric_v1
 
 
-def miasa_accuracy(Class_True, Class_Pred, M, N):
+def miasa_accuracy(Class_True, Class_Pred, M, N, quiet = True):
     """
     # accuracy measure suitable for miasa 
     # still work in progress
@@ -248,9 +253,9 @@ def miasa_accuracy(Class_True, Class_Pred, M, N):
     class_true_xy = np.array(class_true_xy)    
     class_pred_xy = np.array(class_pred_xy)
     
-    assess_couples = class_true_xy != lab_sep_true ### we only evaluate the recovery of true couples (x,y), it does not matter where they go when they are originally separated
-    class_true_xy = class_true_xy[assess_couples]
-    class_pred_xy = class_pred_xy[assess_couples]
+    #assess_couples = class_true_xy != lab_sep_true ### we only evaluate the recovery of true couples (x,y), it does not matter where they end up when they are not found together in the predicted clusters
+    #class_true_xy = class_true_xy[assess_couples]
+    #class_pred_xy = class_pred_xy[assess_couples]
     
     RI_x = rand_score(class_true_x, class_pred_x) 
     RI_y = rand_score(class_true_y, class_pred_y) 
@@ -264,7 +269,9 @@ def miasa_accuracy(Class_True, Class_Pred, M, N):
     ARI_xy_together = ARI_HA(class_true_xy, class_pred_xy) 
     #ARI_xy_separated = adjusted_rand_score(not_with_x_true, not_with_x_pred) 
     mean_ARI = np.mean([ARI_x, ARI_y, ARI_xy_together])#, ARI_xy_separated]) 
-    #print("ARIx, ARIy, ARI_xy", ARI_x, ARI_y, ARI_xy_together)
+    
+    if not quiet:
+        print("ARI_HAx, ARI_HAy, ARI_HAxy", ARI_x, ARI_y, ARI_xy_together)
     return mean_RI, mean_ARI
 
 import scipy.special

@@ -7,7 +7,7 @@ Created on Sat Dec 31 10:27:56 2022
 """
 import numpy as np
 from .Generate_Features import eCDF, Eucl, Null, covariance, get_assoc_func
-from .Generate_Features import corrcoeff, moms, OR, Cond_proba, Granger_Cause
+from .Generate_Features import corrcoeff, moms, OR, Cond_proba, Granger_Cause, Histogram_feature
 from .Core.Generate_Distances import Similarity_Distance, Association_Distance, KS_Distance, KS_Distance_Mixed
 
 from .Core.Clustering import get_clusters
@@ -47,6 +47,10 @@ def NonMetric_Class(X, Y, num_clust, DMat = None, dist_origin = (True, True), me
     
     elif metric_method[0] == "Null":
         Feature_X, Feature_Y = Null(X, Y) 
+        func, ftype = get_assoc_func(assoc_type = metric_method[1], in_threads = in_threads)
+    
+    elif metric_method[0] == "Hist":
+        Feature_X, Feature_Y = Histogram_feature(X), Histogram_feature(Y)
         func, ftype = get_assoc_func(assoc_type = metric_method[1], in_threads = in_threads)
         
     elif metric_method[0][:13] == "Granger-Cause":
