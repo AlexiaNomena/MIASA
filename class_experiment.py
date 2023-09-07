@@ -26,6 +26,7 @@ sim_list.append(("Test", None)) ### len(type_list)*len(repeat_list) - th
 
 to_sim = sim_list[int(sys.argv[1]) - 1] 
 
+
 """ Classification experiments for different data types """
 repeat = repeat_list[to_sim[1]] # Number of replicates of each experiments used for the barplots
 var_data_list = [False, True] # fixed: False , variable: True, number of points per true clusters
