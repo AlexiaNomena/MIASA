@@ -33,11 +33,11 @@ def one_classification(r, repeat, method_dic_list, var_data, generate_data, c_di
     for i in range(len(method_dic_list)):
         if method_dic_list[i]["class_method"] == "MIASA":
             Id_Class, X_vars, Y_vars, acc_r_v0, acc_r_v1, num_it = Classify_general(data_dic2, class_dic, num_clust, method_dic = method_dic_list[i], DMat = DMat, c_dic = c_dic, in_threads = in_threads)
-            num_it_list.append(num_it)
+            
         else:
             Id_Class, X_vars, Y_vars, acc_r_v0, acc_r_v1 = Classify_general(data_dic2, class_dic, num_clust, method_dic = method_dic_list[i], DMat = DMat, c_dic = c_dic, in_threads = in_threads)
+            num_it = None, None
         print("Case %d -- method num %d/%d"%(var_data*1, i+1, len(method_dic_list)), "-- run %d/%d"%(r+1,repeat))
-        
         # since this is the same dataset, if the metric_method is the same, then pass DMat directly to avoid recomputing it everytime for method with MIASA and Non_MD
         if (i>0)&(Id_Class is not None):
             if method_dic_list[i]["metric_method"] != method_dic_list[i-1]["metric_method"]:
@@ -47,7 +47,8 @@ def one_classification(r, repeat, method_dic_list, var_data, generate_data, c_di
         
         acc_res_v0.append(acc_r_v0)
         acc_res_v1.append(acc_r_v1)
-    
+        num_it_list.append(num_it)
+        
     return acc_res_v0, acc_res_v1, num_it_list
 
 
@@ -76,16 +77,16 @@ def split_data(data_dic, class_dic, separation = False):
 import joblib as jb
 from functools import partial
 def repeated_classifications(repeat, method_dic_list, generate_data, var_data = False, n_jobs = -1, plot = True, c_dic = "default", in_threads = True, separation = False): 
-    repeat = 10 + repeat 
     acc_v0_list = []
     acc_v1_list = []
-    mut_it_list = []
+    num_it_list = []
     ### plot and save the first 10 classification runs
     if plot:
-        start = 10
-        for r in range(10):
+        start = 3
+        for r in range(start):
             sub_list_v0 = []
             sub_list_v1 = []
+            sub_list_it = []
             data_dic, class_dic, num_clust, dtp = generate_data(var_data)
             X, Y, Class_True, X_vars, Y_vars = split_data(data_dic, class_dic, separation)
             data_dic2 = {"X":X, "Y":Y, "Class_True":Class_True, "X_vars":X_vars, "Y_vars":Y_vars}
@@ -95,37 +96,57 @@ def repeated_classifications(repeat, method_dic_list, generate_data, var_data = 
                     Id_Class, X_vars, Y_vars, acc_r_v0, acc_r_v1, num_it = Classify_general(data_dic2, class_dic, num_clust, method_dic = method_dic_list[i], DMat = None, c_dic = c_dic, in_threads = in_threads)
                 elif method_dic_list[i]["class_method"] == "non_MD":
                     Id_Class, X_vars, Y_vars, acc_r_v0, acc_r_v1 = Classify_general(data_dic2, class_dic, num_clust, method_dic = method_dic_list[i], DMat = None, c_dic = c_dic, in_threads = in_threads)
-                
+                    num_it = None, None
                 if method_dic_list[i]["class_method"] == "MIASA":
                     pdf = method_dic_list[i]["fig"]
-                    plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = r, n_neighbors = 15, method = "UMAP")
-                    plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = r, n_neighbors = 30, method = "t-SNE")
+                    fig, ax = plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = r, n_neighbors = 15, method = "umap", true_colors=data_dic["true_colors"])
+                    #plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = r, n_neighbors = 30, method = "t-SNE", true_colors=data_dic["true_colors"])
+                    pdf.savefig(fig, bbox_inches = "tight")
                 sub_list_v0.append(acc_r_v0)
                 sub_list_v1.append(acc_r_v1)
+                sub_list_it.append(num_it)
                 
-            acc_v0_list = acc_v0_list + sub_list_v0
-            acc_v1_list = acc_v1_list + sub_list_v1
-            
+            acc_v0_list.append(sub_list_v0)
+            acc_v1_list.append(sub_list_v1)
+            num_it_list.append(sub_list_it)
+        
+        for i in range(len(method_dic_list)): 
+            pdf = method_dic_list[i]["fig"]
+            pdf.close()
+
     else:
         start = 0
     
-    if repeat-10 > 10:
-        repeat = repeat - 10
+    repeat = repeat - start
+    if repeat > 10:
         # n_jobs = -1 means use all CPUs
-        pfunc = partial(one_classification, repeat = repeat, method_dic_list = method_dic_list, var_data = var_data, generate_data = generate_data, c_dic = c_dic, in_threads = in_threads, separation = separation)
         
-        res = np.array(jb.Parallel(n_jobs = n_jobs, prefer = "threads")(jb.delayed(pfunc)(r) for r in range(start, repeat)))
-        acc_v0_list = acc_v0_list + res[:, 0]
-        acc_v1_list = acc_v1_list + res[:, 1]
-        mut_it_list = mut_it_list + res[:, 2]
-    else:
-        pfunc = partial(one_classification, repeat = repeat-10, method_dic_list = method_dic_list, var_data = var_data, generate_data = generate_data, c_dic = c_dic, in_threads = in_threads, separation = separation)
-        for r in range(repeat-10):
-            pfunc(r) 
-            acc_v0_list.append(res[0])
-            acc_v1_list.append(res[1])
-            mut_it_list.append(res[2])
+        pfunc = partial(one_classification, repeat = repeat, method_dic_list = method_dic_list, var_data = var_data, generate_data = generate_data, c_dic = c_dic, in_threads = in_threads, separation = separation)
+        res = np.array(jb.Parallel(n_jobs = n_jobs, prefer = "threads")(jb.delayed(pfunc)(r) for r in range(repeat)))
+        
+        if len(acc_v0_list) != 0:
+            acc_v0_list = np.row_stack((np.array(acc_v0_list), res[:, 0, :, :]))
+        else:
+            acc_v0_list = res[:, 0, :, :]
+        
+        if len(acc_v1_list) != 0:
+            acc_v1_list = np.row_stack((np.array(acc_v1_list), res[:, 1, :, :]))
+        else:
+            acc_v1_list = res[:, 1, :, :]
             
+        if len(num_it_list) != 0:
+            num_it_list = np.row_stack((np.array(num_it_list), res[:, 2, :, :]))
+        else:
+            num_it_list = res[:, 2, :, :] 
+
+    else:
+        pfunc = partial(one_classification, repeat = repeat, method_dic_list = method_dic_list, var_data = var_data, generate_data = generate_data, c_dic = c_dic, in_threads = in_threads, separation = separation)
+        for r in range(repeat):
+            res = np.array(pfunc(r)) 
+            acc_v0_list.append(res[0, :, :])
+            acc_v1_list.append(res[1, :, :])
+            num_it_list.append(res[2, :, :])
+        
     Acc_v0 = np.array(acc_v0_list)
     all_acc_list_v0 = masked_array(Acc_v0, mask = Acc_v0 == None)
     acc_list_v0 = all_acc_list_v0[:, :, 0].T
@@ -136,8 +157,9 @@ def repeated_classifications(repeat, method_dic_list, generate_data, var_data = 
     acc_list_v1 = all_acc_list_v1[:, :, 0].T
     adjusted_acc_list_v1 = all_acc_list_v1[:, :, 1].T
     
-    if len(mut_it_list) != 0:
-        return acc_list_v0.astype(float), acc_list_v1.astype(float), adjusted_acc_list_v0.astype(float), adjusted_acc_list_v1.astype(float), mut_it_list
+    num_it_list_final = np.array(num_it_list)[:, :, 0]
+    if len(num_it_list) != 0:
+        return acc_list_v0.astype(float), acc_list_v1.astype(float), adjusted_acc_list_v0.astype(float), adjusted_acc_list_v1.astype(float), np.array(num_it_list_final).T
     else:
         return acc_list_v0.astype(float), acc_list_v1.astype(float), adjusted_acc_list_v0.astype(float), adjusted_acc_list_v1.astype(float)
 
@@ -161,18 +183,117 @@ def Classify_general(data_dic, class_dic, num_clust, method_dic, DMat = None, c_
         
     """Compute accuracy metric = rand_index metric"""
     if Id_Class is not None:
-        Class_pred = Id_Class["Class_pred"]
-        acc_metric_v0 = rand_score(Class_True, Class_pred),  adjusted_rand_score(Class_True, Class_pred)
-        acc_metric_v1 = rand_score(Class_True, Class_pred),  adjusted_rand_score(Class_True, Class_pred)
+        Class_Pred = Id_Class["Class_pred"]
+        # normalize ARI between 0 and 1
+        acc_metric_v0 = rand_score(Class_True, Class_Pred),  adjusted_rand_score(Class_True, Class_Pred)
+        acc_metric_v1 = miasa_accuracy(Class_True, Class_Pred, X.shape[0], Y.shape[0])
+        
+        
     else:
         acc_metric_v0 = None, None
         acc_metric_v1 = None, None
         
     if class_method == "MIASA":
-        return Id_Class, X_vars, Y_vars, acc_metric_v0, acc_metric_v1, Id_Class["num_iterations"]
+        return Id_Class, X_vars, Y_vars, acc_metric_v0, acc_metric_v1, (Id_Class["num_iterations"], 0) # 0 is just a placeholder
     else:
         return Id_Class, X_vars, Y_vars, acc_metric_v0, acc_metric_v1
 
+
+def miasa_accuracy(Class_True, Class_Pred, M, N):
+    """
+    # accuracy measure suitable for miasa 
+    # still work in progress
+    Parameters
+    ----------
+    Class_True : TYPE
+        DESCRIPTION.
+    Class_Pred : TYPE
+        DESCRIPTION.
+    M : TYPE
+        DESCRIPTION.
+    N : TYPE
+        DESCRIPTION.
+
+    Returns
+    -------
+    mean_RI : TYPE
+        DESCRIPTION.
+    mean_ARI : TYPE
+        DESCRIPTION.
+
+    """
+    class_true_x = Class_True[:M]
+    class_pred_x = Class_Pred[:M]
+    
+    class_true_y = Class_True[-N:]
+    class_pred_y = Class_Pred[-N:]
+    
+    lab_sep_true = np.sum(np.unique(Class_True)) + 1 ### a number that will not equal to any of the labels already present
+    lab_sep_pred = np.sum(np.unique(Class_Pred)) + 1
+    
+    class_true_xy = []
+    class_pred_xy = []
+    for i in range(M):
+        for j in range(N):
+            if class_true_x[i] == class_true_y[j]:
+                class_true_xy.append(class_true_x[i])
+            else:
+                class_true_xy.append(lab_sep_true)
+            
+            if class_pred_x[i] == class_pred_y[j]:
+                class_pred_xy.append(class_pred_x[i])
+            else:
+                class_pred_xy.append(lab_sep_pred)
+    
+    class_true_xy = np.array(class_true_xy)    
+    class_pred_xy = np.array(class_pred_xy)
+    
+    assess_couples = class_true_xy != lab_sep_true ### we only evaluate the recovery of true couples (x,y), it does not matter where they go when they are originally separated
+    class_true_xy = class_true_xy[assess_couples]
+    class_pred_xy = class_pred_xy[assess_couples]
+    
+    RI_x = rand_score(class_true_x, class_pred_x) 
+    RI_y = rand_score(class_true_y, class_pred_y) 
+    RI_xy_together = rand_score(class_true_xy, class_pred_xy) 
+    #RI_xy_separated = rand_score(not_with_x_true, not_with_x_pred) 
+    
+    mean_RI = np.mean([RI_x, RI_y, RI_xy_together])#, RI_xy_separated])    
+    
+    ARI_x = ARI_HA(class_true_x, class_pred_x)
+    ARI_y = ARI_HA(class_true_y, class_pred_y)
+    ARI_xy_together = ARI_HA(class_true_xy, class_pred_xy) 
+    #ARI_xy_separated = adjusted_rand_score(not_with_x_true, not_with_x_pred) 
+    mean_ARI = np.mean([ARI_x, ARI_y, ARI_xy_together])#, ARI_xy_separated]) 
+    #print("ARIx, ARIy, ARI_xy", ARI_x, ARI_y, ARI_xy_together)
+    return mean_RI, mean_ARI
+
+import scipy.special
+def ARI_HA(class_true, class_pred):
+    ### compute contigency table
+    ### See Hubert & Arabie 1985 and wikipedia https://en.wikipedia.org/wiki/Rand_index
+    inds = np.arange(len(class_true)).astype(int)
+    
+    u_class_true = np.unique(class_true)
+    u_class_pred = np.unique(class_pred)
+    
+    C = np.zeros((len(u_class_true), len(u_class_pred))).astype(int)
+    bins = np.zeros(C.shape)
+    bins_cols = np.zeros(len(u_class_true))
+    for i in range(len(u_class_true)):
+        for j in range(len(u_class_pred)):
+            C[i, j] = len(inds[(class_true == u_class_true[i])&(class_pred == u_class_pred[j])])
+            bins[i, j] = scipy.special.binom(C[i,j], 2)
+        bins_cols[i] = scipy.special.binom(np.sum(C[i, :]), 2)
+    
+    bins_rows = np.zeros(len(u_class_pred))
+    for j in range(len(u_class_pred)):
+        bins_rows[j] = scipy.special.binom(np.sum(C[:, j]), 2)
+        
+    Index = np.sum(bins)
+    mean_Index = (np.sum(bins_cols) + np.sum(bins_rows))/scipy.special.binom(np.sum(C), 2)
+    max_Index = 0.5*(np.sum(bins_cols) + np.sum(bins_rows))
+    
+    return (Index - mean_Index)/(max_Index - mean_Index)
 
 """Visualization of classes"""
 from .figure_settings import Display, PreFig
@@ -513,7 +634,7 @@ def rename_labels(cl, dataname):
                          
     
 def plotClass_separated(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neighbors = 2, min_dist = 0.99, method = "umap", 
-                        scale = None, sub_fig_size = 7, cluster_colors = False, true_colors = None, markers = [("o",20),("o",20)],
+                        scale = None, sub_fig_size = 7, cluster_colors = False, true_colors = None, markers = [("o",20),("o",20)], markers_color = None,
                         show_labels = False, show_orig = True, metric = "euclidean", legend = True, place_holder = (0, 0), 
                         wrap_true = False, wrap_predicted = False, wrap_pred_params = (None, 1), oultiers_markers = ("o", "^", 5),  wrap_type = "convexhull",
                         def_pred_outliers = (2, 0.95),show_pred_outliers = False, group_annot_size = 15, dataname = None,
@@ -578,7 +699,11 @@ def plotClass_separated(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neigh
         col_rows = {rows_labels[X_vars[i]]:true_colors[X_vars[i]] for i in range(M)}
         col_cols = {columns_labels[Y_vars[i]]:true_colors[Y_vars[i]] for i in range(N)}
         
-    col_to_use = (col_rows, col_cols)
+    if markers_color is None:
+        col_to_use = (col_rows, col_cols)
+    else:
+        col_to_use = markers_color
+        
     marker_to_use = markers #[("o",20),("o",20)]
     unique_classe = np.unique(Id_Class["Class_pred"])
     

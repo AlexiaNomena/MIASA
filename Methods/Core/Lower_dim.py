@@ -49,12 +49,15 @@ def low_dim_coords(Coords, dim=2, method  = "umap", n_neighbors = 15, min_dist =
     
     elif method == "MDS_YH":
         Emb_coords = MDS_YH(scaled_coords, dim)
+    
+    elif method == "t-SNE":
+        Emb_coords = tSNE_reducer(scaled_coords, dim, n_neighbors, metric = metric) 
         
     elif method == "umap":
         Emb_coords = umap_reducer(scaled_coords, dim, n_neighbors, min_dist)
     
-    elif method == "t-SNE":
-        Emb_coords = tSNE_reducer(scaled_coords, dim, n_neighbors, metric = metric) 
+    else:
+        Emb_coords = umap_reducer(scaled_coords, dim, n_neighbors, min_dist)
        
     return Emb_coords
 

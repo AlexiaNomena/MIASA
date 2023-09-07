@@ -8,7 +8,7 @@ Created on Sun Dec 18 14:03:16 2022
 
 from .Core.Generate_Distances import Similarity_Distance, Association_Distance
 from .Generate_Features import eCDF, Eucl, Null, covariance, get_assoc_func
-from .Generate_Features import corrcoeff, moms, OR, Cond_proba, Granger_Cause
+from .Generate_Features import corrcoeff, moms, OR, Cond_proba, Granger_Cause, Histogram_feature
 from .Core.Clustering import get_clusters
 from .Core.qEmbedding import Euclidean_Embedding
 from .Core.CosLM import Prox_Mat
@@ -51,7 +51,11 @@ def Miasa_Class(X, Y, num_clust, DMat = None, c_dic = None, dist_origin = (True,
     elif metric_method[0] == "Null":
         Feature_X, Feature_Y = Null(X, Y) 
         func, ftype = get_assoc_func(assoc_type = metric_method[1], in_threads = in_threads)
- 
+    
+    elif metric_method[0] == "Hist":
+        Feature_X, Feature_Y = Histogram_feature(X), Histogram_feature(Y)
+        func, ftype = get_assoc_func(assoc_type = metric_method[1], in_threads = in_threads)
+        
     elif metric_method[0][:13] == "Granger-Cause":
        if metric_method[0][14:18] == "orig":
            diff = False

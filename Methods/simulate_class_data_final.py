@@ -59,7 +59,7 @@ def generate_data_dist(var_data = False, noise = False, palette = "tab20", custo
     else:
         colors = palette
     
-    num_clust = 4 #
+    num_clust = 4 # 4 familly to identify
     # Number of samples per classes
     MaxNumVar = 25
     if var_data:
@@ -81,12 +81,12 @@ def generate_data_dist(var_data = False, noise = False, palette = "tab20", custo
                 Z = np.random.normal(val1[i][0], val1[i][1], size = (2, per_spl))
                 
                 data_dic[class_type1[i]+"%d_%d"%(j+1, 0)] = Z[0, :]
-                class_dic[class_type1[i]+"%d_%d"%(j+1, 0)] = 1 
+                class_dic[class_type1[i]+"%d_%d"%(j+1, 0)] = 0#lab[0] 
                 colors_dic[class_type1[i]+"%d_%d"%(j+1, 0)] = colors[k]
                 data_dic["X_vars"].append(class_type1[i]+"%d_%d"%(j+1, 0))
                 
                 data_dic[class_type1[i]+"%d_%d"%(j+1, 1)] = Z[1, :]
-                class_dic[class_type1[i]+"%d_%d"%(j+1, 1)] = 1 
+                class_dic[class_type1[i]+"%d_%d"%(j+1, 1)] = 0#lab[0] 
                 colors_dic[class_type1[i]+"%d_%d"%(j+1, 1)] = colors[k]
                 data_dic["Y_vars"].append(class_type1[i]+"%d_%d"%(j+1, 1))
 
@@ -94,12 +94,12 @@ def generate_data_dist(var_data = False, noise = False, palette = "tab20", custo
                 Z = np.random.uniform(val2[i][0], val2[i][1], size = (2, per_spl))
                 
                 data_dic[class_type2[i]+"%d_%d"%(j+1, 0)] = Z[0, :]
-                class_dic[class_type2[i]+"%d_%d"%(j+1, 0)] = 2
+                class_dic[class_type2[i]+"%d_%d"%(j+1, 0)] = 1#lab[1] 
                 colors_dic[class_type2[i] +"%d_%d"%(j+1, 0)] = colors[k+1]
                 data_dic["X_vars"].append(class_type2[i]+"%d_%d"%(j+1, 0))
                 
                 data_dic[class_type2[i]+"%d_%d"%(j+1, 1)] = Z[1, :]
-                class_dic[class_type2[i]+"%d_%d"%(j+1, 1)] = 2
+                class_dic[class_type2[i]+"%d_%d"%(j+1, 1)] = 1#lab[1] 
                 colors_dic[class_type2[i]+"%d_%d"%(j+1, 1)] = colors[k+1]
                 data_dic["Y_vars"].append(class_type2[i]+"%d_%d"%(j+1, 1))
                 
@@ -107,12 +107,12 @@ def generate_data_dist(var_data = False, noise = False, palette = "tab20", custo
                 Z = (np.random.pareto(val3[i][0], size = (2, per_spl)) + 1)*val3[i][1] ### according to the doc
                 
                 data_dic[class_type3[i]+"%d_%d"%(j+1, 0)] = Z[0, :]
-                class_dic[class_type3[i]+"%d_%d"%(j+1, 0)] = 3
+                class_dic[class_type3[i]+"%d_%d"%(j+1, 0)] = 2#lab[2] 
                 colors_dic[class_type3[i]+"%d_%d"%(j+1, 0)] = colors[k+2]
                 data_dic["X_vars"].append(class_type3[i]+"%d_%d"%(j+1, 0))
                 
                 data_dic[class_type3[i]+"%d_%d"%(j+1, 1)] = Z[1, :]
-                class_dic[class_type3[i]+"%d_%d"%(j+1, 1)] = 3
+                class_dic[class_type3[i]+"%d_%d"%(j+1, 1)] = 2#lab[2] 
                 colors_dic[class_type3[i]+"%d_%d"%(j+1, 1)] = colors[k+2]
                 data_dic["Y_vars"].append(class_type3[i]+"%d_%d"%(j+1, 1))
             
@@ -121,12 +121,12 @@ def generate_data_dist(var_data = False, noise = False, palette = "tab20", custo
                 Z = np.random.poisson(val4[i], size = (2, per_spl))
                 
                 data_dic[class_type4[i]+"%d_%d"%(j+1, 0)] = Z[0, :]
-                class_dic[class_type4[i]+"%d_%d"%(j+1, 0)] = 4
+                class_dic[class_type4[i]+"%d_%d"%(j+1, 0)] = 3#lab[3] 
                 colors_dic[class_type4[i]+"%d_%d"%(j+1, 0)] = colors[k+3]
                 data_dic["X_vars"].append(class_type4[i]+"%d_%d"%(j+1, 0))
                 
                 data_dic[class_type4[i]+"%d_%d"%(j+1, 1)] = Z[1, :]
-                class_dic[class_type4[i]+"%d_%d"%(j+1, 1)] = 4
+                class_dic[class_type4[i]+"%d_%d"%(j+1, 1)] = 3#lab[3] 
                 colors_dic[class_type4[i]+"%d_%d"%(j+1, 1)] = colors[k+3]
                 data_dic["Y_vars"].append(class_type4[i]+"%d_%d"%(j+1, 1))
                      
@@ -293,14 +293,14 @@ def GRN_load(sample_size, filename, loc_species, random_state = None):
         mean_timecourse = np.mean(Samples, axis = 2)
         variance_timecourse = np.var(Samples, axis = 2)
         skew_timecourse = stats.skew(Samples, axis = 2)
-    
+        ### min-max normalization to bring the central moments on the same scale
         Z_sub = np.row_stack((mean_timecourse, variance_timecourse, skew_timecourse))      
         if s == 0:
             Z = Z_sub[:, :, np.newaxis]
         else:
             Z = np.concatenate((Z, Z_sub[:, :, np.newaxis]), axis = 2)
     
-    ### min-max normalization to bring the central moments on the same scale
+    ### min-max normalization to bring all central moments on the same scale
     Z = (Z - np.min(Z))/(np.max(Z) - np.min(Z))
     
     """
