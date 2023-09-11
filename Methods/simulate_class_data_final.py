@@ -285,7 +285,7 @@ def GRN_load(sample_size, filename, loc_species, random_state = None):
     f.close()
     
     Sim_data = input_dic['Obs'] # -> numpy array           (#Time, #Dim, #Repeats)
-    inds = np.arange(0,Sim_data.shape[-1],1,dtype=np.int) # repeats indexes, i.e., different cells
+    inds = np.arange(0,Sim_data.shape[-1],1).astype(int) # repeats indexes, i.e., different cells
     sampled_inds = np.random.choice(inds, size=(4000, sample_size), replace = False) ### No repeating cells
     
     for s in range(sample_size):
@@ -293,6 +293,10 @@ def GRN_load(sample_size, filename, loc_species, random_state = None):
         mean_timecourse = np.mean(Samples, axis = 2)
         variance_timecourse = np.var(Samples, axis = 2)
         skew_timecourse = stats.skew(Samples, axis = 2)
+        ### Delete Nan informations
+        mean_timecourse[np.isnan(mean_timecourse)] = 0
+        variance_timecourse[np.isnan(skew_timecourse)] = 0
+        skew_timecourse[np.isnan(skew_timecourse)] = 0
         ### min-max normalization to bring the central moments on the same scale
         Z_sub = np.row_stack((mean_timecourse, variance_timecourse, skew_timecourse))      
         if s == 0:

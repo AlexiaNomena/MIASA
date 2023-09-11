@@ -166,10 +166,10 @@ def get_NMDclass(X, Y, Feature_X, Feature_Y, func, ftype, metric_method, DMat = 
                 sys.exit("Kmedoids requires number of clusters parameter: num_clust")
             else:
                 clust_labels, color_clustered = get_clusters(DMat_0, num_clust, palette, method = clust_method, metric = "precomputed")
-        
+                
         elif clust_method[:13] == "Agglomerative":
             clust_labels, color_clustered = get_clusters(DMat_0, num_clust, palette, method = clust_method, metric = "precomputed")
-        
+            
         elif clust_method == "Spectral":
         	clust_labels, color_clustered = get_clusters(DMat_0, num_clust, palette, method = clust_method, metric = "precomputed")
             
@@ -195,7 +195,7 @@ def get_NMDclass(X, Y, Feature_X, Feature_Y, func, ftype, metric_method, DMat = 
         Result = {"shape":(M, N), "was_orig":was_orig, "Class_pred":Class_pred, "clust_labels":clust_labels, "color_clustered":color_clustered, "DMat":DMat, "X":X, "Y":Y}
     
     except:
-        print("Failed clustering, check that clustering method is implemented")
+        print("Failed clustering, check that clustering method is implemented or suitable for a non-Euclidean distance, e.g.: Ward and Kmeans are not suitable")
         if not in_threads:
             pdb.set_trace()
         

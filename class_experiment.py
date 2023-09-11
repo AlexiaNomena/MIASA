@@ -22,8 +22,9 @@ for tp in type_list:
     for rep in repeat_list:
         sim_list.append((tp, rep))
 
-sim_list.append(("Test", None)) ### len(type_list)*len(repeat_list) - th
+sim_list.append(("Test", 0)) ### len(type_list)*len(repeat_list) - th
 
+#pdb.set_trace()
 to_sim = sim_list[int(sys.argv[1]) - 1] 
 
 
@@ -84,7 +85,7 @@ elif to_sim[0] == "GRN":
     # Euclidean embedding pameters only used in MIASA (includes a finite number of auto adjustements)
     c_dic = "default" 
     in_threads = True # avoid broken runs when using parallel jobs (repeat>10)
-    plotfew = True # first run and plot 10 repeats (umap visualization) saved in Figures/
+    plotfew = False # first run and plot 10 repeats (umap visualization) saved in Figures/
     
 else:
     """ Test method """
@@ -94,12 +95,12 @@ else:
     save_at = ""
     classifiers = ["MIASA", "non_MD"]
     clust_methods = ["Agglomerative_ward", "Kmedoids"] # Must be of the same length as classifiers and with a one-to-one mapping i.e. classifiers[i] uses clust_method[i]
-    metric_methods = [("eCDF", "KS-stat")] # (similarity, association) used by all couple (classifiers[i], clust_method[i])
+    metric_methods = [("Eucl", "Granger-Cause-3diff-params")] # (similarity, association) used by all couple (classifiers[i], clust_method[i])
     
     # Already separated X, Y samples otherwise randomly separate the dataset into two equal number of sample sets
     sep_vars = False
     # data generating function
-    generate_data = generate_data_dist
+    generate_data = load_data_twoGRN #generate_data_dist
     
     # Euclidean embedding pameters only usied in MIASA (includes a finite number of auto adjustements)
     c_dic = "default" 
