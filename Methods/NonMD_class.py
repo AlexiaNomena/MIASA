@@ -160,7 +160,7 @@ def get_NMDclass(X, Y, Feature_X, Feature_Y, func, ftype, metric_method, DMat = 
             DMat_0 = DMat.copy()
         else:
             DMat_0 = Prox_Mat(DX, DY, UX = None, UY = None, fXY = D_assoc)
-            
+        
         if clust_method == "Kmedoids":
             if num_clust == None:
                 sys.exit("Kmedoids requires number of clusters parameter: num_clust")
