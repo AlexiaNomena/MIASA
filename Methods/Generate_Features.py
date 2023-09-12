@@ -254,12 +254,12 @@ def GrCaus_Test_p_val(Z, maxlag = 10, diff = False, test = "chi2"):
     # test Z[1] does not Granger Cause Z[0]
     test_res_1 = GrCausTest(np.column_stack((Z1, Z2)), maxlag = maxlag, verbose = False)
     p_values_1 = [test_res_1[i+1][0][test][1] for i in range(maxlag)]
-    p_mes_1 = np.max(np.array(p_values_1))
+    p_mes_1 = np.min(np.array(p_values_1))
     
     # test Z[0] does not Granger Cause Z[1]
     test_res_2 = GrCausTest(np.column_stack((Z2, Z1)), maxlag = maxlag, verbose = False)
     p_values_2 = [test_res_2[i+1][0][test][1] for i in range(maxlag)]
-    p_mes_2 = np.max(np.array(p_values_2))
+    p_mes_2 = np.min(np.array(p_values_2))
     res = np.mean([p_mes_1, p_mes_2])
     return res
 

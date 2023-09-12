@@ -19,8 +19,8 @@ repeat_list = [100, 101, 102, 103, 104, 105, 106, 107, 108, 109]
 sim_list = []
 ### 1-30th 
 for tp in type_list:
-    for rep in repeat_list:
-        sim_list.append((tp, rep))
+    for j in range(len(repeat_list)):
+        sim_list.append((tp, j))
 
 sim_list.append(("Test", 0)) ### len(type_list)*len(repeat_list) - th
 

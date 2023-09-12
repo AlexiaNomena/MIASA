@@ -253,22 +253,17 @@ def miasa_accuracy(Class_True, Class_Pred, M, N, quiet = True):
     class_true_xy = np.array(class_true_xy)    
     class_pred_xy = np.array(class_pred_xy)
     
-    #assess_couples = class_true_xy != lab_sep_true ### we only evaluate the recovery of true couples (x,y), it does not matter where they end up when they are not found together in the predicted clusters
-    #class_true_xy = class_true_xy[assess_couples]
-    #class_pred_xy = class_pred_xy[assess_couples]
     
     RI_x = rand_score(class_true_x, class_pred_x) 
     RI_y = rand_score(class_true_y, class_pred_y) 
     RI_xy_together = rand_score(class_true_xy, class_pred_xy) 
-    #RI_xy_separated = rand_score(not_with_x_true, not_with_x_pred) 
     
-    mean_RI = np.mean([RI_x, RI_y, RI_xy_together])#, RI_xy_separated])    
+    mean_RI = np.mean([RI_x, RI_y, RI_xy_together]) 
     
     ARI_x = ARI_HA(class_true_x, class_pred_x)
     ARI_y = ARI_HA(class_true_y, class_pred_y)
     ARI_xy_together = ARI_HA(class_true_xy, class_pred_xy) 
-    #ARI_xy_separated = adjusted_rand_score(not_with_x_true, not_with_x_pred) 
-    mean_ARI = np.mean([ARI_x, ARI_y, ARI_xy_together])#, ARI_xy_separated]) 
+    mean_ARI = np.mean([ARI_x, ARI_y, ARI_xy_together])
     
     if not quiet:
         print("ARI_HAx, ARI_HAy, ARI_HAxy", ARI_x, ARI_y, ARI_xy_together)
@@ -626,11 +621,11 @@ def rename_labels(cl, dataname):
             mark = cl
     elif dataname == "GRN":
         if cl[0] == "D":
-            mark = "$D$"
+            mark = "$Bi$"
         elif cl[0] == "S":
-            mark = "$S$"
+            mark = "$Mo$"
         elif cl[0] == "N":
-            mark  = "$N$"
+            mark  = "$No$"
         else:
             mark = cl
     else:
