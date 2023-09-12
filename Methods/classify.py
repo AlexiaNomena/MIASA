@@ -127,9 +127,9 @@ def repeated_classifications(repeat, method_dic_list, generate_data, var_data = 
         
         pfunc = partial(one_classification, repeat = repeat, method_dic_list = method_dic_list, var_data = var_data, generate_data = generate_data, c_dic = c_dic, in_threads = in_threads, separation = separation)
         try:
-            res = np.array(jb.Parallel(n_jobs = n_jobs, prefer = "threads")(jb.delayed(pfunc)(r) for r in range(repeat)))
-        except:
             res = np.array(jb.Parallel(n_jobs = n_jobs)(jb.delayed(pfunc)(r) for r in range(repeat)))
+        except:
+            res = np.array(jb.Parallel(n_jobs = n_jobs, prefer = "threads")(jb.delayed(pfunc)(r) for r in range(repeat)))
         
         if len(acc_v0_list) != 0:
             acc_v0_list = np.row_stack((np.array(acc_v0_list), res[:, 0, :, :]))
