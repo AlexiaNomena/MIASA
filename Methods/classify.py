@@ -720,6 +720,7 @@ def plotClass_separated(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neigh
         fig = plt.figure(figsize = (sub_fig_size*num_row_col[1], sub_fig_size*num_row_col[0]))
     
     for i in range(len(unique_classe)):
+        
         if num_row_col is None:
             ax = fig.add_subplot(F, F, i+1)
         else:
@@ -730,6 +731,8 @@ def plotClass_separated(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neigh
         
         coords_row_sub = Rows_manifold[class_row_sub, :]
         coords_col_sub = Cols_manifold[class_col_sub, :]
+        
+        plt.title("Pred Class %d"%(i+1))
         
         X_vars_sub = np.array(X_vars)[class_row_sub]
         Y_vars_sub = np.array(Y_vars)[class_col_sub]
@@ -1069,6 +1072,7 @@ def plotClass_separated_ver0(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_
         fig = plt.figure(figsize = (sub_fig_size*num_row_col[1], sub_fig_size*num_row_col[0]))
     
     for i in range(len(unique_classe)):
+       
         if num_row_col is None:
             ax = fig.add_subplot(F, F, i+1)
         else:
@@ -1080,6 +1084,7 @@ def plotClass_separated_ver0(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_
         coords_row = Rows_manifold[class_row, :]
         coords_col = Cols_manifold[class_col, :]
         
+        plt.title("Pred Class %d"%(i+1))
         if show_labels:
             rows_to_Annot = AllRows[class_row]
             cols_to_Annot = AllCols[class_col]
