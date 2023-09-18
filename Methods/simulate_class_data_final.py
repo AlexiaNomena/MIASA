@@ -43,7 +43,7 @@ def generate_data_dist(var_data = False, noise = False, palette = "tab20", custo
     val3_scale = np.random.choice(np.arange(1, 15), size = len(class_type3), replace = False)
     val3 = [(val3_shape[k], val3_scale[k]) for k in range(len(class_type3))]
     
-    class_type4 = ["4a", "4b", "4c", "4d", "4e", "4f", "4g", "4h", "4i", "4j"] # Poisson Dist
+    #class_type4 = ["4a", "4b", "4c", "4d", "4e", "4f", "4g", "4h", "4i", "4j"] # Poisson Dist
     class_type4 = ["4a", "4b", "4c", "4d", "4e"] # Family of Poisson Dist
     val4 = np.random.choice(np.arange(1, 15), size = len(class_type4), replace = False)
     

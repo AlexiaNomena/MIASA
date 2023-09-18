@@ -47,11 +47,13 @@ def BarPlotClass(data, method_name, ax, fig, vert = True, labX = True, labY = Tr
             ax.set_xticks(np.cumsum(np.ones(len(method_name))), method_name, rotation = 90)
         if labY:
             plt.ylabel(stat_name, fontsize = 20)
+            
         if stat_lim is not None:
             ax.set_ylim(stat_lim)
 
-        if (stat_ticks is not None)&(stat_ticks != "Default"):
-            ax.set_yticks(stat_ticks, fontsize = 40)
+        if stat_ticks is not None:
+            ax.set_yticks(stat_ticks, stat_ticks, fontsize = 40)
+            
         elif stat_ticks is None:
             ax.set_yticks(())
             
@@ -64,8 +66,8 @@ def BarPlotClass(data, method_name, ax, fig, vert = True, labX = True, labY = Tr
         if stat_lim is not None:
             ax.set_xlim(stat_lim)
         
-        if (stat_ticks is not None)&(stat_ticks !="Default"):
-            ax.set_xticks(stat_ticks)
+        if stat_ticks is not None:
+            ax.set_xticks(stat_ticks, stat_ticks, fontsize = 40)
         elif stat_ticks is None:
             ax.set_xticks(())
         
@@ -141,36 +143,40 @@ def pairwise_MW(X, Y, method_nameX, method_nameY, typeEs = "Kerby", snf_color = 
 
 
 def Plot_ARI():
-    var_data_list_labs = ["False"]
+    var_data_list_labs = ["True", "False"]
     Fig_title = ("Fixed sample size", "Random sample size")
     
     """ Plot first method set """
     set_num_1 = 1
     save_at_1 = "Class_Data/meth_set_1/"
-    repeat_1 = [1000]
-    select_1 = ("MIASA-(eCDF, KS-p1)--Agglomerative_ward", "MIASA-(eCDF, KS-p1)--Kmedoids", "non_MD-(eCDF, KS-p1)--Kmedoids")
+    repeat_1 = [20, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]
+    #select_1 = ("MIASA-(Hist, KS-p1)--Agglomerative_ward", "MIASA-(Hist, KS-p1)--Kmedoids", "non_MD-(Hist, KS-p1)--Kmedoids")
+    select_1 = ("MIASA-(Hist, KS-p1)--Agglomerative_ward", "non_MD-(Hist, KS-p1)--Kmedoids")
+
     select_1_MW = select_1 ## included it MW test
-    slim_1 = (-0.1, 0.8)# range of statistic to show on final plot
+    slim_1 = (-0.1, 1.)# range of statistic to show on final plot
     sticks_1 = np.arange(slim_1[0], slim_1[1]+0.1, 0.1)
     name_1 = "Distribution"
     
     """ Plot second method set """
     set_num_2 = 2
     save_at_2 = "Class_Data/meth_set_2/"
-    repeat_2 = [1000] 
-    select_2 = ("MIASA-(eCDF, Pearson_pval)--Agglomerative_ward", "MIASA-(eCDF, Pearson_pval)--Kmedoids", "non_MD-(eCDF, Pearson_pval)--Kmedoids")
+    repeat_2 = [20, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]
+    #select_2 = ("MIASA-(eCDF, Spearman_R)--Agglomerative_ward", "MIASA-(eCDF, Spearman_R)--Kmedoids", "non_MD-(eCDF, Spearman_R)--Kmedoids")
+    select_2 = ("MIASA-(eCDF, Spearman_R)--Agglomerative_ward", "non_MD-(eCDF, Spearman_R)--Kmedoids")
     select_2_MW = select_2
-    slim_2 = (-0.1, 0.9) # (-0.01, 0.9) # range of statistic to show on final plot
+    slim_2 = (-0.1, 1.) # (-0.01, 0.9) # range of statistic to show on final plot
     sticks_2 = np.arange(slim_2[0], slim_2[1]+0.1, 0.1)
     name_2 = "Correlation"
     
     """ Plot third method set"""
     set_num_3 = 3
     save_at_3 = "Class_Data/meth_set_3/"
-    repeat_3 = [200, 201, 202, 203, 204]
-    select_3 = ("MIASA-(Eucl, Granger-Cause-3diff-chi2)--Agglomerative_ward","MIASA-(Eucl, Granger-Cause-3diff-chi2)--Kmedoids", "non_MD-(Eucl, Granger-Cause-3diff-chi2)--Kmedoids")
+    repeat_3 = [26, 27, 28, 29, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 52, 53, 58, 59]
+    #select_3 = ("MIASA-(Eucl, Granger-Cause-3diff-chi2)--Agglomerative_ward","MIASA-(Eucl, Granger-Cause-3diff-chi2)--Kmedoids", "non_MD-(Eucl, Granger-Cause-3diff-chi2)--Kmedoids")
+    select_3 = ("MIASA-(Eucl, Granger-Cause-3diff-chi2)--Agglomerative_ward", "non_MD-(Eucl, Granger-Cause-3diff-chi2)--Kmedoids")
     select_3_MW = select_3#["MIASA-(Corr, dCorr)--Kmeans", "MIASA-(Corr, Granger-Cause-diff-chi2)--Kmeans"]
-    slim_3 = (-0.1, 0.7) #(-0.05, 0.7) # range of statistic to show on final plot
+    slim_3 = (-0.1, 0.9) #(-0.05, 0.7) # range of statistic to show on final plot
     sticks_3 = np.arange(slim_3[0], slim_3[1]+0.1, 0.1)
     name_3 = "GRN"
     
@@ -188,7 +194,7 @@ def Plot_ARI():
     pdfb_all = PdfPages("Figures/Final/Paper_Fig_ARI.pdf")
     PreFig(xsize = 30, ysize = 30)
     #fig_all = plt.figure(figsize = (30, 20))
-    fig_all = plt.figure(figsize = (15, 9))
+    fig_all = plt.figure(figsize = (30, 20))
     plt.subplots_adjust(bottom = 0.06, right = 0.95, left = 0.06, top = 0.90, wspace = 0.25, hspace = 0.1)
     
     pdfb_all_MW = PdfPages("Figures/Final/Paper_MW_ARI.pdf")
@@ -203,31 +209,51 @@ def Plot_ARI():
         select_list = select_for_final_fig[p]
     
         PreFig(xsize = 16, ysize = 16)
-        fig = plt.figure(figsize = (7, 21))
+        fig = plt.figure(figsize = (14, 7))
         k = 1
         for j in range(len(var_data_list_labs)):
             acc_dic_all = {}
             ax = fig.add_subplot(int("%d%d%d"%(1, 2, j+1)))
             ax.set_title("%s"%Fig_title[j])
-
+            
             ax_all = fig_all.add_subplot(int("%d%d%d"%(2, 3, k_all+k)))
             ax_MW_1 = fig_all_MW_1.add_subplot(int("%d%d%d"%(6, 1, k_all+k)))
+            
+            try:
+                for n in range(len(repeat_list)): 
+                    repeat = repeat_list[n]
+                    file = open(save_at + "corrected_keynames_Accuracy_set_%d_%d_varS%s.pck"%(set_num, repeat, var_data_list_labs[j]), "rb")
+                    AcData = pickle.load(file)
+                    file.close()
+                    
+                    """
+                    Wrongly used Naming during previous computation:
+                    acc_list_v0, adjusted_acc_list_v0, acc_list_v1, adjusted_acc_list_v1, num_it_list
+                    
+                    True Naming to use in barplots
+                    acc_list_v0, acc_list_v1, adjusted_acc_list_v0, adjusted_acc_list_v1, num_it_list
+                    
+                    miasa_accuracy_list <- adjusted_accc_list_v0
+                    adjusted_acc_list_v0 <- miasa_accuracy list
+                    """
+                    acc_list_n, method_name_n = AcData["adjusted_accuracy_list"], AcData["method_name"]
+                    
+                    #file = open(save_at + "corrected_keynames_Accuracy_set_%d_%d_varS%s.pck"%(set_num, repeat, var_data_list_labs[j]), "wb")
+                    #AcData["miasa_accuracy_list"] = AcData["adjusted_accuracy_list"].copy()
+                    #AcData["adjusted_accuracy_list"] = acc_list_n.copy()
+                    #pickle.dump(AcData, file)
+                    #file.close()
+                    
+                    for i in range(len(method_name_n)):
+                        meth = method_name_n[i]
+                        if n == 0:
+                            acc_dic_all[meth] = acc_list_n[i, :].compressed()
+                        else:
+                            acc_dic_all[meth] = np.concatenate((acc_dic_all[meth], acc_list_n[i, :].compressed()))
+            except:
+                pass
+            
 
-            for n in range(len(repeat_list)): 
-                repeat = repeat_list[n]
-                file = open(save_at + "Accuracy_set_%d_%d_varS%s.pck"%(set_num, repeat, var_data_list_labs[j]), "rb")
-                AcData = pickle.load(file)
-                file.close()
-                
-                unused_acc_list_n, acc_list_n, method_name_n = AcData["accuracy_list"], AcData["adjusted_accuracy_list"], AcData["method_name"]
-                
-                for i in range(len(method_name_n)):
-                    meth = method_name_n[i]
-                    if n == 0:
-                        acc_dic_all[meth] = acc_list_n[i, :].compressed()
-                    else:
-                        acc_dic_all[meth] = np.concatenate((acc_dic_all[meth], acc_list_n[i, :].compressed()))
-                
             acc_list = []
             acc_list_2 = []
             method_name_all = list(acc_dic_all.keys())
@@ -252,7 +278,7 @@ def Plot_ARI():
                     acc_list_2.append(acc_dic_all[meth])
                     method_name_2.append(meth)
             
-            
+
             vert = True
             
             fig_all = BarPlotClass(acc_list, method_name, ax_all, fig_all, vert, labX = True, labY = True, stat_lim = stat_lim_list[p], stat_ticks = sticks_list[p], whis = (5, 95), stat_name = "ARI scores")
