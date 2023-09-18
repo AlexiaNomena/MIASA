@@ -52,7 +52,7 @@ def BarPlotClass(data, method_name, ax, fig, vert = True, labX = True, labY = Tr
             ax.set_ylim(stat_lim)
 
         if stat_ticks is not None:
-            ax.set_yticks(stat_ticks, stat_ticks, fontsize = 40)
+            ax.set_yticks(stat_ticks, ["%.2f"%stat_ticks[i] for i in range(len(stat_ticks))], fontsize = 40)
             
         elif stat_ticks is None:
             ax.set_yticks(())
@@ -67,7 +67,7 @@ def BarPlotClass(data, method_name, ax, fig, vert = True, labX = True, labY = Tr
             ax.set_xlim(stat_lim)
         
         if stat_ticks is not None:
-            ax.set_xticks(stat_ticks, stat_ticks, fontsize = 40)
+            ax.set_xticks(stat_ticks, [".2f"%stat_ticks[i] for i in range(len(stat_ticks))], fontsize = 40)
         elif stat_ticks is None:
             ax.set_xticks(())
         
@@ -154,7 +154,7 @@ def Plot_ARI():
     select_1 = ("MIASA-(Hist, KS-p1)--Agglomerative_ward", "non_MD-(Hist, KS-p1)--Kmedoids")
 
     select_1_MW = select_1 ## included it MW test
-    slim_1 = (-0.1, 1.)# range of statistic to show on final plot
+    slim_1 = (0.4, 1.)# range of statistic to show on final plot
     sticks_1 = np.arange(slim_1[0], slim_1[1]+0.1, 0.1)
     name_1 = "Distribution"
     
@@ -165,7 +165,7 @@ def Plot_ARI():
     #select_2 = ("MIASA-(eCDF, Spearman_R)--Agglomerative_ward", "MIASA-(eCDF, Spearman_R)--Kmedoids", "non_MD-(eCDF, Spearman_R)--Kmedoids")
     select_2 = ("MIASA-(eCDF, Spearman_R)--Agglomerative_ward", "non_MD-(eCDF, Spearman_R)--Kmedoids")
     select_2_MW = select_2
-    slim_2 = (-0.1, 1.) # (-0.01, 0.9) # range of statistic to show on final plot
+    slim_2 = (0.4, 1.) # (-0.01, 0.9) # range of statistic to show on final plot
     sticks_2 = np.arange(slim_2[0], slim_2[1]+0.1, 0.1)
     name_2 = "Correlation"
     
@@ -176,7 +176,7 @@ def Plot_ARI():
     #select_3 = ("MIASA-(Eucl, Granger-Cause-3diff-chi2)--Agglomerative_ward","MIASA-(Eucl, Granger-Cause-3diff-chi2)--Kmedoids", "non_MD-(Eucl, Granger-Cause-3diff-chi2)--Kmedoids")
     select_3 = ("MIASA-(Eucl, Granger-Cause-3diff-chi2)--Agglomerative_ward", "non_MD-(Eucl, Granger-Cause-3diff-chi2)--Kmedoids")
     select_3_MW = select_3#["MIASA-(Corr, dCorr)--Kmeans", "MIASA-(Corr, Granger-Cause-diff-chi2)--Kmeans"]
-    slim_3 = (-0.1, 0.9) #(-0.05, 0.7) # range of statistic to show on final plot
+    slim_3 = (0.4, 1.) #(-0.05, 0.7) # range of statistic to show on final plot
     sticks_3 = np.arange(slim_3[0], slim_3[1]+0.1, 0.1)
     name_3 = "GRN"
     
@@ -211,12 +211,16 @@ def Plot_ARI():
         PreFig(xsize = 16, ysize = 16)
         fig = plt.figure(figsize = (14, 7))
         k = 1
+        
+        ax_all = fig_all.add_subplot(int("%d%d%d"%(2, 3, k_all+1)))
+        acc_list = []
+        method_name = []
         for j in range(len(var_data_list_labs)):
             acc_dic_all = {}
             ax = fig.add_subplot(int("%d%d%d"%(1, 2, j+1)))
             ax.set_title("%s"%Fig_title[j])
             
-            ax_all = fig_all.add_subplot(int("%d%d%d"%(2, 3, k_all+k)))
+            #ax_all = fig_all.add_subplot(int("%d%d%d"%(2, 3, k_all+k)))
             ax_MW_1 = fig_all_MW_1.add_subplot(int("%d%d%d"%(6, 1, k_all+k)))
             
             try:
@@ -225,25 +229,7 @@ def Plot_ARI():
                     file = open(save_at + "corrected_keynames_Accuracy_set_%d_%d_varS%s.pck"%(set_num, repeat, var_data_list_labs[j]), "rb")
                     AcData = pickle.load(file)
                     file.close()
-                    
-                    """
-                    Wrongly used Naming during previous computation:
-                    acc_list_v0, adjusted_acc_list_v0, acc_list_v1, adjusted_acc_list_v1, num_it_list
-                    
-                    True Naming to use in barplots
-                    acc_list_v0, acc_list_v1, adjusted_acc_list_v0, adjusted_acc_list_v1, num_it_list
-                    
-                    miasa_accuracy_list <- adjusted_accc_list_v0
-                    adjusted_acc_list_v0 <- miasa_accuracy list
-                    """
-                    acc_list_n, method_name_n = AcData["adjusted_accuracy_list"], AcData["method_name"]
-                    
-                    #file = open(save_at + "corrected_keynames_Accuracy_set_%d_%d_varS%s.pck"%(set_num, repeat, var_data_list_labs[j]), "wb")
-                    #AcData["miasa_accuracy_list"] = AcData["adjusted_accuracy_list"].copy()
-                    #AcData["adjusted_accuracy_list"] = acc_list_n.copy()
-                    #pickle.dump(AcData, file)
-                    #file.close()
-                    
+                    acc_list_n, method_name_n = AcData["miasa_adjusted_accuracy_list"], AcData["method_name"]
                     for i in range(len(method_name_n)):
                         meth = method_name_n[i]
                         if n == 0:
@@ -254,10 +240,10 @@ def Plot_ARI():
                 pass
             
 
-            acc_list = []
+            #acc_list = []
             acc_list_2 = []
             method_name_all = list(acc_dic_all.keys())
-            method_name = []
+            #method_name = []
             method_name_2 = []
             
             for i in range(len(method_name_all)):
@@ -281,7 +267,7 @@ def Plot_ARI():
 
             vert = True
             
-            fig_all = BarPlotClass(acc_list, method_name, ax_all, fig_all, vert, labX = True, labY = True, stat_lim = stat_lim_list[p], stat_ticks = sticks_list[p], whis = (5, 95), stat_name = "ARI scores")
+            #fig_all = BarPlotClass(acc_list, method_name, ax_all, fig_all, vert, labX = True, labY = True, stat_lim = stat_lim_list[p], stat_ticks = sticks_list[p], whis = (5, 95), stat_name = "ARI scores")
                 
             """
             # if all methods have the same
@@ -325,7 +311,12 @@ def Plot_ARI():
         pdfb.close()
         
         
-        k_all +=1
+        
+        vert = True
+        
+        fig_all = BarPlotClass(acc_list, method_name, ax_all, fig_all, vert, labX = True, labY = True, stat_lim = stat_lim_list[p], stat_ticks = sticks_list[p], whis = (5, 95), stat_name = "ARI scores")
+        k_all +=1   
+    
     
     pdfb_all.savefig(fig_all, bbox_inches = "tight")
     pdfb_all.close()
