@@ -149,7 +149,7 @@ def Plot_ARI():
     """ Plot first method set """
     set_num_1 = 1
     save_at_1 = "Class_Data/meth_set_1/"
-    repeat_1 = [20, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]
+    repeat_1 = [(2000, 1)]
     #select_1 = ("MIASA-(Hist, KS-p1)--Agglomerative_ward", "MIASA-(Hist, KS-p1)--Kmedoids", "non_MD-(Hist, KS-p1)--Kmedoids")
     select_1 = ("MIASA-(Hist, KS-p1)--Agglomerative_ward", "non_MD-(Hist, KS-p1)--Kmedoids")
 
@@ -161,7 +161,7 @@ def Plot_ARI():
     """ Plot second method set """
     set_num_2 = 2
     save_at_2 = "Class_Data/meth_set_2/"
-    repeat_2 = [20, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]
+    repeat_2 = [(2000, 1)]
     #select_2 = ("MIASA-(eCDF, Spearman_R)--Agglomerative_ward", "MIASA-(eCDF, Spearman_R)--Kmedoids", "non_MD-(eCDF, Spearman_R)--Kmedoids")
     select_2 = ("MIASA-(eCDF, Spearman_R)--Agglomerative_ward", "non_MD-(eCDF, Spearman_R)--Kmedoids")
     select_2_MW = select_2
@@ -226,10 +226,8 @@ def Plot_ARI():
             try:
                 for n in range(len(repeat_list)): 
                     repeat = repeat_list[n]
-                    try:
-                        file = open(save_at + "Accuracy_set_%d_%d_varS%s.pck"%(set_num, repeat, var_data_list_labs[j]), "rb")
-                    except:
-                        file = open(save_at + "corrected_keynames_Accuracy_set_%d_%d_varS%s.pck"%(set_num, repeat, var_data_list_labs[j]), "rb")
+                    file = open(save_at + "Accuracy_set_%d_%d_%d_varS%s.pck"%(set_num, repeat[0], repeat[1], var_data_list_labs[j]), "rb")
+                    
                     AcData = pickle.load(file)
                     file.close()
                     acc_list_n, method_name_n = AcData["miasa_adjusted_accuracy_list"], AcData["method_name"]

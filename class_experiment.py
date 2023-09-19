@@ -14,7 +14,7 @@ import time
 import sys
 
 type_list = ["Dist","Corr"]#["Dist", "Corr", "GRN"]
-repeat_list = [2000]#, 101, 102, 103, 104, 105, 106, 107, 108, 109]
+repeat_list = [1, 2000]#, 101, 102, 103, 104, 105, 106, 107, 108, 109]
 
 sim_list = []
 ### 1-30th 
@@ -139,13 +139,13 @@ for j in range(len(var_data_list)):
         
     file = open(save_at + "Accuracy_set_%d_%d_%d_varS%s.pck"%(set_num, repeat, int(sys.argv[1]), var_data_list_labs[j]), "rb")
     AcData = pickle.load(file)
-    acc_list, adjusted_acc_list, method_name = AcData["accuracy_list"], AcData["miasa_adjusted_accuracy_list"], AcData["method_name"]
+    acc_list, adjusted_acc_list, method_name = AcData["miasa_accuracy_list"], AcData["miasa_adjusted_accuracy_list"], AcData["method_name"]
     file.close()
-    pdfb= PdfPages("Figures/RI_set_%d_%d_varS%s.pdf"%(set_num, repeat, var_data_list_labs[j]))    
+    pdfb= PdfPages("Figures/RI_set_%d_%d_%d_varS%s.pdf"%(set_num, repeat, int(sys.argv[1]), var_data_list_labs[j]))    
     BarPlotClass(acc_list, method_name, pdfb, stat_name = "RI scores")
     pdfb.close()
     
-    pdfb= PdfPages("Figures/ARI_set_%d_%d_varS%s.pdf"%(set_num, repeat, var_data_list_labs[j]))    
+    pdfb= PdfPages("Figures/ARI_set_%d_%d_%d_varS%s.pdf"%(set_num, repeat, int(sys.argv[1]), var_data_list_labs[j]))    
     BarPlotClass(adjusted_acc_list, method_name, pdfb, stat_name = "ARI scores")
     pdfb.close()
 
