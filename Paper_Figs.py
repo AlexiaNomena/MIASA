@@ -143,7 +143,7 @@ def pairwise_MW(X, Y, method_nameX, method_nameY, typeEs = "Kerby", snf_color = 
 
 
 def Plot_ARI():
-    var_data_list_labs = ["True", "False"]
+    var_data_list_labs = ["False", "True"] 
     Fig_title = ("Fixed sample size", "Random sample size")
     
     """ Plot first method set """
@@ -154,7 +154,7 @@ def Plot_ARI():
     select_1 = ("MIASA-(Hist, KS-p1)--Agglomerative_ward", "non_MD-(Hist, KS-p1)--Kmedoids")
 
     select_1_MW = select_1 ## included it MW test
-    slim_1 = (0.4, 1.)# range of statistic to show on final plot
+    slim_1 = (0.2, 1.)# range of statistic to show on final plot
     sticks_1 = np.arange(slim_1[0], slim_1[1]+0.1, 0.1)
     name_1 = "Distribution"
     
@@ -165,7 +165,7 @@ def Plot_ARI():
     #select_2 = ("MIASA-(eCDF, Spearman_R)--Agglomerative_ward", "MIASA-(eCDF, Spearman_R)--Kmedoids", "non_MD-(eCDF, Spearman_R)--Kmedoids")
     select_2 = ("MIASA-(eCDF, Spearman_R)--Agglomerative_ward", "non_MD-(eCDF, Spearman_R)--Kmedoids")
     select_2_MW = select_2
-    slim_2 = (0.4, 1.) # (-0.01, 0.9) # range of statistic to show on final plot
+    slim_2 = (0.2, 1.) # (-0.01, 0.9) # range of statistic to show on final plot
     sticks_2 = np.arange(slim_2[0], slim_2[1]+0.1, 0.1)
     name_2 = "Correlation"
     
@@ -176,7 +176,7 @@ def Plot_ARI():
     #select_3 = ("MIASA-(Eucl, Granger-Cause-3diff-chi2)--Agglomerative_ward","MIASA-(Eucl, Granger-Cause-3diff-chi2)--Kmedoids", "non_MD-(Eucl, Granger-Cause-3diff-chi2)--Kmedoids")
     select_3 = ("MIASA-(Eucl, Granger-Cause-3diff-chi2)--Agglomerative_ward", "non_MD-(Eucl, Granger-Cause-3diff-chi2)--Kmedoids")
     select_3_MW = select_3#["MIASA-(Corr, dCorr)--Kmeans", "MIASA-(Corr, Granger-Cause-diff-chi2)--Kmeans"]
-    slim_3 = (0.4, 1.) #(-0.05, 0.7) # range of statistic to show on final plot
+    slim_3 = (0.2, 1.) #(-0.05, 0.7) # range of statistic to show on final plot
     sticks_3 = np.arange(slim_3[0], slim_3[1]+0.1, 0.1)
     name_3 = "GRN"
     
@@ -226,7 +226,10 @@ def Plot_ARI():
             try:
                 for n in range(len(repeat_list)): 
                     repeat = repeat_list[n]
-                    file = open(save_at + "corrected_keynames_Accuracy_set_%d_%d_varS%s.pck"%(set_num, repeat, var_data_list_labs[j]), "rb")
+                    try:
+                        file = open(save_at + "Accuracy_set_%d_%d_varS%s.pck"%(set_num, repeat, var_data_list_labs[j]), "rb")
+                    except:
+                        file = open(save_at + "corrected_keynames_Accuracy_set_%d_%d_varS%s.pck"%(set_num, repeat, var_data_list_labs[j]), "rb")
                     AcData = pickle.load(file)
                     file.close()
                     acc_list_n, method_name_n = AcData["miasa_adjusted_accuracy_list"], AcData["method_name"]

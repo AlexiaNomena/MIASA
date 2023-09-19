@@ -13,8 +13,8 @@ import pickle
 import time
 import sys
 
-type_list = ["Dist", "Corr", "GRN"]
-repeat_list = [100, 101, 102, 103, 104, 105, 106, 107, 108, 109]
+type_list = ["Dist","Corr"]#["Dist", "Corr", "GRN"]
+repeat_list = [2000]#, 101, 102, 103, 104, 105, 106, 107, 108, 109]
 
 sim_list = []
 ### 1-30th 
@@ -75,7 +75,7 @@ elif to_sim[0] == "GRN":
     classifiers = ["MIASA"]*2 + ["non_MD"]*1 # non_MD = Non_Metric_Distance
     clust_methods = ["Agglomerative_ward", "Kmedoids"] # for MIASA
     clust_methods = clust_methods + ["Kmedoids"] # for non_MD
-    metric_methods = [("Eucl", "Granger-Cause-3diff-params"), ("Eucl", "Granger-Cause-3diff-chi2")] # 
+    metric_methods = [("Eucl", "Granger-Cause-3diff-chi2")]  
     
     # Already separated X, Y samples otherwise randomly separate the dataset into two equal number of sample sets
     sep_vars = True
@@ -133,11 +133,11 @@ for j in range(len(var_data_list)):
                 method_dic_list[i]["fig"].close()
     
     
-    file = open(save_at + "Accuracy_set_%d_%d_varS%s.pck"%(set_num, repeat, var_data_list_labs[j]), "wb")
+    file = open(save_at + "Accuracy_set_%d_%d_%d_varS%s.pck"%(set_num, repeat, int(sys.argv[1]), var_data_list_labs[j]), "wb")
     pickle.dump({"method_name":method_name, "method_list":method_dic_list, "accuracy_list":acc_list_v0, "miasa_accuracy_list":acc_list_v1, "adjusted_accuracy_list": adjusted_acc_list_v0, "miasa_adjusted_accuracy_list": adjusted_acc_list_v1, "num_iterations": num_it_list}, file)
     file.close()
         
-    file = open(save_at + "Accuracy_set_%d_%d_varS%s.pck"%(set_num, repeat, var_data_list_labs[j]), "rb")
+    file = open(save_at + "Accuracy_set_%d_%d_%d_varS%s.pck"%(set_num, repeat, int(sys.argv[1]), var_data_list_labs[j]), "rb")
     AcData = pickle.load(file)
     acc_list, adjusted_acc_list, method_name = AcData["accuracy_list"], AcData["miasa_adjusted_accuracy_list"], AcData["method_name"]
     file.close()

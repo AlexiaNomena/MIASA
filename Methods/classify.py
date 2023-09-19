@@ -126,6 +126,10 @@ def repeated_classifications(repeat, method_dic_list, generate_data, var_data = 
         # n_jobs = -1 means use all CPUs
         
         pfunc = partial(one_classification, repeat = repeat, method_dic_list = method_dic_list, var_data = var_data, generate_data = generate_data, c_dic = c_dic, in_threads = in_threads, separation = separation)
+        # run on FU cluster
+        #res = np.array(jb.Parallel(n_jobs = n_jobs, backend = "multiprocessing")(jb.delayed(pfunc)(r) for r in range(repeat)))
+        
+        # run on mac computer
         try:
             res = np.array(jb.Parallel(n_jobs = n_jobs)(jb.delayed(pfunc)(r) for r in range(repeat)))
         except:
@@ -153,7 +157,7 @@ def repeated_classifications(repeat, method_dic_list, generate_data, var_data = 
             acc_v0_list.append(res[0, :, :])
             acc_v1_list.append(res[1, :, :])
             num_it_list.append(res[2, :, :])
-        
+    
     Acc_v0 = np.array(acc_v0_list)
     all_acc_list_v0 = masked_array(Acc_v0, mask = Acc_v0 == None)
     acc_list_v0 = all_acc_list_v0[:, :, 0].T
@@ -232,27 +236,19 @@ def miasa_accuracy(Class_True, Class_Pred, M, N, quiet = True):
     
     class_true_y = Class_True[-N:]
     class_pred_y = Class_Pred[-N:]
+
     
-    lab_sep_true = np.sum(np.unique(Class_True)) + 1 ### a number that will not equal to any of the labels already present
-    lab_sep_pred = np.sum(np.unique(Class_Pred)) + 1
-    
+    """ We only care for accuracy in the true positions of the (x,y) pairs""" 
     class_true_xy = []
     class_pred_xy = []
+    
     for i in range(M):
-        for j in range(N):
-            if class_true_x[i] == class_true_y[j]:
-                class_true_xy.append(class_true_x[i])
-            else:
-                class_true_xy.append(lab_sep_true)
-            
-            if class_pred_x[i] == class_pred_y[j]:
-                class_pred_xy.append(class_pred_x[i])
-            else:
-                class_pred_xy.append(lab_sep_pred)
-    
-    class_true_xy = np.array(class_true_xy)    
-    class_pred_xy = np.array(class_pred_xy)
-    
+        xy_true_sub = class_true_y[class_true_y == class_true_x[i]]
+        xy_pred_sub = class_pred_y[class_true_y == class_true_x[i]]
+        
+        class_true_xy += list(xy_true_sub)
+        class_pred_xy += list(xy_pred_sub)
+        
     
     RI_x = rand_score(class_true_x, class_pred_x) 
     RI_y = rand_score(class_true_y, class_pred_y) 
@@ -292,7 +288,7 @@ def ARI_HA(class_true, class_pred):
         bins_rows[j] = scipy.special.binom(np.sum(C[:, j]), 2)
         
     Index = np.sum(bins)
-    mean_Index = (np.sum(bins_cols) + np.sum(bins_rows))/scipy.special.binom(np.sum(C), 2)
+    mean_Index = (np.sum(bins_cols) * np.sum(bins_rows))/scipy.special.binom(np.sum(C), 2)
     max_Index = 0.5*(np.sum(bins_cols) + np.sum(bins_rows))
     
     return (Index - mean_Index)/(max_Index - mean_Index)
@@ -441,7 +437,14 @@ def plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neighbors = 2, 
             done = []
             done2 = []
             for cl in class_labs:
-                points = np.row_stack((coords_row[X_var_sub2 == cl, :], coords_col[Y_var_sub2 == cl, :]))
+                
+                if np.any(X_var_sub2 == cl) & np.any(Y_var_sub2 == cl):
+                    points = np.row_stack((coords_row[X_var_sub2 == cl, :], coords_col[Y_var_sub2 == cl, :]))
+                elif np.any(X_var_sub2 == cl):
+                    points = coords_row[X_var_sub2 == cl, :]
+                elif np.any(Y_var_sub2 == cl):
+                    points = coords_col[Y_var_sub2 == cl, :]
+                    
                 cl_var = list(X_var_sub[X_var_sub2 == cl]) + list(Y_var_sub[Y_var_sub2 == cl])
                 
                 
@@ -514,6 +517,7 @@ def plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neighbors = 2, 
                             plt.plot(points[:, 0], points[:, 1], marker = oultiers_markers[0], markersize =  oultiers_markers[2], color = true_colors[cl_var[0]], fillstyle = "full", linestyle = "")
                         
                         done2.append(cl_var[0][:2])
+            
                     
     
     if wrap_predicted:
@@ -818,7 +822,13 @@ def plotClass_separated(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neigh
                 done = []
                 done2 = []
                 for cl in class_labs:
-                    points = np.row_stack((coords_row[X_var_sub2 == cl, :], coords_col[Y_var_sub2 == cl, :]))
+                    if np.any(X_var_sub2 == cl) & np.any(Y_var_sub2 == cl):
+                        points = np.row_stack((coords_row[X_var_sub2 == cl, :], coords_col[Y_var_sub2 == cl, :]))
+                    elif np.any(X_var_sub2 == cl):
+                        points = coords_row[X_var_sub2 == cl, :]
+                    elif np.any(Y_var_sub2 == cl):
+                        points = coords_col[Y_var_sub2 == cl, :]
+                        
                     cl_var = list(X_var_sub[X_var_sub2 == cl]) + list(Y_var_sub[Y_var_sub2 == cl])
                     
                     
@@ -894,7 +904,7 @@ def plotClass_separated(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neigh
                                 plt.plot(points[:, 0], points[:, 1], marker = oultiers_markers[0], markersize =  oultiers_markers[2], color = true_colors[cl_var[0]], fillstyle = "full", linestyle = "")
                             
                             done2.append(cl_var[0][:2])
-                        
+                    
         
         if wrap_predicted:
             Id_class_pred_sub = Id_Class["Class_pred"][np.concatenate((class_row_sub, class_col_sub))]
