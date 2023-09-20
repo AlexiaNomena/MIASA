@@ -8,8 +8,9 @@ Created on Wed Dec 14 10:04:28 2022
 from .CosLM import *
 import scipy as sp
 import numpy as np
+import sys
 
-def Euclidean_Embedding(DX, DY, UX, UY, fXY, c_dic, in_threads = False, num_iterations = False):
+def Euclidean_Embedding(DX, DY, UX, UY, fXY, c_dic=None, in_threads = False, num_iterations = False):
     """
     @brief Joint Embedding of two disjoint sets of points (see Paper: Qualitative Euclidean Embedding)
     Parameters
@@ -27,6 +28,16 @@ def Euclidean_Embedding(DX, DY, UX, UY, fXY, c_dic, in_threads = False, num_iter
             Coordinates of points X and Y on the rows
     vareps: > 0 scalar defining the Embedding (see Paper)
     """
+    if c_dic is None or c_dic == "default":
+        M = DX.shape[0]
+        N = DY.shape[0]
+        c1, c2 = 1/2, 2
+        a = 1. - 1./(M+N)
+        b = 2.*c2/(M+N)
+        c3 =  min(((2.*c1 + c2) - b)/a, 2*c2+2)
+        #c1, c2, c3 = np.random.uniform(0, 5, size = 3)
+        c_dic = {"c1":c1, "c2":c2, "c3":c3}
+        
     try:
         COS_MAT, c1, c2, c3, zeta_f = CosLM(DX, DY, UX, UY, fXY, c_dic) 
         sigma, U = sp.linalg.eigh(COS_MAT)
@@ -74,6 +85,7 @@ def Euclidean_Embedding(DX, DY, UX, UY, fXY, c_dic, in_threads = False, num_iter
     
     except:
         print("failed Euclidean embedding")
+        sys.exit("fXY non-negative and not zero everywhere is needed \n fXY : Proximity set matrix between the points of X and Y compatible with the positions of the points in DX and DY")
         Coords = None
         c3 = 0
         zeta_f = 0
