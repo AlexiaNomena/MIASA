@@ -7,7 +7,7 @@ import scipy as sp
 import sys
 import pdb
 
-def CosLM(DX, DY, UX = None, UY = None, fXY = None, c = None):
+def CosLM(DX, DY, UX = None, UY = None, fXY = None, c = None, similarity_method = ("Euclidean", "Euclidean")):
     """
     @brief Compute the cosine law matrix
     Parameters
@@ -26,10 +26,23 @@ def CosLM(DX, DY, UX = None, UY = None, fXY = None, c = None):
     """
     # compute f^0
     F0 = Prox_Mat(DX, DY, UX, UY, fXY)
-    # compute cos Mat for W associated with f^0
-    CL_Mat0 = (F0[0, :][np.newaxis, :]**2 + F0[:, 0][:, np.newaxis]**2 - F0**2)/2
-    
     M = DX.shape[0]
+
+    # compute cos Mat for W associated with f^0
+    if (similarity_method[0] == "Euclidean")&(similarity_method[1] == "Euclidean"):
+        a = 0
+    elif (similarity_method[0] == "Euclidean"):
+        a = 0
+    elif (similarity_method[1] == "Euclidean"):
+        if (UX is not None) or (UY is not None):
+            a = M+1
+        else:
+            a = M
+            
+    else:
+        sys.exit("similarity_method parameter: At least one similarity method has to be Euclidean")
+    
+    CL_Mat0 = (F0[a, :][np.newaxis, :]**2 + F0[:, a][:, np.newaxis]**2 - F0**2)/2
     # compute zeta_f
     CC = np.zeros(CL_Mat0.shape)
     if (UX is not None) or (UY is not None):

@@ -10,7 +10,7 @@ import scipy as sp
 import numpy as np
 import sys
 
-def Euclidean_Embedding(DX, DY, UX, UY, fXY, c_dic=None, in_threads = False, num_iterations = False):
+def Euclidean_Embedding(DX, DY, UX, UY, fXY, c_dic=None, in_threads = False, num_iterations = False, similarity_method = ("Euclidean", "Euclidean")):
     """
     @brief Joint Embedding of two disjoint sets of points (see Paper: Qualitative Euclidean Embedding)
     Parameters
@@ -38,52 +38,42 @@ def Euclidean_Embedding(DX, DY, UX, UY, fXY, c_dic=None, in_threads = False, num
         #c1, c2, c3 = np.random.uniform(0, 5, size = 3)
         c_dic = {"c1":c1, "c2":c2, "c3":c3}
         
-    try:
-        COS_MAT, c1, c2, c3, zeta_f = CosLM(DX, DY, UX, UY, fXY, c_dic) 
+   
+    COS_MAT, c1, c2, c3, zeta_f = CosLM(DX, DY, UX, UY, fXY, c_dic) 
+    sigma, U = sp.linalg.eigh(COS_MAT)
+    sigma = np.real(sigma) # COS_MAT is symmetric, thus imaginary numbers are supposed to be zero or numerical zeros
+    sigma[np.isclose(sigma, np.zeros(len(sigma)))] = 0
+    
+    test = np.sum(sigma<0)
+    
+    stop = 100
+    sc = 0
+    c0 = c1
+    while test != 0 and sc<stop:
+        c1 = c2
+        c2 = 2*c1
+        c3 = 2 + c2 + c1
+        c_dic = {"c1":c1, "c2":c2, "c3":c3}
+        COS_MAT, c1, c2, c3, zeta_f = CosLM(DX, DY, UX, UY, fXY, c_dic, similarity_method = similarity_method)
         sigma, U = sp.linalg.eigh(COS_MAT)
         sigma = np.real(sigma) # COS_MAT is symmetric, thus imaginary numbers are supposed to be zero or numerical zeros
         sigma[np.isclose(sigma, np.zeros(len(sigma)))] = 0
-        
         test = np.sum(sigma<0)
-        
-        stop = 100
-        sc = 0
-        c0 = c1
-        while test != 0 and sc<stop:
-            c1 = c2
-            c2 = 2*c1
-            c3 = 2 + c2 + c1
-            c_dic = {"c1":c1, "c2":c2, "c3":c3}
-            COS_MAT, c1, c2, c3, zeta_f = CosLM(DX, DY, UX, UY, fXY, c_dic)
-            sigma, U = sp.linalg.eigh(COS_MAT)
-            sigma = np.real(sigma) # COS_MAT is symmetric, thus imaginary numbers are supposed to be zero or numerical zeros
-            sigma[np.isclose(sigma, np.zeros(len(sigma)))] = 0
-            test = np.sum(sigma<0)
-            sc += 1
-        sort = np.argsort(sigma)[::-1] # descending order
-        sigma = sigma[sort]
-        U = U[:, sort]
-        
-        if test == 0:
-            if not in_threads:
-                print("Replacement matrix is PSD: success Euclidean embedding")
-            SS = np.sqrt(np.diag(sigma)) 
-            Coords0 = np.real(U.dot(SS))
-            
-            """ Then remove the connecting point (see Paper: Qualitative Euclidean Embedding) """
-            Coords = Coords0[1:, :]
-        
-        else:
-            Coords = None
-            if not in_threads:
-                print("Wrong parameters in c_dic:", c_dic, "Auto adjusted %d/%d times"%(sc, stop))
-                print("step 1: First progressively increase c2 and c3 together (try c3 = 2 + c2 + c1), then compute line 31 and 32")
-                print("step 2a: if the value of the negative eigenvalues decreased then return to step 1 ")
-                print("step 2b: if the value of the negative eigenvalues increased, then increase c1 (with c1 < c2 < c3) return to step 1")
-                pdb.set_trace()
-                sys.exit("Theorem was not satified \n Check if c1, c2, c3 are chosen correctly")
+        sc += 1
+    sort = np.argsort(sigma)[::-1] # descending order
+    sigma = sigma[sort]
+    U = U[:, sort]
     
-    except:
+    if test == 0:
+        if not in_threads:
+            print("Replacement matrix is PSD: success Euclidean embedding")
+        SS = np.sqrt(np.diag(sigma)) 
+        Coords0 = np.real(U.dot(SS))
+        
+        """ Then remove the connecting point (see Paper: Qualitative Euclidean Embedding) """
+        Coords = Coords0[1:, :]
+    
+    else:
         print("failed Euclidean embedding")
         sys.exit("fXY non-negative and not zero everywhere is needed \n fXY : Proximity set matrix between the points of X and Y compatible with the positions of the points in DX and DY")
         Coords = None

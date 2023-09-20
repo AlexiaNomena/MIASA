@@ -17,8 +17,14 @@ def Similarity_Distance(Z, method = "Euclidean"):
     if method == "Euclidean":
         D = scSp.distance.pdist(Z)
         D = scSp.distance.squareform(D)
+    elif method == "precomputed":
+        if np.all(np.isclose(Z,Z.T)):
+            D = Z
+        else:
+            sys.exit("give distance matrix as Z or Feature_X or Feature_Y")
     else:
-        sys.exit("Method is not suitable. Needed: Euclidean")   
+        sys.exit("similatiry methods is Euclidean or precomputed --- give distance matrix as Z or Feature_X or Feature_Y")   
+    
     return D
 
 def Association_Distance(Z, func, ftype = "vectorized"):

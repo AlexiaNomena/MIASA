@@ -18,7 +18,7 @@ import numpy as np
 import pdb
 
 
-def Miasa_Class(X, Y, num_clust, DMat = None, c_dic = None, dist_origin = (True, True), metric_method = ("eCDF", "KS-stat"), clust_method = "Kmeans", palette = "tab20", Feature_dic = None, in_threads = True, clust_orig = False):
+def Miasa_Class(X, Y, num_clust, DMat = None, c_dic = None, dist_origin = (True, True), metric_method = ("eCDF", "KS-stat"), clust_method = "Kmeans", palette = "tab20", Feature_dic = None, in_threads = True, clust_orig = False, similarity_method = ("Euclidean", "Euclidean")):
     """Compute features"""
     if metric_method[0] == "eCDF":
        Feature_X, Feature_Y = eCDF(X,Y)
@@ -71,12 +71,12 @@ def Miasa_Class(X, Y, num_clust, DMat = None, c_dic = None, dist_origin = (True,
         except:
             sys.exit("Check implemented metric_methods or give a parameter Feature_dic must be given: keys Feature_X (ndarray), Feature_Y (ndarray), Association_function (func) with tuple argument (X, Y), assoc_func_type (str vectorized or str not_vectorized), DMat direclty given distance matrix, dist_origin bool tuple (orig X?, orig Y) ")
             
-    Result = get_class(X, Y, Feature_X, Feature_Y, func, ftype, metric_method, c_dic, DMat, dist_origin, num_clust, clust_method, palette, in_threads = in_threads, clust_orig = clust_orig)
+    Result = get_class(X, Y, Feature_X, Feature_Y, func, ftype, metric_method, c_dic, DMat, dist_origin, num_clust, clust_method, palette, in_threads = in_threads, clust_orig = clust_orig, similarity_method = similarity_method)
 
     return Result
     
 
-def get_class(X, Y, Feature_X, Feature_Y, func, ftype, metric_method, c_dic, DMat = None, dist_origin = (True, True), num_clust=None, clust_method = "Kmeans", palette = "tab20", in_threads = True, clust_orig = False):
+def get_class(X, Y, Feature_X, Feature_Y, func, ftype, metric_method, c_dic, DMat = None, dist_origin = (True, True), num_clust=None, clust_method = "Kmeans", palette = "tab20", in_threads = True, clust_orig = False, similarity_method = ("Euclidean", "Euclidean")):
     M = Feature_X.shape[0]
     N = Feature_Y.shape[0]
     
@@ -100,8 +100,8 @@ def get_class(X, Y, Feature_X, Feature_Y, func, ftype, metric_method, c_dic, DMa
     
     else:
         """ Similarity metric """
-        DX = Similarity_Distance(Feature_X, method = "Euclidean")
-        DY = Similarity_Distance(Feature_Y, method = "Euclidean")
+        DX = Similarity_Distance(Feature_X, method = similarity_method[0])
+        DY = Similarity_Distance(Feature_Y, method = similarity_method[1])
         
         """Association metric"""
         Z = (X, Y)
@@ -147,9 +147,9 @@ def get_class(X, Y, Feature_X, Feature_Y, func, ftype, metric_method, c_dic, DMa
     
     alpha =  0 # np.max(D_assoc) adding a constant to the Euclidean distances to statisfy one of the conditions for embedding (obsolete)
     if (Orows is not None) or (Ocols is not None):
-        Coords, vareps, num_it = Euclidean_Embedding(DX+alpha, DY+alpha, Orows+alpha, Ocols+alpha, D_assoc, c_dic, in_threads = in_threads, num_iterations = True)
+        Coords, vareps, num_it = Euclidean_Embedding(DX+alpha, DY+alpha, Orows+alpha, Ocols+alpha, D_assoc, c_dic, in_threads = in_threads, num_iterations = True, similarity_method = similarity_method)
     else:
-        Coords, vareps, num_it = Euclidean_Embedding(DX+alpha, DY+alpha, None, None, D_assoc, c_dic, in_threads = in_threads, num_iterations = True)
+        Coords, vareps, num_it = Euclidean_Embedding(DX+alpha, DY+alpha, None, None, D_assoc, c_dic, in_threads = in_threads, num_iterations = True, similarity_method = similarity_method)
     
     if Coords is not None:
         # Thre is no point that is close to the origin as a particular characteristic of the embedding, thus the origin must be removed otherwise it risk to be considered as one cluster
