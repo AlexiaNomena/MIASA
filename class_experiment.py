@@ -13,8 +13,8 @@ import pickle
 import time
 import sys
 
-type_list = ["Dist","Corr"]#["Dist", "Corr", "GRN"]
-repeat_list = [1, 2000]#, 101, 102, 103, 104, 105, 106, 107, 108, 109]
+type_list = ["Corr"]#["Dist","Corr"]#["Dist", "Corr", "GRN"]
+repeat_list = [2000]#, 101, 102, 103, 104, 105, 106, 107, 108, 109]
 
 sim_list = []
 ### 1-30th 
@@ -57,8 +57,9 @@ elif to_sim[0] == "Corr":
     classifiers = ["MIASA"]*2 + ["non_MD"]*1 # non_MD = Non_Metric_Distance = Non_MIASA
     clust_methods = ["Agglomerative_ward", "Kmedoids"] # for MIASA
     clust_methods = clust_methods + ["Kmedoids"] # for non_MD
-    metric_methods = [("eCDF", "Pearson_pval"), ("eCDF", "Pearson_R"), ("eCDF", "Spearman_pval"), ("eCDF", "Spearman_R")] # Chosen runs, only normally distributed samples, samples size = 300 , already separated X, Y samples, i.e. , sep_vars = True
+    #metric_methods = [("eCDF", "Pearson_pval"), ("eCDF", "Pearson_R"), ("eCDF", "Spearman_pval"), ("eCDF", "Spearman_R")] # Chosen runs, only normally distributed samples, samples size = 300 , already separated X, Y samples, i.e. , sep_vars = True
     
+    metric_methods = [("eCDF", "Spearman_R")] 
     # Already separated X, Y samples otherwise randomly separate the dataset into two equal number of sample sets
     sep_vars = True
     # data generating function

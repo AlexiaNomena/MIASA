@@ -143,7 +143,7 @@ def pairwise_MW(X, Y, method_nameX, method_nameY, typeEs = "Kerby", snf_color = 
 
 
 def Plot_ARI():
-    var_data_list_labs = ["False", "True"] 
+    var_data_list_labs = ["False"]#, "True"] 
     Fig_title = ("Fixed sample size", "Random sample size")
     
     """ Plot first method set """
@@ -151,10 +151,10 @@ def Plot_ARI():
     save_at_1 = "Class_Data/meth_set_1/"
     repeat_1 = [(2000, 1)]
     #select_1 = ("MIASA-(Hist, KS-p1)--Agglomerative_ward", "MIASA-(Hist, KS-p1)--Kmedoids", "non_MD-(Hist, KS-p1)--Kmedoids")
-    select_1 = ("MIASA-(Hist, KS-p1)--Agglomerative_ward", "non_MD-(Hist, KS-p1)--Kmedoids")
+    select_1 = ()#("MIASA-(Hist, KS-p1)--Agglomerative_ward", "non_MD-(Hist, KS-p1)--Kmedoids")
 
     select_1_MW = select_1 ## included it MW test
-    slim_1 = (0.2, 1.)# range of statistic to show on final plot
+    slim_1 = (0., 1.)# range of statistic to show on final plot
     sticks_1 = np.arange(slim_1[0], slim_1[1]+0.1, 0.1)
     name_1 = "Distribution"
     
@@ -163,20 +163,20 @@ def Plot_ARI():
     save_at_2 = "Class_Data/meth_set_2/"
     repeat_2 = [(2000, 1)]
     #select_2 = ("MIASA-(eCDF, Spearman_R)--Agglomerative_ward", "MIASA-(eCDF, Spearman_R)--Kmedoids", "non_MD-(eCDF, Spearman_R)--Kmedoids")
-    select_2 = ("MIASA-(eCDF, Spearman_R)--Agglomerative_ward", "non_MD-(eCDF, Spearman_R)--Kmedoids")
+    select_2 = ()#("MIASA-(eCDF, Spearman_R)--Agglomerative_ward", "non_MD-(eCDF, Spearman_R)--Kmedoids")
     select_2_MW = select_2
-    slim_2 = (0.2, 1.) # (-0.01, 0.9) # range of statistic to show on final plot
+    slim_2 = (0., 1.) # (-0.01, 0.9) # range of statistic to show on final plot
     sticks_2 = np.arange(slim_2[0], slim_2[1]+0.1, 0.1)
     name_2 = "Correlation"
     
     """ Plot third method set"""
     set_num_3 = 3
     save_at_3 = "Class_Data/meth_set_3/"
-    repeat_3 = [26, 27, 28, 29, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 52, 53, 58, 59]
+    repeat_3 = [(40, i) for i in range(1, 51)]
     #select_3 = ("MIASA-(Eucl, Granger-Cause-3diff-chi2)--Agglomerative_ward","MIASA-(Eucl, Granger-Cause-3diff-chi2)--Kmedoids", "non_MD-(Eucl, Granger-Cause-3diff-chi2)--Kmedoids")
-    select_3 = ("MIASA-(Eucl, Granger-Cause-3diff-chi2)--Agglomerative_ward", "non_MD-(Eucl, Granger-Cause-3diff-chi2)--Kmedoids")
+    select_3 = ()#("MIASA-(Eucl, Granger-Cause-3diff-chi2)--Agglomerative_ward", "non_MD-(Eucl, Granger-Cause-3diff-chi2)--Kmedoids")
     select_3_MW = select_3#["MIASA-(Corr, dCorr)--Kmeans", "MIASA-(Corr, Granger-Cause-diff-chi2)--Kmeans"]
-    slim_3 = (0.2, 1.) #(-0.05, 0.7) # range of statistic to show on final plot
+    slim_3 = (0., 1.) #(-0.05, 0.7) # range of statistic to show on final plot
     sticks_3 = np.arange(slim_3[0], slim_3[1]+0.1, 0.1)
     name_3 = "GRN"
     
@@ -202,6 +202,7 @@ def Plot_ARI():
     fig_all_MW_1 = plt.figure(figsize = (10, 35))
     
     k_all = 0
+    num_it = []
     for p in range(len(set_num_list)):
         set_num = set_num_list[p]
         save_at = save_at_list[p]
@@ -229,14 +230,18 @@ def Plot_ARI():
                     file = open(save_at + "Accuracy_set_%d_%d_%d_varS%s.pck"%(set_num, repeat[0], repeat[1], var_data_list_labs[j]), "rb")
                     
                     AcData = pickle.load(file)
-                    file.close()
                     acc_list_n, method_name_n = AcData["miasa_adjusted_accuracy_list"], AcData["method_name"]
+                    
                     for i in range(len(method_name_n)):
                         meth = method_name_n[i]
+                        if meth[:5] == "MIASA":
+                            num_it += list(AcData["num_iterations"][i])
+                        
                         if n == 0:
-                            acc_dic_all[meth] = acc_list_n[i, :].compressed()
+                            acc_dic_all[meth] = acc_list_n[i, :]#.compressed()
                         else:
-                            acc_dic_all[meth] = np.concatenate((acc_dic_all[meth], acc_list_n[i, :].compressed()))
+                            acc_dic_all[meth] = np.concatenate((acc_dic_all[meth], acc_list_n[i, :]))#.compressed()))
+            
             except:
                 pass
             
@@ -249,6 +254,7 @@ def Plot_ARI():
             
             for i in range(len(method_name_all)):
                 meth = method_name_all[i]
+                
                 if len(select_list) != 0:
                     if meth in select_list:
                         acc_list.append(acc_dic_all[meth])
@@ -264,7 +270,7 @@ def Plot_ARI():
                 else:
                     acc_list_2.append(acc_dic_all[meth])
                     method_name_2.append(meth)
-            
+                
 
             vert = True
             
@@ -325,7 +331,15 @@ def Plot_ARI():
     pdfb_all_MW.savefig(fig_all_MW_1, bbox_inches = "tight")
     pdfb_all_MW.close()
 
-
+    
+    """ Plot number of iteration histogram """
+    num_it_hist = PdfPages("Figures/Final/Num_iterations.pdf")
+    PreFig(xsize = 30, ysize = 30)
+    fig = plt.figure(figsize = (10, 35))
+    plt.hist(num_it)
+    num_it_hist.savefig(fig, bbox_inches = "tight")
+    num_it_hist.close()
+    
 if __name__ == "__main__":
     Plot_ARI()
 

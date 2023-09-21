@@ -23,7 +23,7 @@ from .Wraps import find_ellipse_params, convex_hull
 
 """ Classification general setting """
 def one_classification(r, repeat, method_dic_list, var_data, generate_data, c_dic = "default", in_threads = True, separation = False):
-    data_dic, class_dic, num_clust, dtp = generate_data(var_data) # use the same dataset for all methods
+    data_dic, class_dic, num_clust, dtp = generate_data(var_data)# use the same dataset for all methods
     X, Y, Class_True, X_vars, Y_vars = split_data(data_dic, class_dic, separation)
     data_dic2 = {"X":X, "Y":Y, "Class_True":Class_True, "X_vars":X_vars, "Y_vars":Y_vars}
     acc_res_v0 = []
@@ -170,6 +170,7 @@ def repeated_classifications(repeat, method_dic_list, generate_data, var_data = 
     
     num_it_list_final = np.array(num_it_list)[:, :, 0]
     
+    pdb.set_trace()
     return acc_list_v0.astype(float), acc_list_v1.astype(float), adjusted_acc_list_v0.astype(float), adjusted_acc_list_v1.astype(float), np.array(num_it_list_final).T
 
 
@@ -246,9 +247,21 @@ def miasa_accuracy(Class_True, Class_Pred, M, N, quiet = True):
         xy_true_sub = class_true_y[class_true_y == class_true_x[i]]
         xy_pred_sub = class_pred_y[class_true_y == class_true_x[i]]
         
-        class_true_xy += list(xy_true_sub)
-        class_pred_xy += list(xy_pred_sub)
+        xy_true_sub_too = class_true_y[class_true_y != class_true_x[i]]
+        xy_pred_sub_too = class_pred_y[class_true_y != class_true_x[i]]
         
+        class_true_xy += list(xy_true_sub) + list(xy_true_sub_too)
+        class_pred_xy += list(xy_pred_sub) + list(xy_pred_sub_too)
+    
+    for j in range(N):
+        xy_true_sub = class_true_y[class_true_x == class_true_y[j]]
+        xy_pred_sub = class_pred_y[class_true_x == class_true_y[j]]
+        
+        xy_true_sub_too = class_true_y[class_true_x != class_true_y[j]]
+        xy_pred_sub_too = class_pred_y[class_true_x != class_true_y[j]]
+        
+        class_true_xy += list(xy_true_sub) + list(xy_true_sub_too)
+        class_pred_xy += list(xy_pred_sub) + list(xy_pred_sub_too)
     
     RI_x = rand_score(class_true_x, class_pred_x) 
     RI_y = rand_score(class_true_y, class_pred_y) 
@@ -263,6 +276,8 @@ def miasa_accuracy(Class_True, Class_Pred, M, N, quiet = True):
     
     if not quiet:
         print("ARI_HAx, ARI_HAy, ARI_HAxy", ARI_x, ARI_y, ARI_xy_together)
+    
+    print(mean_RI, mean_ARI)
     return mean_RI, mean_ARI
 
 import scipy.special

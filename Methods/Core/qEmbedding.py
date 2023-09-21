@@ -83,5 +83,5 @@ def Euclidean_Embedding(DX, DY, UX, UY, fXY, c_dic=None, in_threads = False, num
     vareps = c3*zeta_f
     if num_iterations:
         return Coords, vareps, sc
-    
-    return Coords, vareps
+    else:
+        return Coords, vareps
