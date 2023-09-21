@@ -170,7 +170,6 @@ def repeated_classifications(repeat, method_dic_list, generate_data, var_data = 
     
     num_it_list_final = np.array(num_it_list)[:, :, 0]
     
-    pdb.set_trace()
     return acc_list_v0.astype(float), acc_list_v1.astype(float), adjusted_acc_list_v0.astype(float), adjusted_acc_list_v1.astype(float), np.array(num_it_list_final).T
 
 
@@ -277,7 +276,7 @@ def miasa_accuracy(Class_True, Class_Pred, M, N, quiet = True):
     if not quiet:
         print("ARI_HAx, ARI_HAy, ARI_HAxy", ARI_x, ARI_y, ARI_xy_together)
     
-    print(mean_RI, mean_ARI)
+    #print(mean_RI, mean_ARI)
     return mean_RI, mean_ARI
 
 import scipy.special

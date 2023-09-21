@@ -165,7 +165,7 @@ def Plot_ARI():
     #select_2 = ("MIASA-(eCDF, Spearman_R)--Agglomerative_ward", "MIASA-(eCDF, Spearman_R)--Kmedoids", "non_MD-(eCDF, Spearman_R)--Kmedoids")
     select_2 = ()#("MIASA-(eCDF, Spearman_R)--Agglomerative_ward", "non_MD-(eCDF, Spearman_R)--Kmedoids")
     select_2_MW = select_2
-    slim_2 = (0., 1.) # (-0.01, 0.9) # range of statistic to show on final plot
+    slim_2 = (0., 1.1) # (-0.01, 0.9) # range of statistic to show on final plot
     sticks_2 = np.arange(slim_2[0], slim_2[1]+0.1, 0.1)
     name_2 = "Correlation"
     

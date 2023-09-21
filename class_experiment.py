@@ -13,8 +13,8 @@ import pickle
 import time
 import sys
 
-type_list = ["Corr"]#["Dist","Corr"]#["Dist", "Corr", "GRN"]
-repeat_list = [2000]#, 101, 102, 103, 104, 105, 106, 107, 108, 109]
+type_list = ["Dist", "Corr"]#["Dist","Corr"]#["Dist", "Corr", "GRN"]
+repeat_list = [2010]#, 101, 102, 103, 104, 105, 106, 107, 108, 109]
 
 sim_list = []
 ### 1-30th 
