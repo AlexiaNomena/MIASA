@@ -143,17 +143,19 @@ def pairwise_MW(X, Y, method_nameX, method_nameY, typeEs = "Kerby", snf_color = 
 
 
 def Plot_ARI():
-    var_data_list_labs = ["False"]#, "True"] 
+    var_data_list_labs = ["False", "True"] 
     Fig_title = ("Fixed sample size", "Random sample size")
     
     """ Plot first method set """
     set_num_1 = 1
     save_at_1 = "Class_Data/meth_set_1/"
     repeat_1 = [(2010, 1)]
-    select_1 = ()#("MIASA-(Hist, KS-p1)--Agglomerative_ward", "non_MD-(Hist, KS-p1)--Kmedoids")
+    #save_at_1 = "Class_Data/meth_set_1_rand_c_dic/"
+    #repeat_1 = [(200, 1)]
+    select_1 = ("MIASA-(Hist, KS-p1)--Agglomerative_ward", "non_MD-(Hist, KS-p1)--Kmedoids")
 
     select_1_MW = select_1 ## included it MW test
-    slim_1 = (0., 1.)# range of statistic to show on final plot
+    slim_1 = (0., 1)# range of statistic to show on final plot
     sticks_1 = np.arange(slim_1[0], slim_1[1]+0.1, 0.1)
     name_1 = "Distribution"
     
@@ -161,9 +163,11 @@ def Plot_ARI():
     set_num_2 = 2
     save_at_2 = "Class_Data/meth_set_2/"
     repeat_2 = [(2010, 1)]
-    select_2 = ()#("MIASA-(eCDF, Spearman_R)--Agglomerative_ward", "non_MD-(eCDF, Spearman_R)--Kmedoids")
+    #save_at_2 = "Class_Data/meth_set_2_rand_c_dic/"
+    #repeat_2 = [(200, 2)]
+    select_2 = ("MIASA-(eCDF, Spearman_R)--Agglomerative_ward", "non_MD-(eCDF, Spearman_R)--Kmedoids")
     select_2_MW = select_2
-    slim_2 = (0., 1.1) # (-0.01, 0.9) # range of statistic to show on final plot
+    slim_2 = (0., 1.05) # (-0.01, 0.9) # range of statistic to show on final plot
     sticks_2 = np.arange(slim_2[0], slim_2[1]+0.1, 0.1)
     name_2 = "Correlation"
     
@@ -171,9 +175,9 @@ def Plot_ARI():
     set_num_3 = 3
     save_at_3 = "Class_Data/meth_set_3/"
     repeat_3 = [(40, i) for i in range(1, 51)]
-    select_3 = ()#("MIASA-(Eucl, Granger-Cause-3diff-chi2)--Agglomerative_ward", "non_MD-(Eucl, Granger-Cause-3diff-chi2)--Kmedoids")
+    select_3 = ("MIASA-(Eucl, Granger-Cause-3diff-chi2)--Agglomerative_ward", "non_MD-(Eucl, Granger-Cause-3diff-chi2)--Kmedoids")
     select_3_MW = select_3#["MIASA-(Corr, dCorr)--Kmeans", "MIASA-(Corr, Granger-Cause-diff-chi2)--Kmeans"]
-    slim_3 = (0., 1.) #(-0.05, 0.7) # range of statistic to show on final plot
+    slim_3 = (0., 0.9) #(-0.05, 0.7) # range of statistic to show on final plot
     sticks_3 = np.arange(slim_3[0], slim_3[1]+0.1, 0.1)
     name_3 = "GRN"
     
@@ -228,10 +232,9 @@ def Plot_ARI():
                     
                     AcData = pickle.load(file)
                     acc_list_n, method_name_n = AcData["miasa_adjusted_accuracy_list"], AcData["method_name"]
-                    
                     for i in range(len(method_name_n)):
                         meth = method_name_n[i]
-                        if meth[:5] == "MIASA":
+                        if (meth[:5] == "MIASA"):#&(set_num!=3):
                             num_it += list(AcData["num_iterations"][i])
                         
                         if n == 0:
@@ -242,7 +245,7 @@ def Plot_ARI():
             except:
                 pass
             
-
+            
             #acc_list = []
             acc_list_2 = []
             method_name_all = list(acc_dic_all.keys())
