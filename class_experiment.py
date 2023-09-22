@@ -12,9 +12,10 @@ from matplotlib.backends.backend_pdf import PdfPages
 import pickle
 import time
 import sys
+import numpy as np
 
 type_list = ["Dist", "Corr"]#["Dist","Corr"]#["Dist", "Corr", "GRN"]
-repeat_list = [2010]#, 101, 102, 103, 104, 105, 106, 107, 108, 109]
+repeat_list = [200]#, 101, 102, 103, 104, 105, 106, 107, 108, 109]
 
 sim_list = []
 ### 1-30th 
@@ -36,7 +37,8 @@ var_data_list_labs = ["False", "True"]
 if to_sim[0] == "Dist":
     """ First methods set"""
     set_num = 1
-    save_at = "Class_Data/meth_set_1/" #sample size = 300
+    #save_at = "Class_Data/meth_set_1/" #sample size = 300
+    save_at = "Class_Data/meth_set_1_rand_c_dic/"
     classifiers = ["MIASA"]*2 + ["non_MD"]*1 # non_MD = Non_Metric_Distance
     clust_methods = ["Agglomerative_ward", "Kmedoids"] # for MIASA
     clust_methods = clust_methods + ["Kmedoids"] # for non_MD
@@ -46,14 +48,16 @@ if to_sim[0] == "Dist":
     # data generating function
     generate_data = generate_data_dist
     # Euclidean embedding pameters only used in MIASA (includes a finite number of auto adjustements)
-    c_dic = "default" # seems no-auto adjustments was performed, default works well for this the datatype and distance functions
+    c1, c2, c3 = np.random.uniform(0, 1, 3)
+    c_dic = {"c1":c1, "c2":c2, "c3":c3}#"default" # seems no-auto adjustments was performed, default works well for this the datatype and distance functions
     in_threads = True # avoid broken runs when using parallel jobs (repeat>10)
     plotfew = False # first run and plot 10 repeats (umap visualization) saved in Figures/
 
 elif to_sim[0] == "Corr":
     """ Second methods set: Saved/meth_set_2/"""
     set_num = 2
-    save_at = "Class_Data/meth_set_2/"
+    #save_at = "Class_Data/meth_set_2/"
+    save_at = "Class_Data/meth_set_2_rand_c_dic/"
     classifiers = ["MIASA"]*2 + ["non_MD"]*1 # non_MD = Non_Metric_Distance = Non_MIASA
     clust_methods = ["Agglomerative_ward", "Kmedoids"] # for MIASA
     clust_methods = clust_methods + ["Kmedoids"] # for non_MD
@@ -65,7 +69,8 @@ elif to_sim[0] == "Corr":
     # data generating function
     generate_data = generate_data_correlated
     # Euclidean embedding pameters only used in MIASA (includes a finite number of auto adjustements)
-    c_dic = "default" 
+    c1, c2, c3 = np.random.uniform(0, 1, 3)
+    c_dic = {"c1":c1, "c2":c2, "c3":c3}#"default" 
     in_threads = True # avoid broken runs when using parallel jobs (repeat>10)
     plotfew = False # first run and plot 10 repeats (umap visualization) saved in Figures/
     

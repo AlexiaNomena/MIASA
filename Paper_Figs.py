@@ -149,8 +149,7 @@ def Plot_ARI():
     """ Plot first method set """
     set_num_1 = 1
     save_at_1 = "Class_Data/meth_set_1/"
-    repeat_1 = [(2000, 1)]
-    #select_1 = ("MIASA-(Hist, KS-p1)--Agglomerative_ward", "MIASA-(Hist, KS-p1)--Kmedoids", "non_MD-(Hist, KS-p1)--Kmedoids")
+    repeat_1 = [(2010, 1)]
     select_1 = ()#("MIASA-(Hist, KS-p1)--Agglomerative_ward", "non_MD-(Hist, KS-p1)--Kmedoids")
 
     select_1_MW = select_1 ## included it MW test
@@ -161,8 +160,7 @@ def Plot_ARI():
     """ Plot second method set """
     set_num_2 = 2
     save_at_2 = "Class_Data/meth_set_2/"
-    repeat_2 = [(2000, 1)]
-    #select_2 = ("MIASA-(eCDF, Spearman_R)--Agglomerative_ward", "MIASA-(eCDF, Spearman_R)--Kmedoids", "non_MD-(eCDF, Spearman_R)--Kmedoids")
+    repeat_2 = [(2010, 1)]
     select_2 = ()#("MIASA-(eCDF, Spearman_R)--Agglomerative_ward", "non_MD-(eCDF, Spearman_R)--Kmedoids")
     select_2_MW = select_2
     slim_2 = (0., 1.1) # (-0.01, 0.9) # range of statistic to show on final plot
@@ -173,7 +171,6 @@ def Plot_ARI():
     set_num_3 = 3
     save_at_3 = "Class_Data/meth_set_3/"
     repeat_3 = [(40, i) for i in range(1, 51)]
-    #select_3 = ("MIASA-(Eucl, Granger-Cause-3diff-chi2)--Agglomerative_ward","MIASA-(Eucl, Granger-Cause-3diff-chi2)--Kmedoids", "non_MD-(Eucl, Granger-Cause-3diff-chi2)--Kmedoids")
     select_3 = ()#("MIASA-(Eucl, Granger-Cause-3diff-chi2)--Agglomerative_ward", "non_MD-(Eucl, Granger-Cause-3diff-chi2)--Kmedoids")
     select_3_MW = select_3#["MIASA-(Corr, dCorr)--Kmeans", "MIASA-(Corr, Granger-Cause-diff-chi2)--Kmeans"]
     slim_3 = (0., 1.) #(-0.05, 0.7) # range of statistic to show on final plot
