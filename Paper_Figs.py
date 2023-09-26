@@ -225,25 +225,24 @@ def Plot_ARI():
             #ax_all = fig_all.add_subplot(int("%d%d%d"%(2, 3, k_all+k)))
             ax_MW_1 = fig_all_MW_1.add_subplot(int("%d%d%d"%(6, 1, k_all+k)))
             
-            try:
-                for n in range(len(repeat_list)): 
-                    repeat = repeat_list[n]
-                    file = open(save_at + "Accuracy_set_%d_%d_%d_varS%s.pck"%(set_num, repeat[0], repeat[1], var_data_list_labs[j]), "rb")
-                    
-                    AcData = pickle.load(file)
-                    acc_list_n, method_name_n = AcData["miasa_adjusted_accuracy_list"], AcData["method_name"]
-                    for i in range(len(method_name_n)):
-                        meth = method_name_n[i]
-                        if (meth[:5] == "MIASA"):#&(set_num!=3):
-                            num_it += list(AcData["num_iterations"][i])
-                        
-                        if n == 0:
-                            acc_dic_all[meth] = acc_list_n[i, :]#.compressed()
-                        else:
-                            acc_dic_all[meth] = np.concatenate((acc_dic_all[meth], acc_list_n[i, :]))#.compressed()))
             
-            except:
-                pass
+            for n in range(len(repeat_list)): 
+                repeat = repeat_list[n]
+                file = open(save_at + "Accuracy_set_%d_%d_%d_varS%s.pck"%(set_num, repeat[0], repeat[1], var_data_list_labs[j]), "rb")
+                
+                AcData = pickle.load(file)
+                acc_list_n, method_name_n = AcData["miasa_adjusted_accuracy_list"], AcData["method_name"]
+                for i in range(len(method_name_n)):
+                    meth = method_name_n[i]
+                    if (meth[:5] == "MIASA"):#&(set_num!=3):
+                        num_it += list(AcData["num_iterations"][i])
+                    
+                    if n == 0:
+                        acc_dic_all[meth] = acc_list_n[i, :]#.compressed()
+                    else:
+                        acc_dic_all[meth] = np.concatenate((acc_dic_all[meth], acc_list_n[i, :]))#.compressed()))
+        
+           
             
             
             #acc_list = []
