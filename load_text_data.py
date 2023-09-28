@@ -73,7 +73,7 @@ rows_labels = {row:row for row in AllRows}
 
 # Extract Model_infos corresponding to the underlying question
 from Methods.CA_Models import Model_infos_2D
-variables = variables = [Row_Vals(Data, nans_indices = "Remove Nans"), columns_list]
+variables = [Row_Vals(Data, nans_indices = "Remove Nans"), columns_list]
 A, Num_Obs, ContDataFrame, degree_freedom, D, row_centroid, col_centroid, Dr, Dc, S_0, T_0  = Model_infos_2D(Data, variables, model={"model":"stand"}, isCont = False)
 
 Filter = False ### taget a particular cosine threshold for each representations of the categories

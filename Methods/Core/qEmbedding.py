@@ -39,7 +39,7 @@ def Euclidean_Embedding(DX, DY, UX, UY, fXY, c_dic=None, in_threads = False, num
         c_dic = {"c1":c1, "c2":c2, "c3":c3}
         
    
-    COS_MAT, c1, c2, c3, zeta_f = CosLM(DX, DY, UX, UY, fXY, c_dic) 
+    COS_MAT, c1, c2, c3, zeta_f = CosLM(DX, DY, UX, UY, fXY, c_dic, similarity_method = similarity_method) 
     sigma, U = sp.linalg.eigh(COS_MAT)
     sigma = np.real(sigma) # COS_MAT is symmetric, thus imaginary numbers are supposed to be zero or numerical zeros
     sigma[np.isclose(sigma, np.zeros(len(sigma)))] = 0
