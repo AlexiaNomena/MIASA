@@ -109,7 +109,7 @@ def pairwise_MW(X, Y, method_nameX, method_nameY, typeEs = "Kerby", snf_color = 
                 if typeEs == "Wendt":
                     """ Wendt definition of MW Effect Size """
                     Uc, pval = MW_test(Y[j], X[i], alternative = "greater")
-                    minU =  min(U, Uc) # it writen in Wendt publication that usually U for the MW test is the smallest between the U calculated for the first and U calculated second variable
+                    minU =  min(U, Uc) # it written in Wendt publication that usually U for the MW test is the smallest between the U calculated for the first and U calculated second variable
                     mu = num_pairs/2
                     ES = (1 - minU/mu)
                 elif typeEs == "Kerby":

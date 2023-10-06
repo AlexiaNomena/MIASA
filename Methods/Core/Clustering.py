@@ -91,9 +91,6 @@ def get_col_labs(labels, palette):
         col_labs[labels == unique_labs[i], :] = colors[i]
     
     return col_labs
-                    
-
-
 
 
 def Spectral_clust(Coords, num_clust):
@@ -113,8 +110,6 @@ def Spectral_clust(Coords, num_clust):
     clusters = sklc.KMeans(n_clusters = num_clust, init = "k-means++", random_state = rand).fit(U[:, :num_clust]) #kmeans2(U, k=)
     labels = clusters.labels_
     return labels 
-
-
 
 
 from .Tensor_Laws import convert_spherical
