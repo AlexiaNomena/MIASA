@@ -6,15 +6,17 @@ Created on Sun Dec 18 14:03:16 2022
 @author: raharinirina
 """
 
-from .Core.Clustering import get_clusters
-from .Core.qEmbedding import Euclidean_Embedding
-from .Core.CosLM import Prox_Mat
-
+import numpy as np
+import sklearn.cluster as sklc
+import sklearn.mixture as sklMixt
+import sklearn_extra.cluster as sklEc
+import seaborn as sns
+import scipy as sp
+from sklearn.preprocessing import StandardScaler
 import sys
 import numpy as np
 import pandas as pd
 import pdb
-
 
 def Miasa_Class(X, Y, num_clust, DMat = None, c_dic = None, dist_origin = (True, True), metric_method = ("eCDF", "KS-stat"), clust_method = "Kmeans", palette = "tab20", Feature_dic = None, in_threads = True, clust_orig = False, similarity_method = ("Euclidean", "Euclidean")):
  
@@ -26,7 +28,82 @@ def Miasa_Class(X, Y, num_clust, DMat = None, c_dic = None, dist_origin = (True,
     Result = get_class(X, Y, c_dic, DMat, dist_origin, num_clust, clust_method, palette, in_threads = in_threads, clust_orig = clust_orig, similarity_method = similarity_method)
 
     return Result
+
+def Euclidean_Embedding(DX, DY, UX, UY, fXY, c_dic=None, in_threads = False, num_iterations = False, similarity_method = ("Euclidean", "Euclidean")):
+    """
+    @brief Joint Embedding of two disjoint sets of points (see Paper: Qualitative Euclidean Embedding)
+    Parameters
+    ----------
+    DX : shape (M, M), Distance set or Proximity Set associated to a set of points X
+    DY : shape (N, N), Distance set or Proximity Set associated to a set of points Y
+    UX : shape (M,)  , Distance to theoretical origin point for the set of points X
+    UY : shape (N,)    ,Distance to theoretical origin point for the set of points Y   
+    fXY  : shape (M, N), Proximity set matrix between the points of X and Y, Compatible with the positions of the points in DX and DY
+    c_dic  : Dictionary of parameters with keys "c1", "c2", "c3"
     
+    Returns
+    -------
+    Coords : np.array shap (M+N, M+N+2)
+            Coordinates of points X and Y on the rows
+    vareps: > 0 scalar defining the Embedding (see Paper)
+    """
+    if c_dic is None or c_dic == "default":
+        M = DX.shape[0]
+        N = DY.shape[0]
+        c1, c2 = 1/2, 2
+        a = 1. - 1./(M+N)
+        b = 2.*c2/(M+N)
+        c3 =  min(((2.*c1 + c2) - b)/a, 2*c2+2)
+        #c1, c2, c3 = np.random.uniform(0, 5, size = 3)
+        c_dic = {"c1":c1, "c2":c2, "c3":c3}
+        
+   
+    COS_MAT, c1, c2, c3, zeta_f = CosLM(DX, DY, UX, UY, fXY, c_dic, similarity_method = similarity_method) 
+    sigma, U = sp.linalg.eigh(COS_MAT)
+    sigma = np.real(sigma) # COS_MAT is symmetric, thus imaginary numbers are supposed to be zero or numerical zeros
+    sigma[np.isclose(sigma, np.zeros(len(sigma)))] = 0
+    
+    test = np.sum(sigma<0)
+    
+    stop = 100
+    sc = 0
+    c0 = c1
+    while test != 0 and sc<stop:
+        c1 = c2
+        c2 = 2*c1
+        c3 = 2 + c2 + c1
+        c_dic = {"c1":c1, "c2":c2, "c3":c3}
+        COS_MAT, c1, c2, c3, zeta_f = CosLM(DX, DY, UX, UY, fXY, c_dic, similarity_method = similarity_method)
+        sigma, U = sp.linalg.eigh(COS_MAT)
+        sigma = np.real(sigma) # COS_MAT is symmetric, thus imaginary numbers are supposed to be zero or numerical zeros
+        sigma[np.isclose(sigma, np.zeros(len(sigma)))] = 0
+        test = np.sum(sigma<0)
+        sc += 1
+    sort = np.argsort(sigma)[::-1] # descending order
+    sigma = sigma[sort]
+    U = U[:, sort]
+    
+    if test == 0:
+        if not in_threads:
+            print("Replacement matrix is PSD: success Euclidean embedding")
+        SS = np.sqrt(np.diag(sigma)) 
+        Coords0 = np.real(U.dot(SS))
+        
+        """ Then remove the connecting point (see Paper: Qualitative Euclidean Embedding) """
+        Coords = Coords0[1:, :]
+    
+    else:
+        print("failed Euclidean embedding")
+        sys.exit("fXY non-negative and not zero everywhere is needed \n fXY : Proximity set matrix between the points of X and Y compatible with the positions of the points in DX and DY")
+        Coords = None
+        c3 = 0
+        zeta_f = 0
+        
+    vareps = c3*zeta_f
+    if num_iterations:
+        return Coords, vareps, sc
+    else:
+        return Coords, vareps    
 
 def get_class(X, Y, Feature_X, c_dic, DMat, dist_origin = (True, True), num_clust=None, clust_method = "Kmeans", palette = "tab20", in_threads = True, clust_orig = False, similarity_method = ("Euclidean", "Euclidean")):
     M = Feature_X.shape[0]
@@ -159,14 +236,210 @@ def get_class(X, Y, Feature_X, c_dic, DMat, dist_origin = (True, True), num_clus
         Result = None   
         
     return Result
+
+
+def get_col_labs(labels, palette):               
+    unique_labs = np.unique(labels)
+    colors = sns.color_palette(palette,  len(unique_labs))
+    col_labs = np.zeros((len(labels), 3))
+    for i in range(len(unique_labs)):
+        """
+        if np.all(np.array(colors[i])<=1):
+            col_i = np.array(255*(np.array()), dtype = int)
+        else:
+            col_i = np.array(colors[i], dtype = int)
+        col_labs[labels == unique_labs[i], :] = '#%02x%02x%02x'%tuple(col_i)
+        """  
+        col_labs[labels == unique_labs[i], :] = colors[i]
+    
+    return col_labs
+
+def get_clusters(Coords, num_clust, palette, method = "Kmeans", init = "k-means++", metric = None):
+    if method == "Kmeans":
+        clusters = sklc.KMeans(n_clusters = num_clust, init = init, random_state = rand).fit(Coords)
+        labels = clusters.labels_
+    elif method == "Kmedoids":
+        if init == "k-means++" or init == "k-means++":
+            init = "k-medoids++"
+        
+        if metric == "precomputed":
+            clusters = sklEc.KMedoids(n_clusters = num_clust, metric = "precomputed" ,init = init, random_state = rand).fit(Coords) # in this case coords it the proximity matrix
+        else:
+            try:
+                clusters = sklEc.KMedoids(n_clusters = num_clust, metric = metric, init = init, random_state = rand).fit(Coords)
+            except:
+                clusters = sklEc.KMedoids(n_clusters = num_clust, init = init, random_state = rand).fit(Coords)
+        labels = clusters.labels_        
+    elif method[:13] == "Agglomerative":
+        if metric == "precomputed":
+            clusters = sklc.AgglomerativeClustering(n_clusters = num_clust, affinity = metric, linkage = method[14:]).fit(Coords)
+            # parameter affinity will be deprecated, replace with metric in future
+            #clusters = sklc.AgglomerativeClustering(n_clusters = num_clust, metric = metric, linkage = method[14:]).fit(Coords)
+        else:
+            clusters = sklc.AgglomerativeClustering(n_clusters = num_clust, linkage = method[14:], distance_threshold = None).fit(Coords)
+        labels = clusters.labels_
+    elif method == "Spectral":
+        if metric == "precomputed":
+            clusters = sklc.SpectralClustering(n_clusters = num_clust, affinity = metric).fit(Coords)
+        else:
+            try:
+                clusters = sklc.SpectralClustering(n_clusters = num_clust, affinity = metric).fit(Coords)
+            except:
+                clusters = sklc.SpectralClustering(n_clusters = num_clust).fit(Coords)
+        labels = clusters.labels_
+        
+    elif method == "Spectral_ver2":
+        labels = Spectral_clust(Coords, num_clust)
+        
+    elif method == "GMM":
+        cluster = sklMixt.GaussianMixture(n_components = num_clust, random_state = rand, max_iter = 200, n_init = 5, tol=0.0001, reg_covar=1e-8).fit(Coords)
+        labels = cluster.predict(Coords)
+    
+    elif method == "BayesianGMM":
+        cluster = sklMixt.BayesianGaussianMixture(n_components = num_clust, random_state = rand, max_iter = 200, n_init = 5, tol=0.0001, reg_covar=1e-8).fit(Coords)
+        labels = cluster.predict(Coords)
+    
+    elif method == "DBSCAN":
+        #Coords = StandardScaler().fit_transform(Coords)
+        cluster = sklc.DBSCAN(metric = metric).fit(Coords)
+        labels = cluster.labels_
+    
+    col_labels = get_col_labs(labels, palette)
+    return labels, col_labels
+
+
+
+def CosLM(DX, DY, UX = None, UY = None, fXY = None, c = None, similarity_method = ("Euclidean", "Euclidean")):
+    """
+    @brief Compute the cosine law matrix
+    Parameters
+    ----------
+    DX : shape (M, M), Distance set or Proximity Set associated to a set of points X
+    DY : shape (N, N), Distance set or Proximity Set associated to a set of points Y
+    UX : shape (M,)  , Distance to theoretical origin point for the set of points X
+    UY : shape (N,)    ,Distance to theoretical origin point for the set of points Y   
+    fXY  : shape (M, N), Proximity set matrix between the points of X and Y, Compatible with the positions of the points in DX and DY
+    c  : Dictionary of parameters with keys "c1", "c2", "c3"
+    
+    Returns
+    -------
+    CL_Mat : np.array
+            Corresponding Cosine Law Matrix with reference at index 0
+    """
+    # compute f^0
+    F0 = Prox_Mat(DX, DY, UX, UY, fXY)
+    M = DX.shape[0]
+
+    # compute cos Mat for W associated with f^0
+    if (similarity_method[0] == "Euclidean")&(similarity_method[1] == "Euclidean"):
+        a = 0
+    elif (similarity_method[0] == "Euclidean"):
+        a = 0
+    elif (similarity_method[1] == "Euclidean"):
+        if (UX is not None) or (UY is not None):
+            a = M+1
+        else:
+            a = M
+            
+    else:
+        sys.exit("similarity_method parameter: At least one similarity method has to be Euclidean")
+    
+    CL_Mat0 = (F0[a, :][np.newaxis, :]**2 + F0[:, a][:, np.newaxis]**2 - F0**2)/2
+    # compute zeta_f
+    CC = np.zeros(CL_Mat0.shape)
+    if (UX is not None) or (UY is not None):
+        # only pick the components involving f(X,Y) -- the antidiagonal blocks excluding positions of origin 
+        CC[:M, M+1:] = CL_Mat0[:M, M+1:] 
+        CC[M+1:,:M] = CL_Mat0[M+1: , :M]
+    else:
+    	# only pick the components involving f(X,Y) -- the antidiagonal blocks
+        CC[:M, M:] = CL_Mat0[:M, M:] 
+        CC[M:,:M] = CL_Mat0[M:,:M]
+    
+    #pdb.set_trace()
+    Ri = np.sum(np.abs(CC), axis = 1)
+    zeta_f = np.max(Ri)
+    if zeta_f == 0:
+        sys.exit("Distance/Proximity cannot be zero everywhere")
+    # insert the proximity values for the theoretical point z and w_1 = x_1
+    c1, c2, c3 = c["c1"], c["c2"], c["c3"]
+    if c2 == "default":
+        c2 = c1
+    if c3 == "default":
+        c3 = min(2*c2 + 2, c1 + c2 + 2)
+    
+    if c3<0:
+        sys.exit("c3 is negative but c1, c2, c3 must be positive")
+    
+    
+    D = np.zeros((F0.shape[0]+1, F0.shape[0]+1))
+    D[0, 1] = np.sqrt(c1*zeta_f)
+    D[0, 2:] =  np.sqrt(F0[0, 1:]**2 + c2*zeta_f)
+    D[1:, 0] = D[0, 1:]  
+    
+    # compute f^vareps
+    vareps =  c3*zeta_f
+    F_vareps = np.sqrt(F0**2 + vareps) - np.diag(np.sqrt(vareps*np.ones(F0.shape[0]))) ### remove diagonal elements because there is should always be 0
+    #pdb.set_trace()
+    D[1:, 1:] = F_vareps
+
+    # Compute cos Mat for V^z associated to f^vareps with referenc z at index 0       
+    CL_Mat = (D[0, :][np.newaxis, :]**2 + D[:, 0][:, np.newaxis]**2 - D**2)/2
+    
+    return CL_Mat, c1, c2, c3, zeta_f
+
+
+def Prox_Mat(DX, DY, UX = None, UY = None, fXY = None):
+    M = DX.shape[0]
+    N = DY.shape[0]
+    if (fXY is None) or (np.all(np.isclose(fXY, np.zeros((M, N))))) or (np.any(fXY < 0)):
+        sys.exit("fXY non-negative and not zero everywhere is needed \n fXY : Proximity set matrix between the points of X and Y compatible with the positions of the points in DX and DY")
+
+    else:
+        if UX is not None:
+            # put the distance to the origin after all the points of X
+            DX1 = np.concatenate((DX, UX[np.newaxis, :]), axis = 0)
+            DX1 = np.concatenate((DX1,np.concatenate((UX.T, np.array([0])), axis = 0)[:, np.newaxis]), axis = 1)
+    
+        if UY is not None:
+            # put the distance to the origin after all the points of X and before all the points of Y
+            DY1 = np.concatenate((UY[np.newaxis, :], DY), axis = 0)
+            DY1 = np.concatenate((np.concatenate((np.array([0]), UY.T), axis = 0)[:, np.newaxis], DY1), axis = 1)
+            
+        if (UX is not None) or (UY is not None):
+            D = np.zeros((M+N+1, M+N+1))
+            D[:M, M+1:] = fXY
+            D[M+1:, :M] = D[:M, M+1:].T
+            
+            if (UX is not None)&(UY is None):
+                D[:M+1, :M+1] = DX1
+                D[M+1:, M+1:] = DY
+        
+            elif (UY is not None)&(UX is None):
+                D[:M, :M] = DX
+                D[M:, M:] = DY1
+                
+            else:
+                D[:M+1, :M+1] = DX1
+                D[M:, M:] = DY1
+        
+        else:
+            D = np.zeros((M+N, M+N))
+            D[ :M, M:] = fXY
+            D[M:,  :M] = D[:M, M:].T
+            
+            D[:M, :M] = DX
+            D[M:, M:] = DY
+        
+        return D
     
 
-
+    
 Data_X = pd.read_excel(sys.argv[1], engine='xlrd')
 Data_Y = pd.read_excel(sys.argv[2], engine='xlrd')
 sim_meth_X = str(sys.argv[3])
 sim_meth_Y = str(sys.argv[4])
-assoc_method = str(sys.argv[5])
+assoc_XY = str(sys.argv[5])
 eucl_X = str(sys.argv[6])
 eucl_Y = str(sys.argv[7])
 norm_X = str(sys.argv[8])
@@ -190,10 +463,10 @@ else:
 similarity_method = (meth_X, meth_Y)
 
 
+
 Feature_dic = {}
 DMat = Prox_Mat(DX, DY, UX = Orows, UY = Ocols, fXY = D_assoc)
 if sim_meth_X == Eu
-
 
 
 Result = Miasa_Class(X, Y, Feature_dic, clust_method, similarity_method)
