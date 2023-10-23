@@ -17,8 +17,10 @@ pandas (1.4.3),
 seaborn,
 regex,
 scikit-learn (1.1.3),
+scikit-learn-extra,
 matplotlib (3.5.2),
 openpyxl,
+xlrd,
 statsmodels (0.13.2)
 
 #### Install Conda/Miniconda
@@ -36,6 +38,11 @@ This step may take a few minutes.
 To activate the enviromnent 
 ```
 conda activate MIASA
+```
+Install  packages with pip if necessary
+```
+pip  install scikit-learn-extra
+pip install xlrd
 ```
 
 ### In folder Manuscripts_examples:
@@ -127,7 +134,7 @@ conda activate MIASA
 To run the pipeline go into the repository where the snakefile [`MIASA`](https://github.com/AlexiaNomena/MIASA/blob/main/MIASA) is located and run
 
 ```
-snakemake --snakefile VASIL --configfile demo/demo_config.yaml -j -d demo
+snakemake --snakefile MIASA --configfile demo/demo_config.yaml -j -d demo
 
 ```
 
@@ -138,4 +145,6 @@ Deactivate the environment to exit the pipeline
 ```
 conda deactivate
 ```
+
+
 

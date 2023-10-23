@@ -3,7 +3,7 @@
 Data_X: "path/to/Data_X.xlsx"
 # second dataset
 Data_Y: "path/to/Data_Y.xlsx"
-# 2. What distance to compute as similarity ("Euclidean" or "precomputed")
+# 2. What distance to compute as similarity (metric parameter from scipy.spatial.distance.pdist or "precomputed")
 # for first dataset --- use "precomputed" if you provide it
 sim_X: "Euclidean"
 # if sim_X is not Euclidean, embed it
@@ -15,17 +15,21 @@ Eucl_Y: "TRUE"
 sim_Y: "Euclidean"
 # 3. Distance to use as association, must be given
 d_XY: "path/to/assocation_XY.xlsx"
-# 4. If sim_X is "precomputed" then give d_X, d_X is not used otherwise
+# 4. If sim_X is "precomputed" then give d_X, d_X is not used otherwise (placeholder file)
 d_X: "path/to/similarity_X.xlsx"
-# 5. If sim_X is "precomputed" then give d_Y, d_Y is not used otherwise 
-d_X: "path/to/similarity_Y.xlsx"
+# 5. If sim_Y is "precomputed" then give d_Y, d_Y is not used otherwise (placeholder file)
+d_Y: "path/to/similarity_Y.xlsx"
 # 6. OPTIONAL: embed distance of points to origin / magnitudes
-norm_X: TRUE
-norm_Y: TRUE
-# 7. OPTIONAL: Get 2-dimensional projection
+norm_X: "TRUE"
+norm_Y: "TRUE"
+# 7. Clustering parameters
+clustering_method: "Agglomerative_ward" # see list in README
+num_clust: 3
+# 8. OPTIONAL: Get 2-dimensional projection
 fig_miasa: TRUE
-# 8. If above is TRUE, provide parameters "UMAP" or "t-SNE"
+# 9. If above is TRUE, provide parameters "UMAP" or "t-SNE"
 fig_method: "UMAP"
 # UMAP and t-SNE parameters
 n_neighbors: 50
 palette: "tab20" # seaborn palette parameter
+min_dist: 0.8 # only used in UMAP

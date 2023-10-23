@@ -11,6 +11,7 @@ import sklearn.cluster as sklc
 import sklearn.mixture as sklMixt
 import sklearn_extra.cluster as sklEc
 import scipy as sp
+import scipy.spatial as spsp
 from sklearn.preprocessing import StandardScaler
 import sys
 import numpy as np
@@ -24,8 +25,7 @@ def Miasa_Class(X, Y, num_clust, DMat = None, c_dic = None, dist_origin = (True,
     except:
         sys.exit("Check implemented metric_methods or give a parameter Feature_dic must be given: keys Feature_X (ndarray), Feature_Y (ndarray), Association_function (func) with tuple argument (X, Y), assoc_func_type (str vectorized or str not_vectorized), DMat direclty given distance matrix, dist_origin bool tuple (orig X?, orig Y) ")
         
-    Result = get_class(X, Y, c_dic, DMat, dist_origin, num_clust, clust_method, palette, in_threads = in_threads, clust_orig = clust_orig, similarity_method = similarity_method)
-
+    Result = get_class(X, Y, c_dic, DMat, dist_origin, num_clust, clust_method, in_threads = in_threads, clust_orig = clust_orig, similarity_method = similarity_method)
     return Result
 
 def Euclidean_Embedding(DX, DY, UX, UY, fXY, c_dic=None, in_threads = False, num_iterations = False, similarity_method = ("Euclidean", "Euclidean")):
@@ -104,9 +104,9 @@ def Euclidean_Embedding(DX, DY, UX, UY, fXY, c_dic=None, in_threads = False, num
     else:
         return Coords, vareps    
 
-def get_class(X, Y, Feature_X, c_dic, DMat, dist_origin = (True, True), num_clust=None, clust_method = "Kmeans", in_threads = True, clust_orig = False, similarity_method = ("Euclidean", "Euclidean")):
-    M = Feature_X.shape[0]
-    N = Feature_Y.shape[0]
+def get_class(X, Y, c_dic, DMat, dist_origin = (True, True), num_clust=None, clust_method = "Kmeans", in_threads = True, clust_orig = False, similarity_method = ("Euclidean", "Euclidean")):
+    M = X.shape[0]
+    N = Y.shape[0]
     
     if (DMat.shape == (M+N+1, M+N+1)):
         ### remove the origin
@@ -128,24 +128,24 @@ def get_class(X, Y, Feature_X, c_dic, DMat, dist_origin = (True, True), num_clus
  
     if (dist_origin[0]) or (dist_origin[1]):
         """Distane to origin Optional but must be set to None if not used"""
-        Orows = np.zeros(Feature_X.shape[0])
-        Ocols = np.zeros(Feature_Y.shape[0])
+        Orows = np.zeros(X.shape[0])
+        Ocols = np.zeros(Y.shape[0])
         if dist_origin[0]:
             if DMat is not None:
                 if DMat.shape == (M+N+1, M+N+1):
                     Orows = DMat[:M, M+1]
                 else:
-                    Orows = np.linalg.norm(Feature_X, axis = 1)
+                    Orows = np.linalg.norm(X, axis = 1)
             else:
-                Orows = np.linalg.norm(Feature_X, axis = 1)
+                Orows = np.linalg.norm(X, axis = 1)
         if dist_origin[1]:
             if DMat is not None:
                 if DMat.shape == (M+N+1, M+N+1):
                     Ocols = DMat[M+1:, M+1]
                 else:
-                    Ocols = np.linalg.norm(Feature_Y, axis = 1)
+                    Ocols = np.linalg.norm(Y, axis = 1)
             else:
-                Ocols = np.linalg.norm(Feature_Y, axis = 1)
+                Ocols = np.linalg.norm(Y, axis = 1)
     else:
         Orows = None
         Ocols = None
@@ -180,13 +180,13 @@ def get_class(X, Y, Feature_X, c_dic, DMat, dist_origin = (True, True), num_clus
             if num_clust == None:
                 sys.exit("Kmeans requires number of clusters parameter: num_clust")
             else:
-                clust_labels = get_clusters(Coords_0, num_clust, palette, method = clust_method)
+                clust_labels = get_clusters(Coords_0, num_clust, method = clust_method)
         
         elif clust_method == "Kmedoids":
             if num_clust == None:
                 sys.exit("Kmedoids requires number of clusters parameter: num_clust")
             else:
-                clust_labels, color_clustered = get_clusters(Coords_0, num_clust, palette, method = clust_method)
+                clust_labels, color_clustered = get_clusters(Coords_0, num_clust, method = clust_method)
                 
         elif clust_method[:13] == "Agglomerative": 
             clust_labels = get_clusters(Coords_0, num_clust, method = clust_method)
@@ -194,12 +194,6 @@ def get_class(X, Y, Feature_X, c_dic, DMat, dist_origin = (True, True), num_clus
         elif clust_method == "Spectral":
         	clust_labels= get_clusters(Coords_0, num_clust, method = clust_method) 
         
-        elif clust_method == "Spectral_ver2":
-        	clust_labels = get_clusters(Coords_0, num_clust, method = clust_method)   
-        
-        elif clust_method == "Simple_Min_Dist":
-            clust_labels = get_clusters(Coords_0, num_clust, method = clust_method)   
-                
         elif clust_method == "GMM":
             clust_labels = get_clusters(Coords_0, num_clust, method = clust_method)
         
@@ -208,12 +202,6 @@ def get_class(X, Y, Feature_X, c_dic, DMat, dist_origin = (True, True), num_clus
          
         elif clust_method == "DBSCAN":
             clust_labels = get_clusters(Coords_0, num_clust, method = clust_method, metric = "euclidean")
-            
-        elif clust_method == "BRW":
-            clust_labels = get_clusters(Coords_0, num_clust, method = clust_method)
-            
-        elif clust_method[0] == "MLPClassifier":
-            clust_labels= get_clusters(Coords_0, num_clust, method = clust_method)
             
         else:
             sys.exit("A metric-distance based clustering method is better for MIASA \n Available here is Kmeans")
@@ -236,7 +224,7 @@ def get_class(X, Y, Feature_X, c_dic, DMat, dist_origin = (True, True), num_clus
         
     return Result
 
-
+rand = 0
 def get_clusters(Coords, num_clust, method = "Kmeans", init = "k-means++", metric = None):
     if method == "Kmeans":
         clusters = sklc.KMeans(n_clusters = num_clust, init = init, random_state = rand).fit(Coords)
@@ -270,9 +258,6 @@ def get_clusters(Coords, num_clust, method = "Kmeans", init = "k-means++", metri
             except:
                 clusters = sklc.SpectralClustering(n_clusters = num_clust).fit(Coords)
         labels = clusters.labels_
-        
-    elif method == "Spectral_ver2":
-        labels = Spectral_clust(Coords, num_clust)
         
     elif method == "GMM":
         cluster = sklMixt.GaussianMixture(n_components = num_clust, random_state = rand, max_iter = 200, n_init = 5, tol=0.0001, reg_covar=1e-8).fit(Coords)
@@ -416,23 +401,69 @@ def Prox_Mat(DX, DY, UX = None, UY = None, fXY = None):
         return D
     
 
+def Dist_Emb(D):
+    Eucl_place_holder = spsp.distance.squareform(spsp.distance.pdist(D))
+    ZuZ, vareps, num_it = Euclidean_Embedding(Eucl_place_holder, D, UX = None, UY = None, fXY = D, c_dic = "default", num_iterations = False) 
+    Ztilde = ZuZ[D.shape[0]:, :]
+    Dtilde = spsp.distance.pdist(Ztilde)
+    Dtilde = spsp.distance.squareform(Dtilde)
+    return Dtilde
+
+def read_data(file):
+    rawData = pd.read_excel(file, engine='openpyxl')
+    try:
+        rawData.drop(columns = "Unnamed: 0", inplace = True)
+    except:
+        pass
+    Data = rawData.drop(columns = "variable", inplace = False)
+    return Data.to_numpy().astype(float)
     
-Data_X = pd.read_excel(sys.argv[1], engine='xlrd')
-Data_Y = pd.read_excel(sys.argv[2], engine='xlrd')
+X = read_data(sys.argv[1])
+Y = read_data(sys.argv[2])
+
 sim_meth_X = str(sys.argv[3])
 sim_meth_Y = str(sys.argv[4])
-assoc_XY = str(sys.argv[5])
-eucl_X = str(sys.argv[6])
-eucl_Y = str(sys.argv[7])
-norm_X = str(sys.argv[8])
-norm_Y = str(sys.argv[9])
-clust_method = str(sys.argv[10])
-num_clust = int(sys.argv[11])
 
+if sim_meth_X != "precomputed":
+    DX = spsp.distance.pdist(X, metric = sim_meth_X)
+    DX = spsp.distance.squareform(DX)
+else:
+    DX = read_data(sys.argv[5])
+    DX = DX.to_numpy().astype(float)
+    
+if sim_meth_Y != "precomputed":
+    DY = spsp.distance.pdist(Y, metric = sim_meth_Y)
+    DY = spsp.distance.squareform(DY)
+else:
+    DY = read_data(sys.argv[6])
+    DY = DY.to_numpy().astype(float)
+    
+D_assoc = read_data(sys.argv[7])
 
-X = Data_X.to_numpy()
-Y = Data_Y.to_numpy()
+eucl_X = str(sys.argv[8])
+eucl_Y = str(sys.argv[9])
 
+if sim_meth_X != "Euclidean" and eucl_X == "TRUE":
+   DX = Dist_Emb(DX)
+   meth_X = "Euclidean" 
+else:
+   meth_X = "precomputed"
+    
+if sim_meth_Y != "Euclidean" and eucl_Y == "TRUE":
+    DY = Dist_Emb(DY)
+    meth_Y = "Euclidean" 
+else:
+    meth_Y = "precomputed"
+    
+if (sim_meth_X != "Euclidean" and sim_meth_Y != "Euclidean") and (meth_X == "precomputed" and meth_Y == "precomputed"):
+    if sim_meth_X !="Euclidean":
+        DX = Dist_Emb(DX) 
+        meth_X = "Euclidean"
+    if sim_meth_Y !="Euclidean":
+        DY = Dist_Emb(DY)
+        meth_Y = "Euclidean"
+        
+    
 if eucl_X == "TRUE":
     meth_X = "Euclidean"
 else:
@@ -442,13 +473,36 @@ if eucl_Y == "TRUE":
     meth_Y = "Euclidean"
 else:
     meth_Y = "precomputed" 
+
 similarity_method = (meth_X, meth_Y)
 
+norm_X = str(sys.argv[10])
+norm_Y = str(sys.argv[11])
 
-
+if norm_X == "TRUE":
+    Orows = np.linalg.norm(X, axis = 1)
+    Ox = True
+else:
+    Orows = None
+    Ox = False
+    
+if norm_Y == "TRUE":
+    Ocols = np.linalg.norm(Y, axis = 1)
+    Oy = True
+else:
+    Oclos = None
+    Oy = False
+    
+clust_method = str(sys.argv[12])
+num_clust = int(sys.argv[13])
+    
 Feature_dic = {}
-DMat = Prox_Mat(DX, DY, UX = Orows, UY = Ocols, fXY = D_assoc)
-if sim_meth_X == Eu
+Feature_dic["DMat"] = Prox_Mat(DX, DY, UX = Orows, UY = Ocols, fXY = D_assoc)
+Feature_dic["dist_origin"] = (Ox, Oy)
 
+Results = Miasa_Class(X, Y, num_clust, Feature_dic=Feature_dic, clust_method=clust_method, similarity_method= similarity_method)
 
-Result = Miasa_Class(X, Y, Feature_dic, clust_method, similarity_method)
+import pickle
+file = open(str(sys.argv[14]), "wb")
+pickle.dump(Results, file)
+file.close()
