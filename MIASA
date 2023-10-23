@@ -8,6 +8,9 @@ rule_all_common = [
     "results/miasa_results.pck",
 ]
 
+if config["fig_miasa"]:
+    rule_all_common.append("results/"+config["fig_method"]+"One_Panel.pdf"),
+    rule_all_common.append("results/"+config["fig_method"]+"Separate_Panels.pdf"),
 rule all:
     input:
         rule_all_common,

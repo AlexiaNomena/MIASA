@@ -15,6 +15,7 @@ scipy (1.7.3)
 pip,
 pandas (1.4.3),
 seaborn,
+regex,
 scikit-learn (1.1.3),
 matplotlib (3.5.2),
 openpyxl,
@@ -108,10 +109,10 @@ The main pipeline (`config.yaml`) creates a folder *results*, containing all (in
 ```
 |-- results
  	|-- miasa_results.pck	# pickled python dictionary containing the results of miasa
-	|-- UMAP_One_Pannel.pdf/.svg # UMAP projection of the results of miasa
-	|-- UMAP_Separate_Pannel.pdf/.svg # UMAP projection of the results of miasa, separate predicted pannels
-	|-- tSNE_One_Pannel.pdf/.svg # t-SNE projection of the results of miasa
-	|-- tSNE_Separate_Pannel.pdf/.svg # t-SNE projection of the results of miasa,  separate predicted pannels
+	|-- UMAP_One_Panel.pdf/.svg # UMAP projection of the results of miasa
+	|-- UMAP_Separate_Panels.pdf/.svg # UMAP projection of the results of miasa, separate predicted panels
+	|-- tSNE_One_Panel.pdf/.svg # t-SNE projection of the results of miasa
+	|-- tSNE_Separate_Panels.pdf/.svg # t-SNE projection of the results of miasa,  separate predicted panels
 ```
 
 ## Demo

@@ -10,7 +10,6 @@ import numpy as np
 import sklearn.cluster as sklc
 import sklearn.mixture as sklMixt
 import sklearn_extra.cluster as sklEc
-import seaborn as sns
 import scipy as sp
 from sklearn.preprocessing import StandardScaler
 import sys
@@ -105,7 +104,7 @@ def Euclidean_Embedding(DX, DY, UX, UY, fXY, c_dic=None, in_threads = False, num
     else:
         return Coords, vareps    
 
-def get_class(X, Y, Feature_X, c_dic, DMat, dist_origin = (True, True), num_clust=None, clust_method = "Kmeans", palette = "tab20", in_threads = True, clust_orig = False, similarity_method = ("Euclidean", "Euclidean")):
+def get_class(X, Y, Feature_X, c_dic, DMat, dist_origin = (True, True), num_clust=None, clust_method = "Kmeans", in_threads = True, clust_orig = False, similarity_method = ("Euclidean", "Euclidean")):
     M = Feature_X.shape[0]
     N = Feature_Y.shape[0]
     
@@ -181,7 +180,7 @@ def get_class(X, Y, Feature_X, c_dic, DMat, dist_origin = (True, True), num_clus
             if num_clust == None:
                 sys.exit("Kmeans requires number of clusters parameter: num_clust")
             else:
-                clust_labels, color_clustered = get_clusters(Coords_0, num_clust, palette, method = clust_method)
+                clust_labels = get_clusters(Coords_0, num_clust, palette, method = clust_method)
         
         elif clust_method == "Kmedoids":
             if num_clust == None:
@@ -190,31 +189,31 @@ def get_class(X, Y, Feature_X, c_dic, DMat, dist_origin = (True, True), num_clus
                 clust_labels, color_clustered = get_clusters(Coords_0, num_clust, palette, method = clust_method)
                 
         elif clust_method[:13] == "Agglomerative": 
-            clust_labels, color_clustered = get_clusters(Coords_0, num_clust, palette, method = clust_method)
+            clust_labels = get_clusters(Coords_0, num_clust, method = clust_method)
         
         elif clust_method == "Spectral":
-        	clust_labels, color_clustered = get_clusters(Coords_0, num_clust, palette, method = clust_method) 
+        	clust_labels= get_clusters(Coords_0, num_clust, method = clust_method) 
         
         elif clust_method == "Spectral_ver2":
-        	clust_labels, color_clustered = get_clusters(Coords_0, num_clust, palette, method = clust_method)   
+        	clust_labels = get_clusters(Coords_0, num_clust, method = clust_method)   
         
         elif clust_method == "Simple_Min_Dist":
-            clust_labels, color_clustered = get_clusters(Coords_0, num_clust, palette, method = clust_method)   
+            clust_labels = get_clusters(Coords_0, num_clust, method = clust_method)   
                 
         elif clust_method == "GMM":
-            clust_labels, color_clustered = get_clusters(Coords_0, num_clust, palette, method = clust_method)
+            clust_labels = get_clusters(Coords_0, num_clust, method = clust_method)
         
         elif clust_method == "BayesianGMM":
-            clust_labels, color_clustered = get_clusters(Coords_0, num_clust, palette, method = clust_method)
+            clust_labels= get_clusters(Coords_0, num_clust, method = clust_method)
          
         elif clust_method == "DBSCAN":
-            clust_labels, color_clustered = get_clusters(Coords_0, num_clust, palette, method = clust_method, metric = "euclidean")
+            clust_labels = get_clusters(Coords_0, num_clust, method = clust_method, metric = "euclidean")
             
         elif clust_method == "BRW":
-            clust_labels, color_clustered = get_clusters(Coords_0, num_clust, palette, method = clust_method)
+            clust_labels = get_clusters(Coords_0, num_clust, method = clust_method)
             
         elif clust_method[0] == "MLPClassifier":
-            clust_labels, color_clustered = get_clusters(Coords_0, num_clust, palette, method = clust_method)
+            clust_labels= get_clusters(Coords_0, num_clust, method = clust_method)
             
         else:
             sys.exit("A metric-distance based clustering method is better for MIASA \n Available here is Kmeans")
@@ -229,7 +228,7 @@ def get_class(X, Y, Feature_X, c_dic, DMat, dist_origin = (True, True), num_clus
             was_orig = False
        
         DMat = Prox_Mat(DX, DY, UX = Orows, UY = Ocols, fXY = D_assoc)
-        Result = {"Coords": Coords, "shape":(M, N), "was_orig":was_orig, "vareps":vareps, "Class_pred":Class_pred, "clust_labels":clust_labels, "color_clustered":color_clustered, "DMat":DMat, "X":X, "Y":Y, "num_iterations":num_it}
+        Result = {"Coords": Coords, "shape":(M, N), "was_orig":was_orig, "vareps":vareps, "Class_pred":Class_pred, "clust_labels":clust_labels, "DMat":DMat, "X":X, "Y":Y, "num_iterations":num_it}
     
     else:
         
@@ -238,23 +237,7 @@ def get_class(X, Y, Feature_X, c_dic, DMat, dist_origin = (True, True), num_clus
     return Result
 
 
-def get_col_labs(labels, palette):               
-    unique_labs = np.unique(labels)
-    colors = sns.color_palette(palette,  len(unique_labs))
-    col_labs = np.zeros((len(labels), 3))
-    for i in range(len(unique_labs)):
-        """
-        if np.all(np.array(colors[i])<=1):
-            col_i = np.array(255*(np.array()), dtype = int)
-        else:
-            col_i = np.array(colors[i], dtype = int)
-        col_labs[labels == unique_labs[i], :] = '#%02x%02x%02x'%tuple(col_i)
-        """  
-        col_labs[labels == unique_labs[i], :] = colors[i]
-    
-    return col_labs
-
-def get_clusters(Coords, num_clust, palette, method = "Kmeans", init = "k-means++", metric = None):
+def get_clusters(Coords, num_clust, method = "Kmeans", init = "k-means++", metric = None):
     if method == "Kmeans":
         clusters = sklc.KMeans(n_clusters = num_clust, init = init, random_state = rand).fit(Coords)
         labels = clusters.labels_
@@ -304,8 +287,7 @@ def get_clusters(Coords, num_clust, palette, method = "Kmeans", init = "k-means+
         cluster = sklc.DBSCAN(metric = metric).fit(Coords)
         labels = cluster.labels_
     
-    col_labels = get_col_labs(labels, palette)
-    return labels, col_labels
+    return labels
 
 
 
