@@ -11,12 +11,13 @@ version 3.10.4
 
 Packages:
 numpy (1.21.5),
+scipy (1.7.3)
 pip,
 pandas (1.4.3),
 seaborn,
 scikit-learn (1.1.3),
-matplotlib (3.5.2)
-openpyxl
+matplotlib (3.5.2),
+openpyxl,
 statsmodels (0.13.2)
 
 ### In folder Manuscripts_examples:
