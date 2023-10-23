@@ -1,0 +1,26 @@
+# 1. Full path to covsonar data
+covsonardata: "path/to/covsonar_data.tsv"
+prefix: "mutationprofile"
+mutation_threshold: 0.75
+# 2a. Full path to GInPipe incidence data
+cases: "path/to/GInPipe_case_assertainment_data.csv"
+# 2b. Fixed total population size for the region of interest
+total_population: 84334787
+# 3. Full path to DMS escape fraction data
+escape_data: "path/to/DMS_Escape_data.csv"
+antibody_mapping: "antibody_classes.csv"
+# 4. Full path to Clinical VE data for delta variant
+VE_delta: "path/to/Clinical_VE_delta.xlsx"
+# 5. Simulation time frame --- must be included the case timeframe and covsonar timeframe
+date_start: "date beginning of simulations"
+date_end: "date end of simulations"
+# 6.a OPTIONAL: Get immunological landscape for lineage/spikegroup 
+run_for_lineage_focus: TRUE
+# 6.b if above is TRUE, provide name  --- please replace "." with "_" 
+lineage_focus: "BA_2_86"
+# 6.c and NTD-RBD mutation positions file (DEL/del are ignored)
+mutation_focus: "BA.2.86_mutationsprofile_outbreak.info_28-8-23.txt"
+# 7. OPTIONAL: Get Immunological landscape for all lineages/spikegroups in simulation timeframe TRUE/FALSE
+all_il: TRUE
+# 8. Get Fold resistance of all mutation sites present in the DMS data
+FR_DMS_sites: TRUE
