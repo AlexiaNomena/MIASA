@@ -15,7 +15,13 @@ from .Core.CosLM import Prox_Mat
 
 import sys
 import numpy as np
+import pandas as pd
 import pdb
+
+
+Data_X = pd.read_excel(sys.argv[0], engine='xlrd')
+Data_Y = pd.read_excel(sys.argv[1], engine='xlrd')
+Feature_dic = {}
 
 
 def Miasa_Class(X, Y, num_clust, DMat = None, c_dic = None, dist_origin = (True, True), metric_method = ("eCDF", "KS-stat"), clust_method = "Kmeans", palette = "tab20", Feature_dic = None, in_threads = True, clust_orig = False, similarity_method = ("Euclidean", "Euclidean")):
@@ -218,4 +224,4 @@ def get_class(X, Y, Feature_X, Feature_Y, func, ftype, metric_method, c_dic, DMa
         
     return Result
     
-    
+

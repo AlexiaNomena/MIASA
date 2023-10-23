@@ -42,7 +42,7 @@ This folder contains all the codes that were used to produce the manuscripts res
 
 Add environment to jupyter notebook
 
-`conda deactivate MIASA` (only if the environment is activated)
+`conda deactivate` (only if the environment is activated)
 
 `conda install -c anaconda ipykernel` (only if `ipykernel` is not yet installed)
 
@@ -93,20 +93,48 @@ For more information about the YAML markup format refer to documentation: [https
 If your environment is not yet activated, type
 
 ```
-conda activate VASIL
+conda activate MIASA
 ```
 Go to the pipeline directory (where the Snakefile named [`VASIL`](https://github.com/KleistLab/VASIL/blob/main/VASIL) is located) and enter the following command to execute the pipeline
 
 ```
-snakemake --snakefile VASIL --configfile path/to/config.yaml -j -d path/to/workdir
+snakemake --snakefile MIASA --configfile path/to/config.yaml -j -d path/to/workdir
 ```
 With parameter `--configfile` you can give the configuration file, described above. The `-j` parameter determines the number of available CPU cores to use in the pipeline. Optionally you can provide the number of cores, e.g. `-j 4`. With parameter `-d` you can set the work directory, i.e. where the results of the pipeline are written to.
 
-After generating the main results, our manuscripts figures are obtained by running
+## Output
+The main pipeline (`config.yaml`) creates a folder *results*, containing all (intermediate) output, with the following structure:
 
 ```
-snakemake --snakefile VASILplots --configfile path/to/config_plots.yaml -j -d path/to/workdir
+|-- results
+ 	|-- miasa_results.pck	# pickled python dictionary containing the results of miasa
+	|-- UMAP_One_Pannel.pdf/.svg # UMAP projection of the results of miasa
+	|-- UMAP_Separate_Pannel.pdf/.svg # UMAP projection of the results of miasa, separate predicted pannels
+	|-- tSNE_One_Pannel.pdf/.svg # t-SNE projection of the results of miasa
+	|-- tSNE_Separate_Pannel.pdf/.svg # t-SNE projection of the results of miasa,  separate predicted pannels
+```
+
+## Demo
+Demo datasets are provided in the repository folder [`demo`](https://github.com/KleistLab/VASIL/tree/main/demo)
+
+If your environment is not yet activated, type
+
+```
+conda activate MIASA
+```
+
+To run the pipeline go into the repository where the snakefile [`MIASA`](https://github.com/KleistLab/VASIL/blob/main/VASIL) is located and run
+
+```
+snakemake --snakefile VASIL --configfile demo/demo_config.yaml -j -d demo
 
 ```
 
+### Expected Runtime for demo
+Less than 1 min
+
+Deactivate the environment to exit the pipeline
+```
+conda deactivate
+```
 
