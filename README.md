@@ -22,5 +22,6 @@ This folder contains all the codes that were used to produce the manuscripts res
 
 
 ### Snakemake pipeline
+For a general execution of the MIASA framework
 
 
