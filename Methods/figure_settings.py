@@ -255,8 +255,9 @@ def Display(Coords_rows, Coords_cols, Inertia, Data, rows_to_Annot, cols_to_Anno
         cols_to_Annot_index = None
         
     if not separate:
-        if fig == None or ax == None:
+        if fig == None:
             fig = pl.figure(figsize=(36+18,20+10))#pl.figure(figsize=(18,10))
+        if ax == None:    
             ax = fig.add_subplot(2,1,1)
         
         if len(chosenAxes) == 1:
