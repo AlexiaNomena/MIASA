@@ -95,7 +95,7 @@ If your environment is not yet activated, type
 ```
 conda activate MIASA
 ```
-Go to the pipeline directory (where the Snakefile named [`VASIL`](https://github.com/KleistLab/VASIL/blob/main/VASIL) is located) and enter the following command to execute the pipeline
+Go to the pipeline directory (where the Snakefile named [`VASIL`](https://github.com/AlexiaNomena/MIASA/blob/main/MIASA) is located) and enter the following command to execute the pipeline
 
 ```
 snakemake --snakefile MIASA --configfile path/to/config.yaml -j -d path/to/workdir
@@ -123,7 +123,7 @@ If your environment is not yet activated, type
 conda activate MIASA
 ```
 
-To run the pipeline go into the repository where the snakefile [`MIASA`](https://github.com/KleistLab/VASIL/blob/main/VASIL) is located and run
+To run the pipeline go into the repository where the snakefile [`MIASA`](https://github.com/AlexiaNomena/MIASA/blob/main/MIASA) is located and run
 
 ```
 snakemake --snakefile VASIL --configfile demo/demo_config.yaml -j -d demo
