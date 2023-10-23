@@ -2,12 +2,22 @@
 # **M**etrized **I**dentification and **A**nalysis of **S**imilarity and **A**ssociation
 
 ### Operating System
-This workflow was tested on macOS Monterey Versoin 12.5 and CentOS Linux release 7.9.2009 [(HPC Fu Berlin)](https://www.fu-berlin.de/en/sites/high-performance-computing/index.html)
+This workflow was tested on macOS Monterey Versoin 12.5 and CentOS Linux release 7.9.2009 Core [(HPC Fu Berlin)](https://www.fu-berlin.de/en/sites/high-performance-computing/index.html)
 
-### Software Requirement
-python version: 3.10 or +
+### Prerequisites
+#### Python
 
-pakages: [scikit-learn](https://scikit-learn.org/stable/), [umap](https://umap-learn.readthedocs.io/en/latest/), [numpy](https://numpy.org/), [scipy](https://scipy.org/), ... (find missing ones from the code run error logs)
+version 3.10.4
+
+Packages:
+numpy (1.21.5),
+pip,
+pandas (1.4.3),
+seaborn,
+scikit-learn (1.1.3),
+matplotlib (3.5.2)
+openpyxl
+statsmodels (0.13.2)
 
 ### In folder Manuscripts_examples:
 This folder contains all the codes that were used to produce the manuscripts results
