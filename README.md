@@ -1,5 +1,5 @@
 
-#**M**etrized **I**dentification and **A**nalysis of **S**imilarity and **A**ssociation
+# **M**etrized **I**dentification and **A**nalysis of **S**imilarity and **A**ssociation
 
 ### Operating System
 This workflow was tested on macOS Monterey Versoin 12.5 and CentOS Linux release 7.9.2009 [(HPC Fu Berlin)](https://www.fu-berlin.de/en/sites/high-performance-computing/index.html)
