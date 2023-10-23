@@ -1,0 +1,39 @@
+# Main workflow of MIASA
+
+
+report: "report/workflow.rst"
+
+
+rule_all_common = [
+    "results/miasa_results.pck",
+]
+
+if config["fig_miasa"] 
+   rule_all.common.append("results/"+config["fig_method"]+"_miasa.pdf")
+	
+
+rule all:
+    input:
+        rule_all_common,
+
+
+rule get_miasa:
+    input:
+	Data_X=config["Data_X"],
+	Data_Y=config["Data_Y"],
+	D_X = config["d_X"],
+	D_Y = config["d_Y"],
+	d_XY=config["d_XY"],
+    params:
+        sim_meth=config["similarity_method"],
+	norm_X=config["norm_X"],
+	norm_Y=config["norm_Y"],
+	eucl_X=config["Eucl_X"],
+	eucl_Y=config["Eucl_Y"],
+	clust_meth=config["clustering_method"],
+	num_clust=config["num_clust"]
+    output:
+	dir=directory(results),
+	res="results/miasa_results.pck"
+    shell:
+	"python {workflow.basedir}/scripts/miasa_class.py {input.Data_X} {input.Data_Y} {input.Data_XY} {params.sim_meth} {params.eucl_X} {params.eucl_Y} {params.norm_X} {params.norm_Y} {params.num_clust}"
