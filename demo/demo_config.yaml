@@ -1,24 +1,23 @@
 # 1. Full path to the first dataset (.xlsx or .csv) variable on the rows (see demo examples)
 # first dataset
-Data_X: "path/to/Data_X.xlsx"
+Data_X: "Data_X.xlsx"
 # second dataset
-Data_Y: "path/to/Data_Y.xlsx"
+Data_Y: "Data_Y.xlsx"
 # 2. What distance to compute as similarity ("Euclidean" or "precomputed")
 # for first dataset --- use "precomputed" if you provide it
 sim_X: "Euclidean"
 # if sim_X is not Euclidean, embed it
-Eucl_X: "TRUE"
+Eucl_X: TRUE
 # for second dataset --- use "precomputed" if you provide it
 sim_Y: "Euclidean"
-# if sim_Y is not Euclidean, embed it
-Eucl_Y: "TRUE"
-sim_Y: "Euclidean"
+# if sim_Y is not Euclidean, embed it 
+Eucl_Y: TRUE
 # 3. Distance to use as association, must be given
-d_XY: "path/to/assocation_XY.xlsx"
+d_XY: "assocation_XY.xlsx"
 # 4. If sim_X is "precomputed" then give d_X, d_X is not used otherwise
-d_X: "path/to/similarity_X.xlsx"
+d_X: "similarity_X.xlsx"
 # 5. If sim_X is "precomputed" then give d_Y, d_Y is not used otherwise 
-d_X: "path/to/similarity_Y.xlsx"
+d_X: "similarity_Y.xlsx"
 # 6. OPTIONAL: embed distance of points to origin / magnitudes
 norm_X: TRUE
 norm_Y: TRUE
@@ -29,3 +28,4 @@ fig_method: "UMAP"
 # UMAP and t-SNE parameters
 n_neighbors: 50
 palette: "tab20" # seaborn palette parameter
+min_dist: 0.8 # only used in UMAP

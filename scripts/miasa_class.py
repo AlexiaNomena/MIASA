@@ -6,9 +6,6 @@ Created on Sun Dec 18 14:03:16 2022
 @author: raharinirina
 """
 
-from .Core.Generate_Distances import Similarity_Distance, Association_Distance
-from .Generate_Features import eCDF, Eucl, Null, covariance, get_assoc_func
-from .Generate_Features import corrcoeff, moms, OR, Cond_proba, Granger_Cause, Histogram_feature
 from .Core.Clustering import get_clusters
 from .Core.qEmbedding import Euclidean_Embedding
 from .Core.CosLM import Prox_Mat
@@ -19,101 +16,40 @@ import pandas as pd
 import pdb
 
 
-Data_X = pd.read_excel(sys.argv[0], engine='xlrd')
-Data_Y = pd.read_excel(sys.argv[1], engine='xlrd')
-Feature_dic = {}
-
-
 def Miasa_Class(X, Y, num_clust, DMat = None, c_dic = None, dist_origin = (True, True), metric_method = ("eCDF", "KS-stat"), clust_method = "Kmeans", palette = "tab20", Feature_dic = None, in_threads = True, clust_orig = False, similarity_method = ("Euclidean", "Euclidean")):
-    """Compute features"""
-    if metric_method[0] == "eCDF":
-       Feature_X, Feature_Y = eCDF(X,Y)
-       func, ftype = get_assoc_func(assoc_type = metric_method[1], in_threads = in_threads)
-    
-    elif metric_method[0] == "Cov":
-        Feature_X, Feature_Y = covariance(X, Y)
-        func, ftype = get_assoc_func(assoc_type = metric_method[1], in_threads = in_threads)
-    
-    elif metric_method[0] == "Corr":
-        Feature_X, Feature_Y= corrcoeff(X, Y)
-        func, ftype = get_assoc_func(assoc_type = metric_method[1], in_threads = in_threads)
+ 
+    try:
+        DMat, dist_origin = Feature_dic["DMat"], Feature_dic["dist_origin"]
+    except:
+        sys.exit("Check implemented metric_methods or give a parameter Feature_dic must be given: keys Feature_X (ndarray), Feature_Y (ndarray), Association_function (func) with tuple argument (X, Y), assoc_func_type (str vectorized or str not_vectorized), DMat direclty given distance matrix, dist_origin bool tuple (orig X?, orig Y) ")
         
-    elif metric_method[0] == "Moms":
-        Feature_X, Feature_Y = moms(X, Y)
-        func, ftype = get_assoc_func(assoc_type = metric_method[1], in_threads = in_threads)
-
-    elif metric_method[0] == "OR":
-        Feature_X, Feature_Y = OR(X, Y)
-        func, ftype = get_assoc_func(assoc_type = metric_method[1], in_threads = in_threads)
-    
-    elif metric_method[0] == "Eucl":
-        Feature_X, Feature_Y = Eucl(X, Y)
-        func, ftype = get_assoc_func(assoc_type = metric_method[1], in_threads = in_threads)
-
-    elif metric_method[0] == "Cond_proba":
-        Feature_X, Feature_Y = Cond_proba(X, Y) 
-        func, ftype = get_assoc_func(assoc_type = metric_method[1], in_threads = in_threads)
-    
-    elif metric_method[0] == "Null":
-        Feature_X, Feature_Y = Null(X, Y) 
-        func, ftype = get_assoc_func(assoc_type = metric_method[1], in_threads = in_threads)
-    
-    elif metric_method[0] == "Hist":
-        Feature_X, Feature_Y = Histogram_feature(X), Histogram_feature(Y)
-        func, ftype = get_assoc_func(assoc_type = metric_method[1], in_threads = in_threads)
-        
-    elif metric_method[0][:13] == "Granger-Cause":
-       if metric_method[0][14:18] == "orig":
-           diff = False
-           diff = False
-       else:
-           diff = True
-       Feature_X, Feature_Y= Granger_Cause(X, Y, diff = diff) 
-       func, ftype = get_assoc_func(assoc_type = metric_method[1], in_threads = in_threads)
-
-    else:
-        try:
-            Feature_X, Feature_Y, func, ftype, DMat, dist_origin = Feature_dic["Feature_X"], Feature_dic["Feature_Y"], Feature_dic["Asssociation_function"], Feature_dic["assoc_func_type"], Feature_dic["DMat"], Feature_dic["dist_origin"]
-        except:
-            sys.exit("Check implemented metric_methods or give a parameter Feature_dic must be given: keys Feature_X (ndarray), Feature_Y (ndarray), Association_function (func) with tuple argument (X, Y), assoc_func_type (str vectorized or str not_vectorized), DMat direclty given distance matrix, dist_origin bool tuple (orig X?, orig Y) ")
-            
-    Result = get_class(X, Y, Feature_X, Feature_Y, func, ftype, metric_method, c_dic, DMat, dist_origin, num_clust, clust_method, palette, in_threads = in_threads, clust_orig = clust_orig, similarity_method = similarity_method)
+    Result = get_class(X, Y, c_dic, DMat, dist_origin, num_clust, clust_method, palette, in_threads = in_threads, clust_orig = clust_orig, similarity_method = similarity_method)
 
     return Result
     
 
-def get_class(X, Y, Feature_X, Feature_Y, func, ftype, metric_method, c_dic, DMat = None, dist_origin = (True, True), num_clust=None, clust_method = "Kmeans", palette = "tab20", in_threads = True, clust_orig = False, similarity_method = ("Euclidean", "Euclidean")):
+def get_class(X, Y, Feature_X, c_dic, DMat, dist_origin = (True, True), num_clust=None, clust_method = "Kmeans", palette = "tab20", in_threads = True, clust_orig = False, similarity_method = ("Euclidean", "Euclidean")):
     M = Feature_X.shape[0]
     N = Feature_Y.shape[0]
     
-    if (DMat is not None):
-        if (DMat.shape == (M+N+1, M+N+1)):
-            ### remove the origin
-            """ Similarity metric """
-            DX = DMat[:M, :M]
-            DY = DMat[M+1:, M+1:]
-            
-            """Association metric"""            
-            D_assoc = DMat[:M, M+1:]
-        elif (DMat.shape == (M+N, M+N)):
-            """ Similarity metric """
-            DX = DMat[:M, :M]
-            DY = DMat[M:, M:]
-            """Association metric"""            
-            D_assoc = DMat[:M, M:]
-        else:
-            sys.exit("Wrong shape of distance matrix")
-    
-    else:
+    if (DMat.shape == (M+N+1, M+N+1)):
+        ### remove the origin
         """ Similarity metric """
-        DX = Similarity_Distance(Feature_X, method = similarity_method[0])
-        DY = Similarity_Distance(Feature_Y, method = similarity_method[1])
+        DX = DMat[:M, :M]
+        DY = DMat[M+1:, M+1:]
         
-        """Association metric"""
-        Z = (X, Y)
-        D_assoc = Association_Distance(Z, func, ftype)
-            
-        
+        """Association metric"""            
+        D_assoc = DMat[:M, M+1:]
+    elif (DMat.shape == (M+N, M+N)):
+        """ Similarity metric """
+        DX = DMat[:M, :M]
+        DY = DMat[M:, M:]
+        """Association metric"""            
+        D_assoc = DMat[:M, M:]
+    else:
+        sys.exit("Wrong shape of distance matrix")
+
+ 
     if (dist_origin[0]) or (dist_origin[1]):
         """Distane to origin Optional but must be set to None if not used"""
         Orows = np.zeros(Feature_X.shape[0])
@@ -225,3 +161,39 @@ def get_class(X, Y, Feature_X, Feature_Y, func, ftype, metric_method, c_dic, DMa
     return Result
     
 
+
+Data_X = pd.read_excel(sys.argv[1], engine='xlrd')
+Data_Y = pd.read_excel(sys.argv[2], engine='xlrd')
+sim_meth_X = str(sys.argv[3])
+sim_meth_Y = str(sys.argv[4])
+assoc_method = str(sys.argv[5])
+eucl_X = str(sys.argv[6])
+eucl_Y = str(sys.argv[7])
+norm_X = str(sys.argv[8])
+norm_Y = str(sys.argv[9])
+clust_method = str(sys.argv[10])
+num_clust = int(sys.argv[11])
+
+
+X = Data_X.to_numpy()
+Y = Data_Y.to_numpy()
+
+if eucl_X == "TRUE":
+    meth_X = "Euclidean"
+else:
+    meth_X = "precomputed"
+
+if eucl_Y == "TRUE":
+    meth_Y = "Euclidean"
+else:
+    meth_Y = "precomputed" 
+similarity_method = (meth_X, meth_Y)
+
+
+Feature_dic = {}
+DMat = Prox_Mat(DX, DY, UX = Orows, UY = Ocols, fXY = D_assoc)
+if sim_meth_X == Eu
+
+
+
+Result = Miasa_Class(X, Y, Feature_dic, clust_method, similarity_method)

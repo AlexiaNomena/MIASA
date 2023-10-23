@@ -16,7 +16,6 @@ rule all:
     input:
         rule_all_common,
 
-
 rule get_miasa:
     input:
 	Data_X=config["Data_X"],
@@ -25,15 +24,16 @@ rule get_miasa:
 	D_Y = config["d_Y"],
 	d_XY=config["d_XY"],
     params:
-        sim_meth=config["similarity_method"],
+        sim_meth_X=config["sim_X"],
+	sim_meth_Y=config["sim_Y"],
 	norm_X=config["norm_X"],
 	norm_Y=config["norm_Y"],
 	eucl_X=config["Eucl_X"],
 	eucl_Y=config["Eucl_Y"],
 	clust_meth=config["clustering_method"],
-	num_clust=config["num_clust"]
+	num_clust=config["num_clust"],
     output:
 	dir=directory(results),
-	res="results/miasa_results.pck"
+	res="results/miasa_results.pck",
     shell:
-	"python {workflow.basedir}/scripts/miasa_class.py {input.Data_X} {input.Data_Y} {input.Data_XY} {params.sim_meth} {params.eucl_X} {params.eucl_Y} {params.norm_X} {params.norm_Y} {params.num_clust}"
+	"python {workflow.basedir}/scripts/miasa_class.py {input.Data_X} {input.Data_Y} {params.sim_meth_X} {params.sim_meth_Y} {params.dXY} {params.eucl_X} {params.eucl_Y} {params.norm_X} {params.norm_Y} {params.clustering_method} {params.num_clust}"
