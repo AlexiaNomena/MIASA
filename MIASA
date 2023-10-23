@@ -32,4 +32,4 @@ rule get_miasa:
 	dir=directory(results),
 	res="results/miasa_results.pck",
     shell:
-	"python {workflow.basedir}/scripts/miasa_class.py {input.Data_X} {input.Data_Y} {} {params.sim_meth_X} {params.sim_meth_Y} {params.dXY} {params.eucl_X} {params.eucl_Y} {params.norm_X} {params.norm_Y} {params.clustering_method} {params.num_clust}"
+	"python {workflow.basedir}/scripts/get_results/miasa_class.py {input.Data_X} {input.Data_Y} {} {params.sim_meth_X} {params.sim_meth_Y} {params.dXY} {params.eucl_X} {params.eucl_Y} {params.norm_X} {params.norm_Y} {params.clustering_method} {params.num_clust}"
