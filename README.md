@@ -166,7 +166,7 @@ conda deactivate
 The result folder is created in the [`demo`](./demo) folder where you find the output files, as described above. 
 
 The projection of all predicted cluster on the same pannel looks like
-<img src="https://github.com/AlexiaNomena/MIASA/blob/main/demo/plots/UMAP_One_Panel.svg" width="1000" height="1000">
+<img src="https://github.com/AlexiaNomena/MIASA/blob/main/demo/plots/UMAP_One_Panel.svg" width="800" height="800">
 
 The projection of all predicted cluster separated pannels:
 
