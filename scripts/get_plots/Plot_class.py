@@ -7,17 +7,18 @@ Created on Fri Sep 29 15:00:55 2023
 """
 
 """Visualization of classes"""
-from .figure_settings import Display, PreFig
-from .Core.Lower_dim import low_dim_coords
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from .Wraps import find_ellipse_params, convex_hull
+import matplotlib
+pl = plt
 import pdb
 from matplotlib.patches import Ellipse, Polygon
 from copy import copy
 import scipy.spatial as spsp
 import seaborn as sns
+from scipy.spatial import ConvexHull as convex_hull
+
 
 def get_col_labs(labels, palette):               
     unique_labs = np.unique(labels)
@@ -35,12 +36,582 @@ def get_col_labs(labels, palette):
     
     return col_labs
 
+
+#### Visualisation ###  
+def PreFig(xsize = 12, ysize = 12):
+    '''
+    @brief: customize figure parameters
+    '''
+    matplotlib.rc('xtick', labelsize=xsize) 
+    matplotlib.rc('ytick', labelsize=ysize)
+    
+def OneAnnotation(ax, lab, coords, col_val, xl=5, yl=5, arrow = False, fontsize = 12, alpha = 0.5):
+    if arrow:
+        ax.annotate("%s"%lab, xy=coords, 
+                xytext= (xl, yl), textcoords='offset points', ha='center', va='bottom',
+                #bbox=dict(boxstyle='round,pad=0.2', fc=col_val, alpha=alpha),
+                bbox=dict(boxstyle='circle', fc=col_val, alpha=alpha),
+                arrowprops=dict(arrowstyle='->', color = "black"),  #connectionstyle='arc3,rad=0.5'),
+                color= "black",
+                fontsize = fontsize # 6
+                 )
+    else:
+         ax.annotate("%s"%lab, xy=coords, 
+                xytext= (xl, yl), textcoords='offset points', ha='center', va='bottom',
+                #bbox=dict(boxstyle='round,pad=0.2', fc=col_val, alpha=alpha),
+                bbox=dict(boxstyle='circle', fc=col_val, alpha=alpha),
+                color= "black",
+                fontsize = fontsize # 6
+                 )
+    return ax
+
+
+def Annotate(ax, rows_to_Annot, cols_to_Annot, Label_rows, Label_cols, xy_rows, xy_cols, col = ("green", "pink"), arrow = False):
+    '''
+    @brief : plot text annotations 
+    @params: see function CA 
+    '''
+    xmin, xmax = ax.get_xlim()
+    ymin, ymax = ax.get_ylim()
+    
+    pdist_n = spsp.distance.pdist(np.concatenate((xy_rows,xy_cols), axis = 0))
+    pdist_n[np.isnan(pdist_n)] = 10000000
+    pdist_n[~np.isfinite(pdist_n)] = 10000000
+    
+    pdist = spsp.distance.squareform(pdist_n)
+    
+    
+    if rows_to_Annot is not None: #and Label_rows is not None:
+        #pdist_n = scp.spatial.distance.pdist(xy_rows)
+        #pdist_n[np.isnan(pdist_n)] = 10000000
+        #pdist_n[~np.isfinite(pdist_n)] = 10000000
+        
+        #pdist = scp.spatial.distance.squareform(pdist_n)
+        
+        l_special = []
+        sup = 0
+        f = 1.75
+        for j in rows_to_Annot:
+            if (np.sum(pdist[j, (j+1):] <= 0.15*np.mean(pdist_n)) != 0)*(j not in l_special)*(j != xy_rows.shape[0]-1):
+                xl = 0#20*(f)*np.cos(sup) #0
+                yl = -20 #20*(f)*np.sin(sup) #-10#
+                l_special.append(j)
+            else:
+                xl = 0#20*(f)*np.cos(sup) #0
+                yl = 20#20*(f)*np.sin(sup) #5#
+            
+            f += 0.05
+            sup += 2*np.pi/len(rows_to_Annot)
+            
+            try:
+                col_j = col[0][Label_rows[j]]
+            except:
+                try:
+                    col_j = col[0]
+                except:
+                    print("Column categories are pink because you haven't entered an appropriate col parameter: it's either a tuple of 2 colors (one for all the row sand ones for all the cols) or a tuple of 2 dictionaries with labels as keys (one for all the rows and one for all the cols) ")
+                    col_j = "green"
+            
+            try:
+                ax = OneAnnotation(ax, int(Label_rows[j]), xy_rows[j, :], col_j, xl, yl, arrow = arrow)
+            except:
+                ax = OneAnnotation(ax, Label_rows[j], xy_rows[j, :], col_j, xl, yl, arrow = arrow)
+        
+    
+    if cols_to_Annot is not None: #and Label_cols is not None:
+        #pdist_n = scp.spatial.distance.pdist(xy_cols)
+        #pdist_n[np.isnan(pdist_n)] = 10000000
+        #pdist_n[~np.isfinite(pdist_n)] = 10000000
+        
+        #pdist = scp.spatial.distance.squareform(pdist_n)
+        
+        
+        l_special = []
+        for j in cols_to_Annot: 
+            try:
+                col_j = col[1][Label_cols[j]]
+            except:
+                try:
+                    col_j = col[1]
+                except:
+                    print("Column categories are pink because you haven't entered an appropriate col parameter: it's either a tuple of 2 colors (one for all the row sand ones for all the cols) or a tuple of 2 dictionaries with labels as keys (one for all the rows and one for all the cols) ")
+                    col_j = "pink"
+    
+            if (np.sum(pdist[j, (j+1):] <= 0.20*np.mean(pdist_n)) != 0)*(j not in l_special)*(j != xy_cols.shape[0]-1):
+                xl =  0#0 + 20*(j+1) #0
+                yl = -10#30 + 10*(j+1) #-10
+                l_special.append(j)
+                if Label_cols[j] in ["C2", "C4"]:
+                    xl = 0#-40 #0
+                    yl = 5#-40  #5
+                ax = OneAnnotation(ax, Label_cols[j], xy_cols[j, :], col_j, xl, yl, arrow = False)
+
+            else:
+                xl =0 #-50#0
+                yl =5 #50#5
+                
+                if Label_cols[j] in ["C8", "C10"]:
+                    xl = 0 #0
+                    yl = 5  #5
+                ax = OneAnnotation(ax, Label_cols[j], xy_cols[j, :], col_j, xl, yl, arrow = False)
+                  
+            
+    return ax
+                
+def Display(Coords_rows, Coords_cols, Inertia, Data, rows_to_Annot, cols_to_Annot, Label_rows, Label_cols, 
+            markers, col, figtitle, outliers, dtp, chosenAxes = np.array([0, 1]), show_inertia = True, reverse_axis = False, 
+            separate = False, center = None, model = None, ColName = None, RowName = None, lims = True, plotRows = True, plotCols = True,
+            fig = None, ax = None, give_ax = False, with_ref = None, cut_dist = {"shift_orig":(False, False), "cut_all":False}, log_log = False):  
+    """
+    @brief: display results
+    """                           
+
+    # plot 2 components
+    PreFig()    
+    if len(chosenAxes) == 2:
+        dim1, dim2 = Inertia[chosenAxes]
+    xy_rows = Coords_rows[:, chosenAxes] 
+    xy_cols = Coords_cols[:, chosenAxes]
+    
+    if center is not None:
+        if separate:
+            center = (center[0][chosenAxes], center[1][chosenAxes])
+        else:
+            if len(chosenAxes) == 2:
+                center = center[chosenAxes] 
+            else:
+                center = [center[chosenAxes]]
+    
+    not_orig = np.arange(0, xy_rows.shape[0]+xy_cols.shape[0]+1, 1, dtype = int) != xy_rows.shape[0]
+    if with_ref is not None:
+        try:
+            with_ref = with_ref[:, chosenAxes]
+            with_ref_c = with_ref
+            
+        except:
+            with_ref_c = None      
+    
+    # annotate points
+    Rows_Labels = np.array([Label_rows[c] for c in Data.index], dtype = dtp[0])
+    Cols_Labels = np.array([Label_cols[c] for c in Data.columns], dtype = dtp[1])
+    
+    if rows_to_Annot is not None:
+        annot_rows = rows_to_Annot
+        rows_to_Annot_index = []
+        for s in range(len(annot_rows)):
+            ind = np.where(Data.index == annot_rows[s])[0]
+            if len(ind) >= 1: # should appear only one time
+                rows_to_Annot_index = rows_to_Annot_index + list(ind)
+    else:
+        rows_to_Annot_index = None
+                
+    if cols_to_Annot is not None:
+        annot_cols= cols_to_Annot
+        cols_to_Annot_index = []
+        for s in range(len(annot_cols)):
+            ind = np.where(Data.columns == annot_cols[s])[0]
+            if len(ind) >= 1: #  should appear only one time
+                cols_to_Annot_index = cols_to_Annot_index + list(ind)
+    else:
+        cols_to_Annot_index = None
+        
+    if not separate:
+        if fig == None:
+            fig = pl.figure(figsize=(36+18,20+10))#pl.figure(figsize=(18,10))
+        if ax == None:    
+            ax = fig.add_subplot(2,1,1)
+        
+        if len(chosenAxes) == 1:
+            xy_rows = np.concatenate((xy_rows, np.zeros(len(xy_rows))[:, np.newaxis]), axis = 1)
+            xy_cols = np.concatenate((xy_cols, np.zeros(len(xy_cols))[:, np.newaxis]), axis = 1)
+            rows_cols = np.concatenate((xy_rows[:, 0], np.array(center[0]), xy_cols[:, 0]))
+            if with_ref is not None:
+                with_ref_c = np.concatenate((rows_cols[:, np.newaxis], - np.abs(with_ref_c - center[0])), axis = 1) 
+            
+        if plotRows:
+            try:
+                # for coloring by cluster membership
+                for j in range(xy_rows.shape[0]):
+                    ax.scatter([xy_rows[j, 0]], [xy_rows[j, 1]], marker = markers[0][0], color = col[0][Rows_Labels[j]], s = markers[1][1])
+            except:
+                try:
+                    col_cols = col[0]
+                except:
+                    print("Rows categories are green because you haven't entered an appropriate col parameter: it's either a tuple of 2 colors (one for all the row sand ones for all the cols) or a tuple of 2 dictionaries with labels as keys (one for all the rows and one for all the cols) ")
+                    col_cols = "green"
+                ax.scatter(xy_rows[:, 0], xy_rows[:, 1], marker = markers[0][0], color = col[0], s = markers[0][1], label= RowName)
+            ax = Annotate(ax, rows_to_Annot_index, None, Rows_Labels, Cols_Labels, xy_rows, xy_cols, col, arrow = True)
+            """
+            if with_ref_c is not None:
+                for rf in range(xy_rows.shape[0]):
+                    pl.plot([xy_rows[rf, 0],with_ref_c[rf, 0]], [xy_rows[rf, 1], with_ref_c[rf, 1]], color = col[0], linewidth = 1)
+            """
+                
+        
+        if plotCols:
+            try:
+                # for coloring by cluster membership
+                for j in range(xy_cols.shape[0]):
+                    ax.scatter([xy_cols[j, 0]], [xy_cols[j, 1]], marker = markers[1][0], color = col[1][Cols_Labels[j]], s = markers[1][1])
+            except:
+                try:
+                    col_cols = col[1]
+                except:
+                    print("Column categories are red because you haven't entered an appropriate col parameter: it's either a tuple of 2 colors (one for all the row sand ones for all the cols) or a tuple of 2 dictionaries with labels as keys (one for all the rows and one for all the cols) ")
+                    col_cols = "red"
+                
+                ax.scatter(xy_cols[:, 0], xy_cols[:, 1], marker = markers[1][0], color = col_cols, s = markers[1][1], label= ColName)
+            ax = Annotate(ax, None, cols_to_Annot_index, Rows_Labels, Cols_Labels, xy_rows, xy_cols, col, arrow = True)
+            if with_ref is not None:
+                for rc in range(xy_cols.shape[0]):
+                    rf = xy_rows.shape[0] + 1 + rc
+                    pl.plot([xy_cols[rc, 0],with_ref_c[rf, 0]], [xy_cols[rc, 1], with_ref_c[rf, 1]], color = col[1], linewidth = 1)
+               
+        
+        if with_ref is not None:
+            if plotRows and plotCols:
+                ref_all = with_ref_c[not_orig, :]
+                sort_all = np.argsort(ref_all[:, 0])
+                ref_all[:, 0] = ref_all[sort_all, 0]
+                ref_all[:, 1] = ref_all[sort_all, 1]
+                pl.plot(ref_all[:, 0], ref_all[:, 1], color = "green", linewidth = 2)
+            elif plotRows:
+                ref_rows = with_ref_c[:xy_rows.shape[0], :]
+                sortr = np.argsort(ref_rows[:, 0])
+                ref_rows[:, 0] = ref_rows[sortr, 0]
+                ref_rows[:, 1] = ref_rows[sortr, 1]
+                pl.plot(ref_rows[:, 0], ref_rows[:, 1], color = col[0], linewidth = 2)
+            elif plotCols:
+                ref_cols = with_ref_c[xy_rows.shape[0]+1:, :]
+                sortc = np.argsort(ref_cols[:, 0])
+                ref_cols[:, 0] = ref_cols[sortc, 0]
+                ref_cols[:, 1] = ref_cols[sortc, 1]
+                pl.plot(ref_cols[:, 0], ref_cols[:, 1], color = col[1], linewidth = 2)
+        
+            if len(chosenAxes) == 1:
+                not_orig = np.arange(0, with_ref_c.shape[0], 1, dtype = int) != xy_rows.shape[0]
+                if plotRows and plotCols:
+                    coords_1 = rows_cols[not_orig]
+                elif plotRows:
+                    coords = ref_rows
+                elif plotCols:
+                    coords_1 = ref_cols
+                sort = np.argsort(coords_1)
+                coords_1 = coords_1[sort]
+                pl.plot(coords_1, -np.abs(coords_1 - center[0]), color = "orange", linewidth = 2)
+            
+        #ax.legend(loc= (1.05, 0))
+        
+         # label factor axis
+        if show_inertia: # show percentage of inertia
+            pl.xlabel("Dim %d (%.2f %%)"%(chosenAxes[0]+1, 100*dim1/np.sum(Inertia)), fontsize = 14)
+            if len(chosenAxes) == 2:
+                pl.ylabel("Dim %d (%.2f %%)"%(chosenAxes[1]+1, 100*dim2/np.sum(Inertia)), fontsize = 14)
+            #pl.xlabel("Dim %d"%(chosenAxes[0]+1,), fontsize = 14)
+            #pl.ylabel("Dim %d"%(chosenAxes[1]+1,), fontsize = 14)
+        else:
+            pl.xlabel("Dim %d"%(chosenAxes[0]+1,), fontsize = 14)
+            if len(chosenAxes) == 2:
+                pl.ylabel("Dim %d"%(chosenAxes[1]+1,), fontsize = 14)
+            
+        #ax = Separation_axis(ax, xy_rows, xy_cols, outliers, lims = True)
+        if center is not None:
+            #ax.plot([center[0]], [center[1]], "o", markersize = 10, color = "red", label = "I")
+            
+            if len(chosenAxes) == 2:
+                ax.axvline(x = center[0], ls = "--", color = "black", linewidth =0.5)
+                ax.axhline(y = center[1], ls = "--", color = "black", linewidth =0.5)
+               
+            if lims:
+                xmin, xmax = ax.get_xlim()
+                ymin, ymax = ax.get_ylim()
+                
+                # remove extreme outliers from the figure
+                """
+                if len(chosenAxes) == 2:
+                    dist_xn = scp.spatial.distance.pdist(xy_rows)
+                    dist_yn = scp.spatial.distance.pdist(xy_cols)
+                    dist = np.concatenate((dist_xn, dist_yn))
+                    iqr_dist = np.percentile(dist, 20, interpolation = "midpoint")
+                    xmin, xmax = -iqr_dist, iqr_dist
+                    ymin, ymax = -iqr_dist, iqr_dist
+                elif len(chosenAxes) == 1:
+                    xmin, xmax = -max(np.abs(rows_cols[rows_cols<0]))/2, max(np.abs(rows_cols[rows_cols<0]))/2
+                    ymin, ymax = ymin, 1.5*ymax
+                """
+                pl.xlim((xmin, xmax))
+                pl.ylim((ymin, ymax))
+            
+        #else:
+        #    ax = Separation_axis(ax, xy_rows, xy_cols, outliers, lims = lims, col = "grey")
+            
+        # aspect ratio of axis
+        #ax.set_aspect(1.0/(1.25*ax.get_data_ratio()), adjustable='box') # this can deforms the entire configuration, distances that are equal may look different and vice-versa
+        
+        if log_log:
+            ax.set_yscale("symlog")
+            ax.set_xscale("symlog")
+        else:
+            ax.set_aspect("equal")
+        
+        ax.set_xticks(())
+        ax.set_yticks(())
+        
+        """
+        if model is not None:
+            if model["model"] == "x|y":
+                ax.set_title("How present is %s ($X$) within variable %s ($Y$)? ($X|.$) \n How similar is the occurence of %s ($X$) among  %s ($Y$)? ($.|Y$) \n The distance between variables %s and %s \n shows the strengh of their relationships"%(ColName, RowName, ColName, RowName, ColName, RowName))
+            elif model["model"] == "y|x":
+                ax.set_title("How present is %s ($Y$) within variable %s ($X$) ? ($Y|.$) \n How similar is the occurence of %s ($Y$) among %s ($X$)? ($.|X$) \n The distance between variables %s and %s \n shows the strengh of their relationships"%(RowName, ColName, RowName, ColName, ColName, RowName))
+            elif model["model"] == "ca_stand":
+                ax.set_title("How similar is the occurence of %s ($Y$) among %s ($X$)? ($.|X$) \n How similar is the occurence of %s ($X$) among %s ($Y$)? ($.|Y$) \n The distance between variables %s and %s has no meaning?"%(RowName, ColName, ColName, RowName, ColName, RowName))
+            elif model["model"] == "presence":
+                ax.set_title("How present is %s ($Y$) within variable %s ($X$) ? ($Y|.$) \n How present is %s ($X$) within variables %s ($Y$)? ($X|.$) \n The distance between variables %s and %s \n shows the strengh of their relationships"%(RowName, ColName, ColName, RowName, ColName, RowName))
+            elif model["model"] == "stand":
+                ax.set_title("How similar is the occurence of %s ($Y$) among %s ($X$)? ($.|X$)"%(RowName, ColName)+"\n How similar is the occurence of %s ($X$) among  %s ($Y$)? ($.|Y$)"%(ColName, RowName)+ "\n The distance between variables %s and %s \n shows the strengh of their relationships"%(RowName, ColName))
+                
+            pl.suptitle(figtitle)
+        else:
+            pl.title(figtitle)
+        """
+        
+        gs = None # just a placeholder
+        
+        ax.axis("off")
+        
+        pl.suptitle(figtitle)
+        
+    else:  # Separated
+        fig = pl.figure(constrained_layout=True, figsize = (7, 9))
+        gs = fig.add_gridspec(2, 2)
+        pl.suptitle(figtitle)
+        
+        ax1 = fig.add_subplot(gs[0, 1])
+        ax2 = fig.add_subplot(gs[0, 0])
+    
+        ax1.scatter(xy_rows[:, 0], xy_rows[:, 1], marker = markers[0][0], color = col[0], s = markers[0][1])
+        ax2.scatter(xy_cols[:, 0], xy_cols[:, 1], marker = markers[1][0], color = col[1], s = markers[1][1])
+        
+        xmin, xmax = 1.5*np.amin(xy_rows[:, 0]), 1.5*np.amax(xy_rows[:, 0])#ax1.get_xlim()
+        ymin, ymax = 1.5*np.amin(xy_rows[:, 1]), 1.5*np.amax(xy_rows[:, 1]) #ax1.get_ylim()
+        
+        xmin2, xmax2 = 1.5*np.amin(xy_cols[:, 0]), 1.5*np.amax(xy_cols[:, 0]) #ax2.get_xlim()
+        ymin2, ymax2 = 1.5*np.amin(xy_cols[:, 1]), 1.5*np.amax(xy_cols[:, 1])#ax2.get_ylim()
+        
+        try:
+            ax1 = Annotate(ax1, rows_to_Annot_index, None, Rows_Labels, Cols_Labels, xy_rows, xy_cols, col, arrow = True)
+            ax2 = Annotate(ax2, None, cols_to_Annot_index,  Rows_Labels, Cols_Labels, xy_rows, xy_cols, col, arrow = True)
+        except:
+            print("No annotations")
+
+        #ax1.legend(loc= "best", fontsize = 10)
+        #ax2.legend(loc= "best", fontsize = 10)
+        if model is not None:
+            if model["model"] == "x|y":
+                ax1.set_title("Similarity within Y? ($.|Y$)") #How important is X for variable Y?
+                ax2.set_title("$X|.$") #
+            elif model["model"] == "y|x":
+                ax1.set_title("$Y|.$")  #How important is Y for variable X?
+                ax2.set_title("Similarity within X? ($.|X$)") 
+            elif model["model"] == "presence":
+                ax1.set_title("$Y|.$")  #How important is Y for variable X?
+                ax2.set_title("$X|.$") # How similar is the occurence of Y within X? 
+            else:
+                 #ax1.set_title("Similarity within Y? ($.|Y$)") #How similar is the occurence of X within Y? 
+                 #ax2.set_title("Similarity within X? ($.|X$)") #How similar is the occurence of Y within X?
+                ax1.set_title("$.|Y$")  #How important is Y for variable X?
+                ax2.set_title("$.|X$") 
+        else:
+            ax1.set_title(RowName)
+            ax2.set_title(ColName)
+        
+        # label factor axis
+        if show_inertia: # show percentage of inertia
+            #pl.xlabel("Dim %d (%.2f %%)"%(chosenAxes[0]+1, 100*dim1/np.sum(Inertia)), fontsize = 14)
+            #pl.ylabel("Dim %d (%.2f %%)"%(chosenAxes[1]+1, 100*dim2/np.sum(Inertia)), fontsize = 14)
+            ax1.set_xlabel("Dim %d"%(chosenAxes[0]+1,), fontsize = 14)
+            ax2.set_xlabel("Dim %d"%(chosenAxes[0]+1,), fontsize = 14)
+            ax2.set_ylabel("Dim %d"%(chosenAxes[1]+1,), fontsize = 14)
+        else:
+            ax1.set_xlabel("Dim %d"%(chosenAxes[0]+1,), fontsize = 14)
+            ax2.set_xlabel("Dim %d"%(chosenAxes[0]+1,), fontsize = 14)
+            ax2.set_ylabel("Dim %d"%(chosenAxes[1]+1,), fontsize = 14)
+            
+        
+        
+        if center is not None: 
+             ax1.axvline(x = center[0][0], ls = "--", color = "black", linewidth =0.5)
+             ax1.axhline(y = center[0][1], ls = "--", color = "black", linewidth =0.5)
+        
+             ax2.axvline(x = center[1][0], ls = "--", color = "black", linewidth =0.5)
+             ax2.axhline(y = center[1][1], ls = "--", color = "black", linewidth =0.5)
+        else:
+           ax1.axvline(x = 0, ls = "--", color = "black", linewidth =0.5)
+           ax1.axhline(y = 0, ls = "--", color = "black", linewidth =0.5)
+           
+           ax2.axvline(x = 0, ls = "--", color = "black", linewidth =0.5)
+           ax2.axhline(y = 0, ls = "--", color = "black", linewidth =0.5)
+       
+        # aspect ratio of axis
+        #ax1.set_aspect(1.0/(1.25*ax1.get_data_ratio()), adjustable='box')
+        #ax2.set_aspect(1.0/(1.25*ax2.get_data_ratio()), adjustable='box')
+        
+        ax1.set_aspect("equal")
+        ax2.set_aspect("equal")
+        
+        ax1.set_xlim((xmin, xmax))
+        ax1.set_ylim((ymin, ymax))
+        
+    
+        ax2.set_xlim((xmin2, xmax2))
+        ax2.set_ylim((ymin2, ymax2))
+        
+        ax1.set_xticks(())
+        ax1.set_yticks(())
+        
+        ax2.set_xticks(())
+        ax2.set_yticks(())
+        
+        ax1.axis("off")
+        ax2.axis("off")
+        pl.suptitle(figtitle)
+      
+    if give_ax == True:
+        return fig, ax, xy_rows, xy_cols, gs, center
+    else:         
+        return fig, xy_rows, xy_cols, gs, center
+
+from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
+import sklearn.manifold as sklm
+import umap
+import scipy as sp
+rand = 0 # fixed initialization for reproducibility of UMAP and Kmeans
+def umap_reducer(Coords, dim, np, min_dist):
+    if min_dist == None:
+        reducer = umap.UMAP(n_neighbors = np, metric = "euclidean", n_components = dim, random_state= rand) # n_neighbor = 2 (local structure) --- 200 (global structure, truncated when larger than dataset size)
+    else:
+        reducer = umap.UMAP(n_neighbors = np, min_dist = min_dist, metric = "euclidean", n_components = dim, random_state= rand)
+    Emb_coords = reducer.fit_transform(Coords)
+    return Emb_coords
+
+
+def tSNE_reducer(Coords, dim, np, metric = "euclidean"):
+    reducer = sklm.TSNE(n_components = dim, perplexity = np, random_state=rand, metric = metric)
+    Emb_coords = reducer.fit_transform(Coords)
+    return Emb_coords
+
+def dist_error(tXflat, D, dim):
+    if dim>= 2:
+        tD = sp.spatial.distance.pdist(tXflat.reshape((D.shape[0], dim)))
+    else:
+        tX = np.concatenate((tXflat[:, np.newaxis], np.zeros(len(tXflat))[:, np.newaxis]), axis = 1)
+        tD = sp.spatial.distance.pdist(tX)
+        
+    tD = sp.spatial.distance.squareform(tD)
+    T = tD - D
+    return T.flatten()
+
+
+def MDS_YH(Coords, dim, method = "LQ"): 
+    '''
+    @ brief          : embeding points onto a lower-dimensional Euclidean space based on least_square distane error minimization (Matrix Frobenius norm minimization)
+    @ param Coords   : Coords, dim, method
+    @ Coords         : Q by K array with the Coordinates on the rows (Q points to embed)
+    @ dim            : Dimensions of the lower-dimensional manifold
+    @ method         : minimization method 
+                       OPTIONS "LQ" (scipy.optimize.least_squares)
+    '''
+
+    DistMat = sp.spatial.distance.squareform(sp.spatial.distance.pdist(Coords))
+    arg_stack = (DistMat, dim)
+    sol = sp.optimize.least_squares(dist_error, Coords[:, :dim].flatten(), bounds = (-np.inf, np.inf), args = arg_stack)
+    Emb_coords = sol.x.reshape((Coords.shape[0], dim))
+    
+    return Emb_coords
+
+def low_dim_coords(Coords, dim=2, method  = "umap", n_neighbors = 15, min_dist = None, scale = None, metric = "euclidean"):
+    '''
+    @ brief          : embeding of points onto a lower-dimensional manifold of using sklean.manifold
+    @ param Coords   : Coords, dim, method
+    @ Coords           : Q by K array with the Coordinates on the rows (Q points to embed)
+    @ dim            : Dimensions of the lower-dimensional manifold
+    @ method         : sklearn.manifold methods preserves the structure of the distances in the original data : 
+                       OPTIONS "MDS" (respect well the distances), "Isomap" (preserves geodesic distances)
+    '''
+    if scale == "standard":
+        scaled_coords = StandardScaler().fit_transform(Coords) 
+    elif scale == "pca":
+        scaled_coords = PCA(n_components = 5).fit_transform(Coords) 
+    else:
+        scaled_coords = Coords
+    
+    if method == "MDS":
+        embedding = sklm.MDS(n_components = dim, metric = True, dissimilarity = metric)
+        Emb_coords = embedding.fit_transform(scaled_coords)
+    
+    elif method == "Isomap":
+        embedding = sklm.Isomap(n_components = dim, metric = metric) 
+        Emb_coords = embedding.fit_transform(scaled_coords)
+    
+    elif method == "MDS_YH":
+        Emb_coords = MDS_YH(scaled_coords, dim)
+    
+    elif method == "t-SNE":
+        Emb_coords = tSNE_reducer(scaled_coords, dim, n_neighbors, metric = metric) 
+        
+    elif method == "umap":
+        Emb_coords = umap_reducer(scaled_coords, dim, n_neighbors, min_dist)
+    
+    else:
+        Emb_coords = umap_reducer(scaled_coords, dim, n_neighbors, min_dist)
+       
+    return Emb_coords
+
+def find_ellipse_params(DX):
+    # Find the ellipse that best fit the variation points, i.e.
+    
+    eDX = np.mean(DX, axis = 0)
+    
+    u, svals, vt = np.linalg.svd((DX - eDX).T)   
+    sigm = svals**2
+      
+    # eigenvectors on the columns of u are the direction of the principal axis of the ellipse that best fit the points on the columns of DX
+    u = np.real(u)
+    # https://math.stackexchange.com/questions/1447730/drawing-ellipse-from-eigenvalue-eigenvector
+    # the equation of an ellipse is, for x in \bT{R}^2, xT A x (quadratic form), this gives an ellipse of horizontal radius = 1/sqrt(lambda[0]) and vertical radius = 1/sqrt(lambda[1]) 
+    # where lambda are the the eigenvalues of the matrix  A 
+    # The equation of the ellipse that best fit the data is  xT B x = crit_val where B = CovMat.inv (inverse of the covariance), this gives an ellipse of horizontal radius = sqrt(crit_val*sigm[0]) and vertical radius = sqrt(crit_val*sigm[0])
+    # where sigm are the eigenvalues of CovMat because CovMat_inv = u diag(1/lambda) u.T 
+    
+    
+    A = np.dot((DX - eDX).T, (DX - eDX))
+    try:
+        SX = ((DX - eDX)).dot(sp.linalg.inv(A).dot((DX - eDX).T)) ### xT A x/A^{-1}
+        crit_val = np.percentile(SX, 100)
+
+    except:
+        crit_val = 1#1/np.percentile(sp.linalg.norm(DX - eDX, axis = 1), 100)
+    
+    
+    if crit_val<0:
+        pdb.set_trace()
+        
+    width = 2*np.sqrt(crit_val*sigm[0])
+    height = 2*np.sqrt(crit_val*sigm[1])
+
+    # arctan formula
+    angle = np.arctan2(u[0, 0], u[1, 0])
+    angle = angle*180/np.pi # convert in degree
+    
+    return height, width, angle, eDX
+
 def plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neighbors = 2, min_dist = 0.99, method = "umap", 
                         scale = None, sub_fig_size = 7, cluster_colors = False, palette = "tab20", true_colors = None, markers = [("o",20),("o",20)],
                         show_labels = False, show_orig = True, metric = "euclidean", legend = True, place_holder = (0, 0), 
                         wrap_true = False, wrap_predicted = False, wrap_pred_params = (None, 1), oultiers_markers = ("o", "^", 5),  wrap_type = "convexhull",
-                        def_pred_outliers = (2, 0.95),show_pred_outliers = False, group_annot_size = 15, dataname = None, points_hull = 5, group_color = None, alpha = 0.25,
-                        shorten_annots = True, cut = (2, 2), connect_pred = False):        
+                        def_pred_outliers = (2, 0.95),show_pred_outliers = False, group_annot_size = 15, dataname = None, hull_pred = False, points_hull = 5, group_color = None, alpha = 0.25,
+                        shorten_annots = False, cut = (2, 2), connect_pred = False):        
     """@brief Plot and Save class figures"""
     
     """Lower Dimensional visualization of clusters"""
@@ -402,13 +973,16 @@ def plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neighbors = 2, 
                     if i == 0:
                         #Poly = Polygon(Vertices, edgecolor = "grey", fill = False, label = "predicted", linestyle = "-", linewidth = 1)
                         Poly = Polygon(Vertices, edgecolor = col_class, fill = False, label = "predicted %s"%(i+1), linestyle = "-", linewidth = wrap_pred_params[1])
-
+                        if hull_pred:
+                            Poly2 = Polygon(Vertices, edgecolor = col_class, fill = True, label = "predicted %s"%(i+1), linestyle = "-", linewidth = wrap_pred_params[1], alpha=0.3)
                     else:
                         #Poly = Polygon(Vertices, edgecolor = col_class, fill = False, linestyle = "-", linewidth = 1)
                         Poly = Polygon(Vertices, edgecolor = col_class, fill = False, label = "predicted %s"%(i+1), linestyle = "-", linewidth = wrap_pred_params[1])
-
+                        if hull_pred:
+                            Poly2 = Polygon(Vertices, edgecolor = col_class, fill = True, label = "predicted %s"%(i+1), linestyle = "-", linewidth = wrap_pred_params[1], alpha=0.3) 
                     ax.add_patch(copy(Poly))
-                
+                    if hull_pred:
+                        ax.add_patch(copy(Poly2))
                 else:
                     if show_pred_outliers:
                         if not lab_point:
@@ -440,7 +1014,7 @@ def plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neighbors = 2, 
     return fig, ax
     
          
-import re
+#import re
 def rename_labels(cl, dataname):
     if dataname in ("Dist", "Corr"):
         if cl[0] == "1":
@@ -476,7 +1050,7 @@ def plotClass_separated(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neigh
                         show_labels = False, show_orig = True, metric = "euclidean", legend = True, place_holder = (0, 0), 
                         wrap_true = False, wrap_predicted = False, wrap_pred_params = (None, 1), oultiers_markers = ("o", "^", 5),  wrap_type = "convexhull",
                         def_pred_outliers = (2, 0.95),show_pred_outliers = False, group_annot_size = 15, dataname = None,
-                        num_row_col = None, show_separation = False, points_hull = 5, group_color = None, alpha = 0.25, shorten_annots = True, cut = (2, 2)):        
+                        num_row_col = None, show_separation = False, hull_pred = False, points_hull = 5, group_color = None, alpha = 0.25, shorten_annots = False, cut = (2, 2)):        
     """@brief Plot and Save class figures"""
     
     """Lower Dimensional visualization of clusters"""
@@ -587,6 +1161,7 @@ def plotClass_separated(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neigh
         Data = DataFrame.copy()
         Data.drop(list(Data.columns[~class_col_sub]), axis = 1, inplace = True)
         Data.drop(list(Data.index[~class_row_sub]), axis = 0, inplace = True)
+        #pdb.set_trace()
         fig, xy_rows, xy_cols, gs, center = Display(coords_row_sub, 
                                                      coords_col_sub, 
                                                      Inertia, 
@@ -848,13 +1423,16 @@ def plotClass_separated(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neigh
                         if i == 0:
                             #Poly = Polygon(Vertices, edgecolor = "grey", fill = False, label = "predicted", linestyle = "-", linewidth = 1)
                             Poly = Polygon(Vertices, edgecolor = col_class, fill = False, label = "predicted %s"%(i+1), linestyle = "-", linewidth = wrap_pred_params[1])
-    
+                            if hull_pred:
+                                Poly2 = Polygon(Vertices, edgecolor = col_class, fill = True, label = "predicted %s"%(i+1), linestyle = "-", linewidth = wrap_pred_params[1], alpha=0.3)
                         else:
                             #Poly = Polygon(Vertices, edgecolor = col_class, fill = False, linestyle = "-", linewidth = 1)
                             Poly = Polygon(Vertices, edgecolor = col_class, fill = False, label = "predicted %s"%(i+1), linestyle = "-", linewidth = wrap_pred_params[1])
-    
+                            if hull_pred:
+                                Poly2 = Polygon(Vertices, edgecolor = col_class, fill = True, label = "predicted %s"%(i+1), linestyle = "-", linewidth = wrap_pred_params[1], alpha=0.3) 
                         ax.add_patch(copy(Poly))
-                    
+                        if hull_pred:
+                            ax.add_patch(copy(Poly2))
                     else:
                         if show_pred_outliers:
                             if not lab_point:
@@ -893,8 +1471,8 @@ def plotClass_separated(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neigh
     return fig, ax
 
 def plotClass_separated_ver0(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neighbors = 2, min_dist = 0.99, method = "umap", 
-                        scale = None, sub_fig_size = 7, num_row_col = None, cluster_colors = False, true_colors = None, markers = [("o",10),("o",10)], 
-                        show_labels = False, show_orig = False, show_separation = False, legend = True, shorten_annots = True, dataname = None, cut = (2, 2)):   
+                        scale = None, sub_fig_size = 7, num_row_col = None, palette="tab20", cluster_colors = False, true_colors = None, markers = [("o",10),("o",10)], 
+                        show_labels = False, show_orig = False, show_separation = False, legend = True, shorten_annots = False, dataname = None, cut = (2, 2)):   
     """@brief Plot and Save class figures"""
     
     Coords = Id_Class["Coords"]
@@ -943,7 +1521,7 @@ def plotClass_separated_ver0(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_
         rows_to_Annot = None
         cols_to_Annot = None
        
-    color_clustered = Id_Class["color_clustered"]
+    color_clustered = get_col_labs(Id_Class["Class_pred"], palette)
     ColName = None
     RowName = None
     #pdb.set_trace()
@@ -990,6 +1568,7 @@ def plotClass_separated_ver0(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_
         Data = DataFrame.copy()
         Data.drop(list(Data.columns[~class_col]), axis = 1, inplace = True)
         Data.drop(list(Data.index[~class_row]), axis = 0, inplace = True)
+        
         fig, xy_rows, xy_cols, gs, center = Display(coords_row, 
                                                      coords_col, 
                                                      Inertia, 
@@ -1023,39 +1602,112 @@ def plotClass_separated_ver0(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_
         
     return fig, ax
 
-def BarPlotClass(data, method_name, pdf, stat_name = None):
-    PreFig()
-    data_list = []
-    colors = []
-    for i in range(data.shape[0]):
-        try:
-            data_list.append(data[i, :].compressed()) # sometimes ax.boxplot fails to properly identify the masked values
-        except:
-            data_list.append(data[i, :])
-            
-        if method_name[i][:5] == "MIASA":
-            colors.append("orange")
-        else:
-            colors.append("blue")
-    vert = True
-    if vert:
-        fig = plt.figure(figsize=(10,10))
-        ax = fig.add_subplot(111)
-        bplot = ax.boxplot(data_list, notch = False, vert=vert, patch_artist = True, widths = .5, showfliers=False) # showfliers = False remove outliers
-        for patch, color in zip(bplot['boxes'], colors):
-            patch.set_facecolor(color)
-            
-        plt.xticks(np.cumsum(np.ones(len(method_name))), method_name, rotation = 90)
-        plt.ylabel(stat_name, fontsize = 20)
-    else:
-        fig = plt.figure(figsize=(10,10))
-        ax = fig.add_subplot(111)
-        bplot = ax.boxplot(data_list, notch = False, vert=vert, patch_artist = True, widths = .5, showfliers=False) # showfliers = False remove outliers
-        for patch, color in zip(bplot['boxes'], colors):
-            patch.set_facecolor(color)
-            
-        plt.yticks(np.cumsum(np.ones(len(method_name))), method_name)
-        plt.xlabel(stat_name, fontsize = 20)
-    
-    pdf.savefig(fig, bbox_inches = "tight")
-    return fig
+
+
+"""
+2-Dimensional visualization of clusters (UMAP visualization) 
+- all predicted classes 
+- colored predicted classes or true classes 
+"""
+from matplotlib.backends.backend_pdf import PdfPages
+import sys
+import pickle
+res_file=open(sys.argv[1], "rb")
+Id_Class = pickle.load(res_file) 
+res_file.close()
+X_vars = Id_Class["X_vars"]
+Y_vars = Id_Class["Y_vars"]
+num_clust = len(np.unique(Id_Class["Class_pred"]))
+
+fig_method = str(sys.argv[2])
+n_neighbors = int(sys.argv[3])
+palette = str(sys.argv[4])
+min_dist = float(sys.argv[5])
+
+pdf= PdfPages(str(sys.argv[6])+"/"+ fig_method + "_One_Panel.pdf")
+dtp = (str, str)
+fig, ax = plotClass(Id_Class, X_vars, Y_vars, pdf, dtp,
+          run_num = 1, n_neighbors = n_neighbors, min_dist = min_dist, 
+          method = fig_method, 
+          scale = False, # scale = "pca", "standard", anything esle is taken as no scaling 
+          palette = palette,
+          cluster_colors = True, # chosed_color: if False, true_colors bellow must be given 
+          true_colors = None,# give a true class colors as dictionary with X_vars and Y_vars as key
+          hull_pred = True,
+          markers = [("o",500),("^",500)], # optional markers list and their size for X and Y
+          show_labels = True, # optional show the labels of X and Y
+          show_orig = False, #optional show the the axis lines going through embedded origin 
+          legend = True, # add legend only if true cluster are required
+          wrap_true = False, # wrapp the members of a true cluster , in each indentified clusters
+          group_annot_size = 15, ### size of the annotations in the center of polygones‚
+          wrap_predicted = True, # full lines to wrap around the predicted cluster
+          show_pred_outliers = False, #
+          def_pred_outliers = (3, 0.95), # (a, b), greater than a*std of pairwise dist for more than b*100% of the points in the predicted class
+          oultiers_markers = ("P", "^", 5), # (true, predicted, size)
+          wrap_type = "convexhull", # convexhull or ellipse (ellipse does not look accurate)
+          dataname = "Dist") # true cluster markers for this simulation
+
+#plt.legend(loc = (1,1), fontsize = 15, ncol = 3)
+plt.legend(loc = (0,1), fontsize = 9, ncol = 10)
+pdf.savefig(fig, bbox_inches = "tight")
+pdf.close()
+plt.savefig(str(sys.argv[6])+"/"+ fig_method + "_One_Panel.svg", bbox_inches='tight')
+
+"""2-Dimensional visualization visualization of clusters (UMAP visualization) 
+- separated predicted classes 
+- wrapped true classes
+"""
+pdf2= PdfPages(str(sys.argv[6])+"/"+ fig_method + "_Separate_Panels.pdf")
+fig2, ax = plotClass_separated(Id_Class, X_vars, Y_vars, pdf, dtp,
+          run_num = 1, n_neighbors = n_neighbors, min_dist = min_dist, 
+          method = fig_method, 
+          scale = False, # scale = "pca", "standard", anything esle is taken as no scaling 
+          cluster_colors = True, # chosed_color: if False, true_colors bellow must be given 
+          true_colors = None,
+          markers = [("o",500),("^",500)], # optional markers list and their size for X and Y
+          show_labels = True, # optional show the labels of X and Y
+          show_orig = False, #optional show the the axis lines going through embedded origin 
+          legend = False, # add legend only if true cluster are required
+          wrap_true = False, # wrapp the members of a true cluster , in each indentified clusters
+          hull_pred = True,
+          group_annot_size = 35, ### size of the annotations in the center of polygones‚
+          group_color = "black", ### color of cluster annotatations (if None then true colors)
+          wrap_predicted = True, # full lines to wrap around the predicted cluster (excluding some outliers)
+          #wrap_pred_params = ("black", 3), ### optional for pred wrap (color, linewidth)
+          show_pred_outliers = False, 
+          def_pred_outliers = (3.25, 0.75), # (a, b), greater than a*std of pairwise dist for more than b*100% of the points in the predicted class
+          oultiers_markers = ("P", "^", 15), # (true, predicted, size)
+          wrap_type = "convexhull", # convexhull or ellipse (ellipse does not look accurate)
+          points_hull = 3, ## threshold for connecting points in convex hull
+          dataname = "Dist",# true cluster markers for this simulation
+          show_separation = True, ### show axis to clearly separate all predicted clusters
+          num_row_col = (int(np.ceil(num_clust/3)), 3),
+          alpha = 0.25) 
+
+pdf2.savefig(fig2, bbox_inches = "tight")
+plt.savefig(str(sys.argv[6])+"/"+ fig_method + "_Separate_Panels_p1.svg", bbox_inches='tight')
+"""2-Dimensional visualization visualization of clusters (UMAP visualization) 
+- separated predicted classes 
+- colored true classes
+"""
+fig, ax = plotClass_separated_ver0(Id_Class, X_vars, Y_vars, pdf, dtp,
+          run_num = 1, n_neighbors = n_neighbors, min_dist = min_dist, 
+          method = fig_method, 
+          scale = False, # scale = "pca", "standard", anything esle is taken as no scaling 
+          cluster_colors = True, # chosed_color: if False, true_colors bellow must be given 
+          true_colors = None, # give a true class colors as dictionary with X_vars and Y_vars as key
+          markers = [("o",500),("^",500)], # optional markers list and their size for X and Y
+          sub_fig_size = 10, # optional sub figure size (as a square)
+          show_labels = True, # optional show the labels of X and Y
+          show_orig = False, # optional show the the axis lines going through origin 
+          show_separation = True, # optional separate all subfigs
+          num_row_col = (int(np.ceil(num_clust/3)), 3),  # number of subfigs in row and col
+          dataname = "Dist",# true cluster markers for this simulation
+          ) 
+
+pdf2.savefig(fig, bbox_inches = "tight")    
+pdf2.close()
+plt.savefig(str(sys.argv[6])+"/"+ fig_method + "_Separate_Panels_p2.svg", bbox_inches='tight')
+
+#status_df=pd.DataFrame({"plot_one":"ok", "plot_separate":"ok"}, index=[1,2])
+#status_df.to_csv(str(sys.argv[6])+"/status.csv")

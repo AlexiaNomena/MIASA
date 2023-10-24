@@ -2,7 +2,7 @@
 # **M**etrized **I**dentification and **A**nalysis of **S**imilarity and **A**ssociation
 
 ### Operating System
-This workflow was tested on macOS Monterey Versoin 12.5 and CentOS Linux release 7.9.2009 Core [(HPC Fu Berlin)](https://www.fu-berlin.de/en/sites/high-performance-computing/index.html)
+This workflow was tested on macOS Monterey Versoin 12.5
 
 ### Prerequisites
 #### Python
@@ -17,7 +17,6 @@ pandas (1.4.3),
 seaborn,
 regex,
 scikit-learn (1.1.3),
-scikit-learn-extra,
 matplotlib (3.5.2),
 openpyxl,
 xlrd,
@@ -39,10 +38,14 @@ To activate the enviromnent
 ```
 conda activate MIASA
 ```
-Install  packages with pip if necessary
+Install  other packages with pip
 ```
 pip  install scikit-learn-extra
 pip install xlrd
+```
+
+```
+pip install umap-learn
 ```
 
 ### In folder Manuscripts_examples:

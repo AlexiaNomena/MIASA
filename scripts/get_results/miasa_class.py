@@ -18,14 +18,16 @@ import numpy as np
 import pandas as pd
 import pdb
 
-def Miasa_Class(X, Y, num_clust, DMat = None, c_dic = None, dist_origin = (True, True), metric_method = ("eCDF", "KS-stat"), clust_method = "Kmeans", palette = "tab20", Feature_dic = None, in_threads = True, clust_orig = False, similarity_method = ("Euclidean", "Euclidean")):
+def Miasa_Class(X, Y, num_clust, DMat = None, c_dic = None, dist_origin = (True, True), metric_method = ("eCDF", "KS-stat"), clust_method = "Kmeans", 
+                palette = "tab20", Feature_dic = None, in_threads = True, clust_orig = False, similarity_method = ("Euclidean", "Euclidean"),
+                get_score = False, num_clust_range= None):
  
     try:
         DMat, dist_origin = Feature_dic["DMat"], Feature_dic["dist_origin"]
     except:
         sys.exit("Check implemented metric_methods or give a parameter Feature_dic must be given: keys Feature_X (ndarray), Feature_Y (ndarray), Association_function (func) with tuple argument (X, Y), assoc_func_type (str vectorized or str not_vectorized), DMat direclty given distance matrix, dist_origin bool tuple (orig X?, orig Y) ")
         
-    Result = get_class(X, Y, c_dic, DMat, dist_origin, num_clust, clust_method, in_threads = in_threads, clust_orig = clust_orig, similarity_method = similarity_method)
+    Result = get_class(X, Y, c_dic, DMat, dist_origin, num_clust, clust_method, in_threads = in_threads, clust_orig = clust_orig, similarity_method = similarity_method, get_score = get_score, num_clust_range= num_clust_range)
     return Result
 
 def Euclidean_Embedding(DX, DY, UX, UY, fXY, c_dic=None, in_threads = False, num_iterations = False, similarity_method = ("Euclidean", "Euclidean")):
@@ -104,7 +106,46 @@ def Euclidean_Embedding(DX, DY, UX, UY, fXY, c_dic=None, in_threads = False, num
     else:
         return Coords, vareps    
 
-def get_class(X, Y, c_dic, DMat, dist_origin = (True, True), num_clust=None, clust_method = "Kmeans", in_threads = True, clust_orig = False, similarity_method = ("Euclidean", "Euclidean")):
+from sklearn.metrics import silhouette_score
+def compute_scores(Coords, list_num, lab_lists, M, N):
+    silhouette = np.zeros(len(list_num))
+    elbow = np.zeros(len(list_num))
+    distortion = np.zeros(len(list_num))
+    for i in range(len(list_num)):
+        Coords_clustered = np.row_stack((Coords[:M, :], Coords[-N:, :])) # remove embedded origin because it is not used in the clustering
+        
+        Class_pred = lab_lists[i]
+        
+        
+        silhouette[i] = silhouette_score(Coords_clustered, Class_pred)
+        
+        mean_all = np.mean(Coords_clustered, axis = 0)
+        unique_id = np.unique(Class_pred)
+        var_between = np.zeros(len(unique_id))
+        var_within = np.zeros(len(unique_id))
+        
+        distortion_center = np.zeros(len(unique_id))
+        for j in range(len(unique_id)):
+            n_j = np.sum(Class_pred == unique_id[j])
+            mean_j = np.mean(Coords_clustered[Class_pred == unique_id[j], :], axis = 0)
+            var_between[j] = n_j * np.sum((mean_j - mean_all)**2)
+            
+            X_centred = Coords_clustered[Class_pred == unique_id[j], :] -  mean_j[np.newaxis, :]
+            var_within[j] = np.sum(np.sum(X_centred**2, axis = 0))
+            
+            All_centred = Coords_clustered -  mean_j[np.newaxis, :]
+            distortion_center[j] = np.sum(All_centred @ All_centred.T)/n_j ### average Mahalanobis distance
+            
+        explained = np.sum(var_between)/(len(unique_id) - 1)
+        unexplained = np.sum(var_within)/(M+N - len(unique_id))
+        
+        elbow[i] = explained/unexplained # F_stat
+        p = (M+N+2) # dimensions of embedded coordinates
+        distortion[i] = np.min(distortion_center)/p
+        
+    return silhouette, elbow, distortion
+
+def get_class(X, Y, c_dic, DMat, dist_origin = (True, True), num_clust=None, clust_method = "Kmeans", in_threads = True, clust_orig = False, similarity_method = ("Euclidean", "Euclidean"), get_score = False, num_clust_range= None):
     M = X.shape[0]
     N = Y.shape[0]
     
@@ -181,7 +222,7 @@ def get_class(X, Y, c_dic, DMat, dist_origin = (True, True), num_clust=None, clu
                 sys.exit("Kmeans requires number of clusters parameter: num_clust")
             else:
                 clust_labels = get_clusters(Coords_0, num_clust, method = clust_method)
-        
+                
         elif clust_method == "Kmedoids":
             if num_clust == None:
                 sys.exit("Kmedoids requires number of clusters parameter: num_clust")
@@ -201,12 +242,21 @@ def get_class(X, Y, c_dic, DMat, dist_origin = (True, True), num_clust=None, clu
             clust_labels= get_clusters(Coords_0, num_clust, method = clust_method)
          
         elif clust_method == "DBSCAN":
-            clust_labels = get_clusters(Coords_0, num_clust, method = clust_method, metric = "euclidean")
+            clust_labels = get_clusters(Coords_0, num_clust, method = clust_method)
             
         else:
             sys.exit("A metric-distance based clustering method is better for MIASA \n Available here is Kmeans")
         
-        
+        if get_score:
+            lab_lists = []
+            list_num = np.arange(num_clust_range[0], num_clust_range[1]).astype(int)
+            for i in range(len(list_num)):
+                lab_lists.append(get_clusters(Coords_0, num_clust = list_num[i], method = clust_method))
+            
+            silhouette, elbow, distortion = compute_scores(Coords_0, list_num, lab_lists, M, N)
+        else:
+            silhouette, elbow, distortion,list_num = None, None, None, None
+            
         if dist_origin[0] or dist_origin[1]:
             Coords = Coords - Coords[M, :][np.newaxis, :]
             Class_pred = np.concatenate((clust_labels[:M], clust_labels[-N:]), axis = 0)
@@ -216,7 +266,8 @@ def get_class(X, Y, c_dic, DMat, dist_origin = (True, True), num_clust=None, clu
             was_orig = False
        
         DMat = Prox_Mat(DX, DY, UX = Orows, UY = Ocols, fXY = D_assoc)
-        Result = {"Coords": Coords, "shape":(M, N), "was_orig":was_orig, "vareps":vareps, "Class_pred":Class_pred, "clust_labels":clust_labels, "DMat":DMat, "X":X, "Y":Y, "num_iterations":num_it}
+        Result = {"Coords": Coords, "shape":(M, N), "was_orig":was_orig, "vareps":vareps, "Class_pred":Class_pred, "clust_labels":clust_labels, 
+                  "DMat":DMat, "X":X, "Y":Y, "num_iterations":num_it, "silhouette":silhouette, "elbow":elbow, "distortion":distortion, "list_num":list_num}
     
     else:
         
@@ -225,7 +276,7 @@ def get_class(X, Y, c_dic, DMat, dist_origin = (True, True), num_clust=None, clu
     return Result
 
 rand = 0
-def get_clusters(Coords, num_clust, method = "Kmeans", init = "k-means++", metric = None):
+def get_clusters(Coords, num_clust, method = "Kmeans", init = "k-means++", metric = "Euclidean"):
     if method == "Kmeans":
         clusters = sklc.KMeans(n_clusters = num_clust, init = init, random_state = rand).fit(Coords)
         labels = clusters.labels_
@@ -403,23 +454,26 @@ def Prox_Mat(DX, DY, UX = None, UY = None, fXY = None):
 
 def Dist_Emb(D):
     Eucl_place_holder = spsp.distance.squareform(spsp.distance.pdist(D))
-    ZuZ, vareps, num_it = Euclidean_Embedding(Eucl_place_holder, D, UX = None, UY = None, fXY = D, c_dic = "default", num_iterations = False) 
+    ZuZ, vareps = Euclidean_Embedding(Eucl_place_holder, D, UX = None, UY = None, fXY = D, c_dic = "default", num_iterations = False) 
     Ztilde = ZuZ[D.shape[0]:, :]
     Dtilde = spsp.distance.pdist(Ztilde)
     Dtilde = spsp.distance.squareform(Dtilde)
     return Dtilde
 
-def read_data(file):
+def read_data(file, give_vars=False):
     rawData = pd.read_excel(file, engine='openpyxl')
     try:
         rawData.drop(columns = "Unnamed: 0", inplace = True)
     except:
         pass
     Data = rawData.drop(columns = "variable", inplace = False)
-    return Data.to_numpy().astype(float)
+    if not give_vars:
+        return Data.to_numpy().astype(float)
+    else:
+        return Data.to_numpy().astype(float), np.array(rawData["variable"]).astype(str)
     
-X = read_data(sys.argv[1])
-Y = read_data(sys.argv[2])
+X, X_vars = read_data(sys.argv[1], give_vars=True)
+Y, Y_vars = read_data(sys.argv[2], give_vars=True)
 
 sim_meth_X = str(sys.argv[3])
 sim_meth_Y = str(sys.argv[4])
@@ -494,15 +548,67 @@ else:
     Oy = False
     
 clust_method = str(sys.argv[12])
-num_clust = int(sys.argv[13])
+num_clust = sys.argv[13]
+if str(num_clust) != "Score":
+    get_score = False
+    file_res = str(sys.argv[14])+"/miasa_results.pck"
+    num_clust_range = None
+    num_clust = int(num_clust)
+else:
+    num_clust = 2
+    get_score = True
+    file_res = str(sys.argv[14])+"/scored_miasa_results.pck"
+    num_clust_range = (int(sys.argv[15]), int(sys.argv[16])+1)
+    
     
 Feature_dic = {}
 Feature_dic["DMat"] = Prox_Mat(DX, DY, UX = Orows, UY = Ocols, fXY = D_assoc)
 Feature_dic["dist_origin"] = (Ox, Oy)
 
-Results = Miasa_Class(X, Y, num_clust, Feature_dic=Feature_dic, clust_method=clust_method, similarity_method= similarity_method)
-
+Results = Miasa_Class(X, Y, num_clust, Feature_dic=Feature_dic, clust_method=clust_method, similarity_method= similarity_method, get_score = get_score, num_clust_range= num_clust_range)
+Results["X_vars"]=X_vars
+Results["Y_vars"]=Y_vars
 import pickle
-file = open(str(sys.argv[14]), "wb")
+file = open(file_res, "wb")
 pickle.dump(Results, file)
 file.close()
+
+import matplotlib.pyplot as plt
+if get_score:
+    list_num = Results["list_num"]
+    elbow = Results["elbow"]
+    distortion = Results["distortion"]
+    silhouette = Results["silhouette"]
+    
+    fig = plt.figure(figsize = (21,5))
+    ax1 = fig.add_subplot(131)
+    elbow_norm = (elbow - min(elbow))/(max(elbow) - min(elbow))
+    invert_elbow = 1 - elbow_norm
+    plt.plot(list_num, invert_elbow, "o", label = "F-stat")
+    plt.title("Inverted Elbow")
+    plt.ylabel("1 - F-stat (normalized)", fontsize = 15)
+    plt.plot(list_num, invert_elbow, "--")
+    diff_norm = np.diff(invert_elbow)/max(np.diff(invert_elbow))
+    diff_norm_full = np.zeros(len(elbow))
+    diff_norm_full[1:] = diff_norm
+    plt.plot(list_num, diff_norm_full, label = "curve")
+    plt.legend()
+    
+    ax2 = fig.add_subplot(132)
+    distortion_norm = (distortion - min(distortion))/(max(distortion) - min(distortion))
+    plt.plot(list_num, distortion_norm, "^", label = "distortion")
+    plt.plot(list_num, distortion_norm, "--")
+    plt.title("Distortion")
+    plt.ylabel("Score (normalized)", fontsize = 15)
+    
+    ax2 = fig.add_subplot(133)
+    plt.plot(list_num, silhouette, "^", label = "silhouette")
+    plt.plot(list_num, silhouette, "--")
+    plt.title("Average Silhouette")
+    plt.ylabel("score", fontsize = 15)
+    
+    from matplotlib.backends.backend_pdf import PdfPages
+    pdf= PdfPages(str(sys.argv[14])+"/Cluster_scores.pdf")
+    pdf.savefig(fig, bbox_inches = "tight")
+    pdf.close()
+    plt.savefig(str(sys.argv[14])+"/Cluster_scores.svg", bbox_inches='tight')
