@@ -974,12 +974,12 @@ def plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neighbors = 2, 
                         #Poly = Polygon(Vertices, edgecolor = "grey", fill = False, label = "predicted", linestyle = "-", linewidth = 1)
                         Poly = Polygon(Vertices, edgecolor = col_class, fill = False, label = "predicted %s"%(i+1), linestyle = "-", linewidth = wrap_pred_params[1])
                         if hull_pred:
-                            Poly2 = Polygon(Vertices, edgecolor = col_class, fill = True, label = "predicted %s"%(i+1), linestyle = "-", linewidth = wrap_pred_params[1], alpha=0.3)
+                            Poly2 = Polygon(Vertices, facecolor = col_class, fill = True, label = "predicted %s"%(i+1), linestyle = "-", linewidth = wrap_pred_params[1], alpha=0.3)
                     else:
                         #Poly = Polygon(Vertices, edgecolor = col_class, fill = False, linestyle = "-", linewidth = 1)
                         Poly = Polygon(Vertices, edgecolor = col_class, fill = False, label = "predicted %s"%(i+1), linestyle = "-", linewidth = wrap_pred_params[1])
                         if hull_pred:
-                            Poly2 = Polygon(Vertices, edgecolor = col_class, fill = True, label = "predicted %s"%(i+1), linestyle = "-", linewidth = wrap_pred_params[1], alpha=0.3) 
+                            Poly2 = Polygon(Vertices, facecolor = col_class, fill = True, label = "predicted %s"%(i+1), linestyle = "-", linewidth = wrap_pred_params[1], alpha=0.3) 
                     ax.add_patch(copy(Poly))
                     if hull_pred:
                         ax.add_patch(copy(Poly2))
@@ -1424,12 +1424,12 @@ def plotClass_separated(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neigh
                             #Poly = Polygon(Vertices, edgecolor = "grey", fill = False, label = "predicted", linestyle = "-", linewidth = 1)
                             Poly = Polygon(Vertices, edgecolor = col_class, fill = False, label = "predicted %s"%(i+1), linestyle = "-", linewidth = wrap_pred_params[1])
                             if hull_pred:
-                                Poly2 = Polygon(Vertices, edgecolor = col_class, fill = True, label = "predicted %s"%(i+1), linestyle = "-", linewidth = wrap_pred_params[1], alpha=0.3)
+                                Poly2 = Polygon(Vertices, facecolor = col_class, fill = True, label = "predicted %s"%(i+1), linestyle = "-", linewidth = wrap_pred_params[1], alpha=0.3)
                         else:
                             #Poly = Polygon(Vertices, edgecolor = col_class, fill = False, linestyle = "-", linewidth = 1)
                             Poly = Polygon(Vertices, edgecolor = col_class, fill = False, label = "predicted %s"%(i+1), linestyle = "-", linewidth = wrap_pred_params[1])
                             if hull_pred:
-                                Poly2 = Polygon(Vertices, edgecolor = col_class, fill = True, label = "predicted %s"%(i+1), linestyle = "-", linewidth = wrap_pred_params[1], alpha=0.3) 
+                                Poly2 = Polygon(Vertices, facecolor = col_class, fill = True, label = "predicted %s"%(i+1), linestyle = "-", linewidth = wrap_pred_params[1], alpha=0.3) 
                         ax.add_patch(copy(Poly))
                         if hull_pred:
                             ax.add_patch(copy(Poly2))
@@ -1625,6 +1625,15 @@ palette = str(sys.argv[4])
 min_dist = float(sys.argv[5])
 
 pdf= PdfPages(str(sys.argv[6])+"/"+ fig_method + "_One_Panel.pdf")
+if str(sys.argv[7]) == "TRUE" or str(sys.argv[7]) == "True":
+    show_labels = True
+else:
+    show_labels = False
+
+if str(sys.argv[8]) == "TRUE" or str(sys.argv[8]) == "True":
+    hull_pred = True
+else:
+    hull_pred = False
 dtp = (str, str)
 fig, ax = plotClass(Id_Class, X_vars, Y_vars, pdf, dtp,
           run_num = 1, n_neighbors = n_neighbors, min_dist = min_dist, 
@@ -1633,9 +1642,9 @@ fig, ax = plotClass(Id_Class, X_vars, Y_vars, pdf, dtp,
           palette = palette,
           cluster_colors = True, # chosed_color: if False, true_colors bellow must be given 
           true_colors = None,# give a true class colors as dictionary with X_vars and Y_vars as key
-          hull_pred = True,
+          hull_pred = hull_pred,
           markers = [("o",500),("^",500)], # optional markers list and their size for X and Y
-          show_labels = True, # optional show the labels of X and Y
+          show_labels = show_labels, # optional show the labels of X and Y
           show_orig = False, #optional show the the axis lines going through embedded origin 
           legend = True, # add legend only if true cluster are required
           wrap_true = False, # wrapp the members of a true cluster , in each indentified clusters
@@ -1657,6 +1666,8 @@ plt.savefig(str(sys.argv[6])+"/"+ fig_method + "_One_Panel.svg", bbox_inches='ti
 - separated predicted classes 
 - wrapped true classes
 """
+
+
 pdf2= PdfPages(str(sys.argv[6])+"/"+ fig_method + "_Separate_Panels.pdf")
 fig2, ax = plotClass_separated(Id_Class, X_vars, Y_vars, pdf, dtp,
           run_num = 1, n_neighbors = n_neighbors, min_dist = min_dist, 
@@ -1665,11 +1676,11 @@ fig2, ax = plotClass_separated(Id_Class, X_vars, Y_vars, pdf, dtp,
           cluster_colors = True, # chosed_color: if False, true_colors bellow must be given 
           true_colors = None,
           markers = [("o",500),("^",500)], # optional markers list and their size for X and Y
-          show_labels = True, # optional show the labels of X and Y
+          show_labels = show_labels, # optional show the labels of X and Y
           show_orig = False, #optional show the the axis lines going through embedded origin 
           legend = False, # add legend only if true cluster are required
           wrap_true = False, # wrapp the members of a true cluster , in each indentified clusters
-          hull_pred = True,
+          hull_pred = hull_pred,
           group_annot_size = 35, ### size of the annotations in the center of polygones‚
           group_color = "black", ### color of cluster annotatations (if None then true colors)
           wrap_predicted = True, # full lines to wrap around the predicted cluster (excluding some outliers)
@@ -1698,7 +1709,7 @@ fig, ax = plotClass_separated_ver0(Id_Class, X_vars, Y_vars, pdf, dtp,
           true_colors = None, # give a true class colors as dictionary with X_vars and Y_vars as key
           markers = [("o",500),("^",500)], # optional markers list and their size for X and Y
           sub_fig_size = 10, # optional sub figure size (as a square)
-          show_labels = True, # optional show the labels of X and Y
+          show_labels = show_labels, # optional show the labels of X and Y
           show_orig = False, # optional show the the axis lines going through origin 
           show_separation = True, # optional separate all subfigs
           num_row_col = (int(np.ceil(num_clust/3)), 3),  # number of subfigs in row and col

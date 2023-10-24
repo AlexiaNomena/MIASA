@@ -23,7 +23,7 @@ norm_X: "TRUE"
 norm_Y: "TRUE"
 # 7a. Clustering parameters
 clustering_method: "Agglomerative_ward" # see list in README
-num_clust: 2
+num_clust: 4
 # 7b. OPTIONAL: Get Silhouette, Elbow, and Distortion to help choose the number of cluster
 eval_clust: TRUE
 # choose range of evaluation
@@ -34,6 +34,8 @@ fig_miasa: TRUE
 # 9. If above is TRUE, provide parameters "UMAP" or "t-SNE"
 fig_method: "UMAP"
 # UMAP and t-SNE parameters, cannot be larger than the total number of points in X and Y
-n_neighbors: 3
+n_neighbors: 15
 palette: "tab20" # seaborn palette parameter
-min_dist: 0.8 # only used in UMAP
+min_dist: 0.99 # only used in UMAP
+show_labels: FALSE # show the datapoints and labels or not
+convex_hull: TRUE # show convex_hull of predicted cluster

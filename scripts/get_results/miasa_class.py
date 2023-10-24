@@ -477,14 +477,14 @@ Y, Y_vars = read_data(sys.argv[2], give_vars=True)
 sim_meth_X = str(sys.argv[3])
 sim_meth_Y = str(sys.argv[4])
 
-if sim_meth_X != "precomputed":
+if (sim_meth_X != "precomputed") or (sim_meth_X == "Euclidean"):
     DX = spsp.distance.pdist(X, metric = sim_meth_X)
     DX = spsp.distance.squareform(DX)
 else:
     DX = read_data(sys.argv[5])
     DX = DX.to_numpy().astype(float)
     
-if sim_meth_Y != "precomputed":
+if sim_meth_Y != "precomputed" or (sim_meth_X == "Euclidean"):
     DY = spsp.distance.pdist(Y, metric = sim_meth_Y)
     DY = spsp.distance.squareform(DY)
 else:
@@ -496,33 +496,29 @@ D_assoc = read_data(sys.argv[7])
 eucl_X = str(sys.argv[8])
 eucl_Y = str(sys.argv[9])
 
-if sim_meth_X != "Euclidean" and eucl_X == "TRUE":
+if sim_meth_X != "Euclidean" and eucl_X in ("TRUE", "True"):
    DX = Dist_Emb(DX)
    meth_X = "Euclidean" 
 else:
    meth_X = "precomputed"
     
-if sim_meth_Y != "Euclidean" and eucl_Y == "TRUE":
+if sim_meth_Y != "Euclidean" and eucl_Y in ("TRUE", "True"):
     DY = Dist_Emb(DY)
     meth_Y = "Euclidean" 
 else:
     meth_Y = "precomputed"
     
 if (sim_meth_X != "Euclidean" and sim_meth_Y != "Euclidean") and (meth_X == "precomputed" and meth_Y == "precomputed"):
-    if sim_meth_X !="Euclidean":
-        DX = Dist_Emb(DX) 
-        meth_X = "Euclidean"
-    if sim_meth_Y !="Euclidean":
-        DY = Dist_Emb(DY)
-        meth_Y = "Euclidean"
+    DX = Dist_Emb(DX) 
+    meth_X = "Euclidean"
+       
         
-    
-if eucl_X == "TRUE":
+if str(eucl_X) in ("TRUE", "True"):
     meth_X = "Euclidean"
 else:
     meth_X = "precomputed"
 
-if eucl_Y == "TRUE":
+if str(eucl_Y) in ("TRUE", "True"):
     meth_Y = "Euclidean"
 else:
     meth_Y = "precomputed" 
@@ -532,14 +528,14 @@ similarity_method = (meth_X, meth_Y)
 norm_X = str(sys.argv[10])
 norm_Y = str(sys.argv[11])
 
-if norm_X == "TRUE":
+if norm_X == "TRUE" or str(norm_X) == "True":
     Orows = np.linalg.norm(X, axis = 1)
     Ox = True
 else:
     Orows = None
     Ox = False
     
-if norm_Y == "TRUE":
+if norm_Y == "TRUE" or str(norm_Y) == "True":
     Ocols = np.linalg.norm(Y, axis = 1)
     Oy = True
 else:
