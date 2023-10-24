@@ -116,7 +116,6 @@ def compute_scores(Coords, list_num, lab_lists, M, N):
         
         Class_pred = lab_lists[i]
         
-        
         silhouette[i] = silhouette_score(Coords_clustered, Class_pred)
         
         mean_all = np.mean(Coords_clustered, axis = 0)
