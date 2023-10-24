@@ -99,6 +99,16 @@ As an input, the pipeline requires the paths to the consonar data, Escape data, 
 These variables are stored in [`config.yaml`](https://github.com/KleistLab/VASIL/blob/main/config.yaml).
 For more information about the YAML markup format refer to documentation: [https://yaml.org](https://yaml.org)
 
+### Available Clustering Method Options
+```
+"Agglomerative_*" where * is a linkage method of `sklearn.cluster.AgglomerativeClustering', 
+"Kmeans", 
+"Kmedoids",
+"Spectral",
+"GMM", "
+BayesianGMM", 
+"DBSCAN"
+```
 ## Execution
 
 If your environment is not yet activated, type
@@ -118,11 +128,15 @@ The main pipeline (`config.yaml`) creates a folder *results*, containing all (in
 
 ```
 |-- results
- 	|-- miasa_results.pck	# pickled python dictionary containing the results of miasa
-	|-- UMAP_One_Panel.pdf/.svg # UMAP projection of the results of miasa
-	|-- UMAP_Separate_Panels.pdf/.svg # UMAP projection of the results of miasa, separate predicted panels
-	|-- tSNE_One_Panel.pdf/.svg # t-SNE projection of the results of miasa
-	|-- tSNE_Separate_Panels.pdf/.svg # t-SNE projection of the results of miasa,  separate predicted panels
+ 	|-- miasa_results.pck	# pickled python dictionary containing the results
+|-- plots	
+	|-- UMAP_One_Panel.pdf/.svg # UMAP projection of the results
+	|-- UMAP_Separate_Panels.pdf/.svg # UMAP projection separate predicted panels
+	|-- tSNE_One_Panel.pdf/.svg # t-SNE projection of the results 
+	|-- tSNE_Separate_Panels.pdf/.svg # t-SNE projection of the results, separate predicted panels
+|-- scores
+	|-- scored_miasa_results.pck # pickled results containing cluster evaluation scores
+	|-- Cluster_scores.pdf/.svg # cluster score plots (Elbow, Distortion, Silhouette)	
 ```
 
 ## Demo
@@ -148,6 +162,19 @@ Deactivate the environment to exit the pipeline
 ```
 conda deactivate
 ```
+
+The result folder is created in the [`demo`](./demo) folder where you find the output files, as described above. 
+
+The projection of all predicted cluster on the same pannel looks like
+![alt text](https://github.com/AlexiaNomena/MIASA/blob/main/demo/plots/UMAP_One_Panel.svg)
+
+The projection of all predicted cluster separated pannels:
+
+- With convex hull of prediction
+![alt text](https://github.com/AlexiaNomena/MIASA/blob/main/demo/plots/UMAP_Separate_Panels_p1.svg)
+
+- Without convex hull of prediction
+![alt text](https://github.com/AlexiaNomena/MIASA/blob/main/demo/plots/UMAP_Separate_Panels_p2.svg)
 
 ## Caution
 Caution must be taken for all re-parameterization of simulations made with `config.yaml`, snakemake does not execute the rules for which the result files are already present (unless an input file is updated by another rule), remove older files from the *results* folder when needed.

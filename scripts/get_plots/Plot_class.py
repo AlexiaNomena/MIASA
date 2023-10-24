@@ -1634,6 +1634,9 @@ if str(sys.argv[8]) == "TRUE" or str(sys.argv[8]) == "True":
     hull_pred = True
 else:
     hull_pred = False
+    
+    
+markers = [(str(sys.argv[11]), int(sys.argv[9])), (str(sys.argv[12]), int(sys.argv[10]))] 
 dtp = (str, str)
 fig, ax = plotClass(Id_Class, X_vars, Y_vars, pdf, dtp,
           run_num = 1, n_neighbors = n_neighbors, min_dist = min_dist, 
@@ -1643,7 +1646,7 @@ fig, ax = plotClass(Id_Class, X_vars, Y_vars, pdf, dtp,
           cluster_colors = True, # chosed_color: if False, true_colors bellow must be given 
           true_colors = None,# give a true class colors as dictionary with X_vars and Y_vars as key
           hull_pred = hull_pred,
-          markers = [("o",500),("^",500)], # optional markers list and their size for X and Y
+          markers = markers, # optional markers list and their size for X and Y
           show_labels = show_labels, # optional show the labels of X and Y
           show_orig = False, #optional show the the axis lines going through embedded origin 
           legend = True, # add legend only if true cluster are required
@@ -1675,7 +1678,7 @@ fig2, ax = plotClass_separated(Id_Class, X_vars, Y_vars, pdf, dtp,
           scale = False, # scale = "pca", "standard", anything esle is taken as no scaling 
           cluster_colors = True, # chosed_color: if False, true_colors bellow must be given 
           true_colors = None,
-          markers = [("o",500),("^",500)], # optional markers list and their size for X and Y
+          markers = markers, # optional markers list and their size for X and Y
           show_labels = show_labels, # optional show the labels of X and Y
           show_orig = False, #optional show the the axis lines going through embedded origin 
           legend = False, # add legend only if true cluster are required
@@ -1707,7 +1710,7 @@ fig, ax = plotClass_separated_ver0(Id_Class, X_vars, Y_vars, pdf, dtp,
           scale = False, # scale = "pca", "standard", anything esle is taken as no scaling 
           cluster_colors = True, # chosed_color: if False, true_colors bellow must be given 
           true_colors = None, # give a true class colors as dictionary with X_vars and Y_vars as key
-          markers = [("o",500),("^",500)], # optional markers list and their size for X and Y
+          markers = markers, # optional markers list and their size for X and Y
           sub_fig_size = 10, # optional sub figure size (as a square)
           show_labels = show_labels, # optional show the labels of X and Y
           show_orig = False, # optional show the the axis lines going through origin 

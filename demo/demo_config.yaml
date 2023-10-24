@@ -21,8 +21,8 @@ d_Y: "similarity_Y.xlsx"
 # 6. OPTIONAL: embed distance of points to origin / magnitudes
 norm_X: "TRUE"
 norm_Y: "TRUE"
-# 7a. Clustering parameters
-clustering_method: "Agglomerative_ward" # see list in README
+# 7a. Clustering parameters (Option: See README.md
+clustering_method: "Agglomerative_ward" 
 num_clust: 4
 # 7b. OPTIONAL: Get Silhouette, Elbow, and Distortion to help choose the number of cluster
 eval_clust: TRUE
@@ -39,3 +39,7 @@ palette: "tab20" # seaborn palette parameter
 min_dist: 0.99 # only used in UMAP
 show_labels: FALSE # show the datapoints and labels or not
 convex_hull: TRUE # show convex_hull of predicted cluster
+size_X: 250 # size of markers for points in X
+size_Y: 250 # size of markers for points in Y
+marker_X: "o" # matplotlib marker for points in X
+marker_Y: "^" # matplotlib marker for points in Y
