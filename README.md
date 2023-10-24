@@ -101,13 +101,13 @@ For more information about the YAML markup format refer to documentation: [https
 
 ### Available Clustering Method Options
 ```
-"Agglomerative_*" where * is a linkage method of `sklearn.cluster.AgglomerativeClustering', 
-"Kmeans", 
-"Kmedoids",
-"Spectral",
-"GMM", "
-BayesianGMM", 
-"DBSCAN"
+"Agglomerative_*"# where * is a linkage method of `sklearn.cluster.AgglomerativeClustering', 
+"Kmeans", sklearn.cluster.KMeans
+"Kmedoids", sklearn_extra.cluster.KMedoids
+"Spectral", sklearn.cluster.SpectralClustering
+"GMM", # sklearn.mixture.GaussianMixture
+BayesianGMM", # sklearn.mixture.BayesianGaussianMixture
+"DBSCAN", # sklearn.cluster.DBSCAN
 ```
 ## Execution
 
@@ -156,7 +156,7 @@ snakemake --snakefile MIASA --configfile demo/demo_config.yaml -j -d demo
 ```
 
 ### Expected Runtime for demo
-Less than 1 min
+Less than 5 min
 
 Deactivate the environment to exit the pipeline
 ```
@@ -166,7 +166,7 @@ conda deactivate
 The result folder is created in the [`demo`](./demo) folder where you find the output files, as described above. 
 
 The projection of all predicted cluster on the same pannel looks like
-<img src="https://github.com/AlexiaNomena/MIASA/blob/main/demo/plots/UMAP_One_Panel.svg" width="300" height="300">
+<img src="https://github.com/AlexiaNomena/MIASA/blob/main/demo/plots/UMAP_One_Panel.svg" width="1000" height="1000">
 
 The projection of all predicted cluster separated pannels:
 
