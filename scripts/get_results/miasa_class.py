@@ -460,7 +460,11 @@ def Dist_Emb(D):
     return Dtilde
 
 def read_data(file, give_vars=False):
-    rawData = pd.read_excel(file, engine='openpyxl')
+    try:
+        rawData = pd.read_excel(file, engine='openpyxl')
+    except:
+        rawData = pd.read_csv(file)
+        
     try:
         rawData.drop(columns = "Unnamed: 0", inplace = True)
     except:

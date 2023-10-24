@@ -1,6 +1,6 @@
 # 1. Full path to the first dataset (.xlsx or .csv) variable on the rows (see demo examples)
 # first dataset
-Data_X: "Data_X.xlsx"
+Data_X: "Data_X.csv"
 # second dataset
 Data_Y: "Data_Y.xlsx"
 # 2. What distance to compute as similarity (default metric parameter from scipy.spatial.distance.pdist or "precomputed")
@@ -13,7 +13,7 @@ sim_Y: "Euclidean"
 # if sim_Y is not Euclidean, embed it 
 Eucl_Y: "TRUE"
 # 3. Distance to use as association, must be given
-d_XY: "association_XY.xlsx"
+d_XY: "association_XY.csv"
 # 4. If sim_X is "precomputed" then give d_X, otherwise d_X is not used but please use a placeholder file (any file will do)
 d_X: "similarity_X.xlsx"
 # 5. If sim_Y is "precomputed" then give d_Y, otherwise d_Y is not used but please use a placeholder file (any file will do)
