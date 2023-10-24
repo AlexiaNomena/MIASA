@@ -1635,8 +1635,9 @@ if str(sys.argv[8]) == "TRUE" or str(sys.argv[8]) == "True":
 else:
     hull_pred = False
     
-    
 markers = [(str(sys.argv[11]), int(sys.argv[9])), (str(sys.argv[12]), int(sys.argv[10]))] 
+num_col=int(sys.argv[13])    
+
 dtp = (str, str)
 fig, ax = plotClass(Id_Class, X_vars, Y_vars, pdf, dtp,
           run_num = 1, n_neighbors = n_neighbors, min_dist = min_dist, 
@@ -1695,7 +1696,7 @@ fig2, ax = plotClass_separated(Id_Class, X_vars, Y_vars, pdf, dtp,
           points_hull = 3, ## threshold for connecting points in convex hull
           dataname = "Dist",# true cluster markers for this simulation
           show_separation = True, ### show axis to clearly separate all predicted clusters
-          num_row_col = (int(np.ceil(num_clust/3)), 3),
+          num_row_col = (int(np.ceil(num_clust/num_col)), num_col),
           alpha = 0.25) 
 
 pdf2.savefig(fig2, bbox_inches = "tight")
@@ -1715,7 +1716,7 @@ fig, ax = plotClass_separated_ver0(Id_Class, X_vars, Y_vars, pdf, dtp,
           show_labels = show_labels, # optional show the labels of X and Y
           show_orig = False, # optional show the the axis lines going through origin 
           show_separation = True, # optional separate all subfigs
-          num_row_col = (int(np.ceil(num_clust/3)), 3),  # number of subfigs in row and col
+          num_row_col = (int(np.ceil(num_clust/num_col)), num_col),  # number of subfigs in row and col
           dataname = "Dist",# true cluster markers for this simulation
           ) 
 

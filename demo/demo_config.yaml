@@ -43,3 +43,5 @@ size_X: 250 # size of markers for points in X
 size_Y: 250 # size of markers for points in Y
 marker_X: "o" # matplotlib marker for points in X
 marker_Y: "^" # matplotlib marker for points in Y
+num_col: 2 # number of panels on figure columns
+

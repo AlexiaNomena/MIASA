@@ -60,12 +60,13 @@ if config["fig_miasa"]:
             size_Y=config["size_Y"],
             marker_X=config["marker_X"],
             marker_Y=config["marker_Y"],
+	    num_col=config["num_col"]
         output:
             dir=directory("plots"),
             res1="plots/" + config["fig_method"] + "_One_Panel.pdf",
             res2="plots/" + config["fig_method"] + "_Separate_Panels.pdf",
         shell:
-            "python {workflow.basedir}/scripts/get_plots/Plot_class.py {input.miasa_res} {params.fig_method} {params.n_neighbors} {params.palette} {params.min_dist} {output.dir} {params.show_labels} {params.convex_hull} {params.size_X} {params.size_Y} {params.marker_X} {params.marker_Y}"
+            "python {workflow.basedir}/scripts/get_plots/Plot_class.py {input.miasa_res} {params.fig_method} {params.n_neighbors} {params.palette} {params.min_dist} {output.dir} {params.show_labels} {params.convex_hull} {params.size_X} {params.size_Y} {params.marker_X} {params.marker_Y} {params.num_col}"
 
 
 if config["eval_clust"]:
