@@ -171,7 +171,7 @@ The projection of all predicted cluster on the same pannel looks like
 The projection of all predicted cluster separated pannels:
 
 - With convex hull of prediction
-![alt text](https://github.com/AlexiaNomena/MIASA/blob/main/demo/plots/UMAP_Separate_Panels_p1.svg)
+<img src="https://github.com/AlexiaNomena/MIASA/blob/main/demo/plots/UMAP_Separate_Panels_p1.svg" width="100" height="100">
 
 - Without convex hull of prediction
 ![alt text](https://github.com/AlexiaNomena/MIASA/blob/main/demo/plots/UMAP_Separate_Panels_p2.svg)
