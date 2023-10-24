@@ -31,7 +31,7 @@ min_num: 2
 max_num: 6 ## cannot be larger than the total number of points in X and Y
 # 8. OPTIONAL: Get 2-dimensional projection
 fig_miasa: TRUE
-# 9. If above is TRUE, provide parameters "UMAP" or "t-SNE"
+# 9. If above is TRUE, provide parameters "UMAP" or "t-SNE", "MDS", "Isomap" (sklearm.manifold)
 fig_method: "UMAP"
 # UMAP and t-SNE parameters, cannot be larger than the total number of points in X and Y
 n_neighbors: 15

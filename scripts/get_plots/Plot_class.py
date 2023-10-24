@@ -554,9 +554,6 @@ def low_dim_coords(Coords, dim=2, method  = "umap", n_neighbors = 15, min_dist =
         embedding = sklm.Isomap(n_components = dim, metric = metric) 
         Emb_coords = embedding.fit_transform(scaled_coords)
     
-    elif method == "MDS_YH":
-        Emb_coords = MDS_YH(scaled_coords, dim)
-    
     elif method == "t-SNE":
         Emb_coords = tSNE_reducer(scaled_coords, dim, n_neighbors, metric = metric) 
         
