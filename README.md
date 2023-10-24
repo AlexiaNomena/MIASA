@@ -146,5 +146,91 @@ Deactivate the environment to exit the pipeline
 conda deactivate
 ```
 
+## Caution
+Caution must be taken for all re-parameterization of simulations made with `config.yaml`, snakemake does not execute the rules for which the result files are already present (unless an input file is updated by another rule), remove older files from the *results* folder when needed.
+
+## Resolving some package issues
+Some package-related issues might still arise during code excecution, however, most solutions to these issues can be found online. For example here are some issue we encountered
+
+### Issue 1
+Error message about parameter issues in snakemake file. This might be a snakefile formating issue, which can be solved by
+
+First install [snakefmt](https://github.com/snakemake/snakefmt) into the `VASIL` enviroment
+```
+pip install snakefmt
+```
+Then, when needed, reformat snakefile
+
+```
+snakefmt VASIL
+```
+In case you had to interrupt snakemake run code (e.g. by Ctr + Z), you need to remove the folder `workdir/.snakemake/locks/`
+
+```
+rm -rf workdir/.snakemake/locks
+```
+
+### Issue 2
+```
+Importing the numpy C-extensions failed. This error can happen for
+many reasons, often due to issues with your setup or how NumPy was
+installed
+```
+
+Typing the following sequence of code solves this issue [(see stackoverflow)](https://stackoverflow.com/questions/58868528/importing-the-numpy-c-extensions-failed)
+```
+pip uninstall -y numpy
+pip uninstall -y setuptools
+pip install setuptools
+pip install numpy
+```
+
+### Issue 3
+
+```
+File ... from scipy.optimize import root ... .../usr/lib/liblapack.3.dylib (no such file)   
+```
+This is a problem with scipy that is resolved by unistalling and re-installing scipy with `pip` [saturncloud](https://saturncloud.io/blog/pip-installation-of-scipyoptimize-or-scipy-correctly/)
+
+```
+pip unistall scipy
+```
+```
+pip install scipy
+
+```
+
+### Issue 4
+
+```
+AttributeError: module 'lib' has no attribute 'OpenSSL_add_all_algorithms'
+```
+
+Solution:
+```
+pip uninstall pyOpenSSL
+pip install pyOpenSSL
+```
+
+### Issue 5 (Apple silicon)
+```
+Library not loaded: @rpath/liblapack.3.dylib
+```
+
+Solution:
+
+```
+pip install --upgrade --force-reinstall scikit-learn
+```
+
+### Issue 6 
+If the conda installation fails, please use the following commands to install it manually:
+
+```
+conda create --name MIASA
+conda activate MIASA
+conda install -c conda-forge -c bioconda -c anaconda python==3.10.4 numpy==1.21.5 scipy==1.7.3 openpyxl pandas==1.4.3 matplotlib seaborn joblib regex pip scikit-learn==1.1.3  
+```
+Proceed above or use `pip` to install all other possible missing packages prompt by error messages
 
 
