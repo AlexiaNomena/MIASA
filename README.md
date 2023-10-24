@@ -40,7 +40,7 @@ conda activate MIASA
 ```
 Install  other packages with pip
 ```
-pip  install scikit-learn-extra
+pip install scikit-learn-extra
 pip install xlrd
 ```
 
