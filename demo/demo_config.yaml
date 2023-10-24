@@ -38,9 +38,9 @@ n_neighbors: 15
 palette: "tab20" # seaborn palette parameter
 min_dist: 0.99 # only used in UMAP
 show_labels: FALSE # show the datapoints and labels or not (use short variable names, figure may become crowed)
-convex_hull: TRUE # show convex_hull of predicted cluster
-size_X: 250 # size of markers for points in X
-size_Y: 250 # size of markers for points in Y
+convex_hull: TRUE # fill convex_hull of predicted cluster
+size_X: 150 # size of markers for points in X
+size_Y: 150 # size of markers for points in Y
 marker_X: "o" # matplotlib marker for points in X
 marker_Y: "^" # matplotlib marker for points in Y
 num_col: 2 # number of panels on figure columns
