@@ -1,5 +1,7 @@
 
 # **M**etrized **I**dentification and **A**nalysis of **S**imilarity and **A**ssociation
+[![GPLv3 License](https://img.shields.io/badge/License-GPL%20v3-yellow.svg)](https://opensource.org/licenses/)
+[![DOI](https://zenodo.org/badge/681107366.svg)](https://zenodo.org/badge/latestdoi/...)
 
 ### Operating System
 This workflow was tested on macOS Monterey Versoin 12.5
