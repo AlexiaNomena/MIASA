@@ -584,7 +584,7 @@ if get_score:
     elbow_norm = (elbow - min(elbow))/(max(elbow) - min(elbow))
     invert_elbow = 1 - elbow_norm
     plt.plot(list_num, invert_elbow, "o", label = "F-stat")
-    plt.title("Inverted Elbow")
+    plt.title("Inverted Elbow", fontsize = 20)
     plt.ylabel("1 - F-stat (normalized)", fontsize = 15)
     plt.plot(list_num, invert_elbow, "--")
     diff_norm = np.diff(invert_elbow)/max(np.diff(invert_elbow))
@@ -597,13 +597,13 @@ if get_score:
     distortion_norm = (distortion - min(distortion))/(max(distortion) - min(distortion))
     plt.plot(list_num, distortion_norm, "^", label = "distortion")
     plt.plot(list_num, distortion_norm, "--")
-    plt.title("Distortion")
+    plt.title("Distortion", fontsize = 20)
     plt.ylabel("Score (normalized)", fontsize = 15)
     
     ax2 = fig.add_subplot(133)
     plt.plot(list_num, silhouette, "^", label = "silhouette")
     plt.plot(list_num, silhouette, "--")
-    plt.title("Average Silhouette")
+    plt.title("Average Silhouette", fontsize = 20)
     plt.ylabel("score", fontsize = 15)
     
     from matplotlib.backends.backend_pdf import PdfPages
