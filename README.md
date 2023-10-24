@@ -174,7 +174,7 @@ The projection of all predicted cluster separated pannels:
 <img src="https://github.com/AlexiaNomena/MIASA/blob/main/demo/plots/UMAP_Separate_Panels_p1.svg" width="500" height="500">
 
 - Without convex hull of prediction
-<img src="https://github.com/AlexiaNomena/MIASA/blob/main/demo/plots/UMAP_Separate_Panels_p2.svg" width="500" height="500">
+<img src="https://github.com/AlexiaNomena/MIASA/blob/main/demo/plots/UMAP_Separate_Panels_p2.svg" width="1000" height="500">
 
 Cluster evaluation plot looks like this
 <img src="https://github.com/AlexiaNomena/MIASA/blob/main/demo/scores/Cluster_scores.svg" width="500" height="500">
