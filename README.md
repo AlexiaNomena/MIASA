@@ -166,16 +166,15 @@ conda deactivate
 The result folder is created in the [`demo`](./demo) folder where you find the output files, as described above. 
 
 The projection of all predicted cluster on the same pannel looks like
-<img src="https://github.com/AlexiaNomena/MIASA/blob/main/demo/plots/UMAP_One_Panel.svg" width="800" height="800">
+<img src="https://github.com/AlexiaNomena/MIASA/blob/main/demo/plots/UMAP_One_Panel.svg" width="500" height="500">
 
 The projection of all predicted cluster separated pannels:
 
 - With convex hull of prediction
-![alt text](https://github.com/AlexiaNomena/MIASA/blob/main/demo/plots/UMAP_Separate_Panels_p1.svg)
-
+<img src="https://github.com/AlexiaNomena/MIASA/blob/main/demo/plots/UMAP_Separate_Panels_p1.svg" width="500" height="500">
 
 - Without convex hull of prediction
-![alt text](https://github.com/AlexiaNomena/MIASA/blob/main/demo/plots/UMAP_Separate_Panels_p2.svg)
+<img src="https://github.com/AlexiaNomena/MIASA/blob/main/demo/plots/UMAP_Separate_Panels_p2.svg" width="500" height="500">
 
 ## Caution
 Caution must be taken for all re-parameterization of simulations made with `config.yaml`, snakemake does not execute the rules for which the result files are already present (unless an input file is updated by another rule), remove older files from the *results* folder when needed.
