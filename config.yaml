@@ -4,11 +4,11 @@ Data_X: "path/to/Data_X.xlsx"
 # second dataset
 Data_Y: "path/to/Data_Y.xlsx"
 # 2. What distance to compute as similarity (default metric parameter from scipy.spatial.distance.pdist or "precomputed")
-# for first dataset --- use "precomputed" if you provide it
+# for first dataset --- use "precomputed" if you provide it as not Euclidean, "precomputed_Euclidean" if you provide it as Euclidean 
 sim_X: "Euclidean"
 # if sim_X is not Euclidean, embed it
 Eucl_X: "TRUE"
-# for second dataset --- use "precomputed" if you provide it
+# for second dataset --- use "precomputed" if you provide it as not Euclidean, "precomputed_Euclidean" if you provide it as Euclidean 
 sim_Y: "Euclidean"
 # if sim_Y is not Euclidean, embed it 
 Eucl_Y: "TRUE"

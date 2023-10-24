@@ -481,51 +481,46 @@ Y, Y_vars = read_data(sys.argv[2], give_vars=True)
 sim_meth_X = str(sys.argv[3])
 sim_meth_Y = str(sys.argv[4])
 
-if (sim_meth_X != "precomputed") or (sim_meth_X == "Euclidean"):
+if (sim_meth_X not in ("precomputed", "precomputed_Euclidean")) or (sim_meth_X == "Euclidean"):
     DX = spsp.distance.pdist(X, metric = sim_meth_X)
     DX = spsp.distance.squareform(DX)
 else:
     DX = read_data(sys.argv[5])
-    DX = DX.to_numpy().astype(float)
+    DX = DX
     
-if sim_meth_Y != "precomputed" or (sim_meth_X == "Euclidean"):
+if sim_meth_Y not in ("precomputed", "precomputed_Euclidean") or (sim_meth_X == "Euclidean"):
     DY = spsp.distance.pdist(Y, metric = sim_meth_Y)
     DY = spsp.distance.squareform(DY)
 else:
     DY = read_data(sys.argv[6])
-    DY = DY.to_numpy().astype(float)
+    DY = DY
     
 D_assoc = read_data(sys.argv[7])
 
 eucl_X = str(sys.argv[8])
 eucl_Y = str(sys.argv[9])
 
-if sim_meth_X != "Euclidean" and eucl_X in ("TRUE", "True"):
+if (sim_meth_X not in ("Euclidean", "precomputed_Euclidean")) and str(eucl_X) in ("TRUE", "True"):
    DX = Dist_Emb(DX)
-   meth_X = "Euclidean" 
+   meth_X = "Euclidean"
+elif (sim_meth_X in ("Euclidean", "precomputed_Euclidean")):
+   DX = DX
+   meth_X = "Euclidean"
 else:
    meth_X = "precomputed"
     
-if sim_meth_Y != "Euclidean" and eucl_Y in ("TRUE", "True"):
+if (sim_meth_Y not in ("Euclidean", "precomputed_Euclidean")) and str(eucl_Y) in ("TRUE", "True"):
     DY = Dist_Emb(DY)
-    meth_Y = "Euclidean" 
-else:
-    meth_Y = "precomputed"
-    
-if (sim_meth_X != "Euclidean" and sim_meth_Y != "Euclidean") and (meth_X == "precomputed" and meth_Y == "precomputed"):
-    DX = Dist_Emb(DX) 
-    meth_X = "Euclidean"
-       
-        
-if str(eucl_X) in ("TRUE", "True"):
-    meth_X = "Euclidean"
-else:
-    meth_X = "precomputed"
-
-if str(eucl_Y) in ("TRUE", "True"):
+    meth_Y = "Euclidean"
+elif (sim_meth_Y in ("Euclidean", "precomputed_Euclidean")):
+    DY = DY
     meth_Y = "Euclidean"
 else:
-    meth_Y = "precomputed" 
+    meth_Y = "precomputed"
+
+if meth_X == "precomputed" and meth_Y == "precomputed":
+    DX = Dist_Emb(DX) 
+    meth_X = "Euclidean"
 
 similarity_method = (meth_X, meth_Y)
 
