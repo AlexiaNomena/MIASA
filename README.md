@@ -1,6 +1,6 @@
 ## **M**ultiple **I**nformation **A**ssembled for a **S**imultaneous and **A**nalysis
 [![GPLv3 License](https://img.shields.io/badge/License-GPL%20v3-yellow.svg)](https://opensource.org/licenses/)
-[<src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/11/DOI_logo.svg/1280px-DOI_logo.svg.png" width="5" height="5" >](https://en.wikipedia.org/wiki/Digital_object_identifier)
+[![DOI](<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/11/DOI_logo.svg/1280px-DOI_logo.svg.png" width="5" height="5" >)](https://en.wikipedia.org/wiki/Digital_object_identifier)
 
 ### Operating System
 This workflow was tested on macOS Monterey Versoin 12.5
