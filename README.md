@@ -69,6 +69,8 @@ Add environment to jupyter notebook
 
 `miasa_Dist.ipynb`, `miasa_Corr.ipynb`, `miasa_GRN.ipynb`: python code for using MIASA for the three dataset problems highlighted in the paper (similarity distances are Euclidean).
 
+**NB**: the folder dataset for two-Gene regulatory models must be dowloaded from [(here)](https://drive.google.com/drive/folders/1n_NhI-72qFdEA_d4jrpUyMqhbd6gGkdJ?usp=sharing) and placed in the folder `Manuscript_examples/Data/`
+
 `miasa_NonEucl_Dist.ipynb`, `miasa_NonEucl_Corr.ipynb`, `miasa_NonEucl_GRN.ipynb`: python code for using MIASA for the three dataset problems highlighted in the paper (similarity distances are non-Euclidean).
 
 `class_experiment.py`: python code for classification experiments when the true clusters are known and included in the data generating function which must return data in a specific format (e.g. function `generate_data_dist` in module `Methods/simulate_class_data.py`)
@@ -181,7 +183,7 @@ The projection of all predicted cluster separated pannels:
 - Without convex hull of prediction
 <img src="https://github.com/AlexiaNomena/MIASA/blob/main/demo/plots/UMAP_Separate_Panels_p2.svg" width="500" height="500">
 
-Cluster evaluation [Wikipedia](https://en.wikipedia.org/wiki/Determining_the_number_of_clusters_in_a_data_set)
+Cluster evaluation [(Wikipedia)](https://en.wikipedia.org/wiki/Determining_the_number_of_clusters_in_a_data_set)
 <img src="https://github.com/AlexiaNomena/MIASA/blob/main/demo/scores/Cluster_scores.svg" width="1000" height="300">
 
 ## Caution
