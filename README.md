@@ -1,6 +1,6 @@
 ## **M**ultiple **I**nformation **A**ssembled for a **S**imultaneous and **A**nalysis
 [![GPLv3 License](https://img.shields.io/badge/License-GPL%20v3-yellow.svg)](https://opensource.org/licenses/)
-[![DOI](TBA)](TBA)
+[![DOI](https://en.wikipedia.org/wiki/Digital_object_identifier#/media/File:DOI_logo.svg)](https://en.wikipedia.org/wiki/Digital_object_identifier)
 
 ### Operating System
 This workflow was tested on macOS Monterey Versoin 12.5
