@@ -53,7 +53,7 @@ Higher versions of the above packages could be also be compatible with MIASA, bu
 
 Because of package changes and updates, the figures shown in the Manuscript might not be reproducible. However, we expect that the results obtained will not extremely deviate from one another.
 
-### In folder Manuscripts_examples:
+### In the folder Manuscript_examples:
 This folder contains all the codes that were used to produce the manuscripts results
 
 Add environment to jupyter notebook
