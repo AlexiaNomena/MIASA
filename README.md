@@ -48,6 +48,10 @@ pip install xlrd
 ```
 pip install umap-learn
 ```
+### Important Note
+Higher versions of the above packages could be also compatible by compatible with MIASA, but feel free to contact the author in case you encounter unresolved problems.
+
+Because of package changes and updates, the FIgures shown in the Manuscript might not be reproducible. However, we expect that all results obtained will not extremely deviate from one another.
 
 ### In folder Manuscripts_examples:
 This folder contains all the codes that were used to produce the manuscripts results
