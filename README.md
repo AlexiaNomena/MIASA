@@ -65,7 +65,6 @@ Add environment to jupyter notebook
 `python -m ipykernel install --user --name=MIASA`
 
 #### List of codes
-`miasa_Steps.ipynb`: jupyter notebook for a step by step guidance through the MIASA framework.
 
 `miasa_Dist.ipynb`, `miasa_Corr.ipynb`, `miasa_GRN.ipynb`: python code for using MIASA for the three dataset problems highlighted in the paper (similarity distances are Euclidean).
 
