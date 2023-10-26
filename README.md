@@ -69,7 +69,7 @@ Add environment to jupyter notebook
 
 `miasa_Dist.ipynb`, `miasa_Corr.ipynb`, `miasa_GRN.ipynb`: python code for using MIASA for the three dataset problems highlighted in the paper (similarity distances are Euclidean).
 
-**NB**: the folder dataset for two-Gene regulatory models must be dowloaded from [(here)](https://drive.google.com/drive/folders/1n_NhI-72qFdEA_d4jrpUyMqhbd6gGkdJ?usp=sharing) and placed in the folder `Manuscript_examples/Data/`
+**NB**: the folder dataset `2mRNA_100000` for two-Gene regulatory models must be dowloaded from [(here)](https://drive.google.com/drive/folders/1n_NhI-72qFdEA_d4jrpUyMqhbd6gGkdJ?usp=sharing) and placed in the folder `Manuscript_examples/Data/` (without changing the folder names)
 
 `miasa_NonEucl_Dist.ipynb`, `miasa_NonEucl_Corr.ipynb`, `miasa_NonEucl_GRN.ipynb`: python code for using MIASA for the three dataset problems highlighted in the paper (similarity distances are non-Euclidean).
 
