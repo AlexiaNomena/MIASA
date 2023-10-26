@@ -1,5 +1,4 @@
-
-# **M**etrized **I**dentification and **A**nalysis of **S**imilarity and **A**ssociation
+# **M**ultiple **I**nformation **A**ssembled for a **S**imultaneous and **A**nalysis
 [![GPLv3 License](https://img.shields.io/badge/License-GPL%20v3-yellow.svg)](https://opensource.org/licenses/)
 [![DOI](https://zenodo.org/badge/681107366.svg)](https://zenodo.org/badge/latestdoi/...)
 
