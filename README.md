@@ -181,7 +181,7 @@ The projection of all predicted cluster separated pannels:
 - Without convex hull of prediction
 <img src="https://github.com/AlexiaNomena/MIASA/blob/main/demo/plots/UMAP_Separate_Panels_p2.svg" width="500" height="500">
 
-Cluster evaluation plot looks like this
+Cluster evaluation [Wikipedia](https://en.wikipedia.org/wiki/Determining_the_number_of_clusters_in_a_data_set)
 <img src="https://github.com/AlexiaNomena/MIASA/blob/main/demo/scores/Cluster_scores.svg" width="1000" height="300">
 
 ## Caution
