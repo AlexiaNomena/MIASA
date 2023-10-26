@@ -578,26 +578,26 @@ if get_score:
     ax1 = fig.add_subplot(131)
     elbow_norm = (elbow - min(elbow))/(max(elbow) - min(elbow))
     invert_elbow = 1 - elbow_norm
-    plt.plot(list_num, invert_elbow, "o", label = "F-stat")
+    plt.plot(list_num, invert_elbow, "o", label = "1 - F-stat")
     plt.title("Inverted Elbow", fontsize = 20)
-    plt.ylabel("1 - F-stat (normalized)", fontsize = 15)
-    plt.plot(list_num, invert_elbow, "--")
+    plt.ylabel("Score(normalized)", fontsize = 15)
+    plt.plot(list_num, invert_elbow, "--", linewidth = 2)
     diff_norm = np.diff(invert_elbow)/max(np.diff(invert_elbow))
     diff_norm_full = np.zeros(len(elbow))
     diff_norm_full[1:] = diff_norm
-    plt.plot(list_num, diff_norm_full, label = "curve")
+    plt.plot(list_num, diff_norm_full, label = "curve (diff)")
     plt.legend()
     
     ax2 = fig.add_subplot(132)
     distortion_norm = (distortion - min(distortion))/(max(distortion) - min(distortion))
     plt.plot(list_num, distortion_norm, "^", label = "distortion")
-    plt.plot(list_num, distortion_norm, "--")
+    plt.plot(list_num, distortion_norm, "--", linewidth = 2)
     plt.title("Distortion", fontsize = 20)
     plt.ylabel("Score (normalized)", fontsize = 15)
     
     ax2 = fig.add_subplot(133)
     plt.plot(list_num, silhouette, "^", label = "silhouette")
-    plt.plot(list_num, silhouette, "--")
+    plt.plot(list_num, silhouette, "--", linewidth = 2)
     plt.title("Average Silhouette", fontsize = 20)
     plt.ylabel("score", fontsize = 15)
     
