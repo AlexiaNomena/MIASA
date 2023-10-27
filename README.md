@@ -3,7 +3,7 @@
 
 
 ### Operating System
-This workflow was tested on macOS Monterey Versoin 12.5
+This workflow was tested on macOS Monterey Version 12.5
 
 ### Prerequisites
 #### Python
@@ -51,7 +51,7 @@ pip install umap-learn
 ### Important Note
 Higher versions of the above packages could be also be suitable for MIASA. Feel free to contact us in case you encounter unresolved problems.
 
-Because of package changes and updates, the figures shown in the Manuscript might not be reproducible. However, we expect that the results obtained will not extremely deviate from one another.
+Because of package changes and updates for the visualization (UMAP, t-SNE), the figures shown in the Manuscript might not be reproducible. However, we expect that the results obtained will still be essentially the same.
 
 ### In the folder Manuscript_examples:
 This folder contains all the codes that were used to produce the manuscripts results
