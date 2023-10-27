@@ -108,9 +108,9 @@ For more information about the YAML markup format refer to documentation: [https
 ### Available Clustering Method Options
 ```
 "Agglomerative_*"# where * is a linkage method of `sklearn.cluster.AgglomerativeClustering', 
-"Kmeans", sklearn.cluster.KMeans
-"Kmedoids", sklearn_extra.cluster.KMedoids
-"Spectral", sklearn.cluster.SpectralClustering
+"Kmeans", # sklearn.cluster.KMeans
+"Kmedoids", # sklearn_extra.cluster.KMedoids
+"Spectral", # sklearn.cluster.SpectralClustering
 "GMM", # sklearn.mixture.GaussianMixture
 BayesianGMM", # sklearn.mixture.BayesianGaussianMixture
 "DBSCAN", # sklearn.cluster.DBSCAN
