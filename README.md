@@ -1,4 +1,4 @@
-## **M**ultiple **I**nformation **A**ssembled for a **S**imultaneous and **A**nalysis
+## **M**ulti-**I**nput data **AS**sembly for joint **A**nalysis
 [![GPLv3 License](https://img.shields.io/badge/License-GPL%20v3-yellow.svg)](https://opensource.org/licenses/)
 
 
