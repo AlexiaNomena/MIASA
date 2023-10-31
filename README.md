@@ -104,6 +104,11 @@ Detailed Snakemake installation instruction using mamba can be found here:
 As an input, the pipeline requires the paths to the consonar data, Escape data, and GInPipe case ascertainment data.
 These variables are stored in [`config.yaml`](https://github.com/KleistLab/VASIL/blob/main/config.yaml).
 For more information about the YAML markup format refer to documentation: [https://yaml.org](https://yaml.org)
+### Dataset Requirement
+All input datasets must be pre-processed to follow the following requirements
+
+- Format must be `.xlsx` or `.csv`
+- A column `variable` must be included indicating the variable labels (see all example datasets in the folder `dataset_requirement`)
 
 ### Available Clustering Method Options
 ```
