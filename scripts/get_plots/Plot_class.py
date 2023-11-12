@@ -968,16 +968,17 @@ def plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neighbors = 2, 
                         col_class = wrap_pred_params[0]
                         
                     if i == 0:
-                        #Poly = Polygon(Vertices, edgecolor = "grey", fill = False, label = "predicted", linestyle = "-", linewidth = 1)
-                        Poly = Polygon(Vertices, edgecolor = col_class, fill = False, label = "predicted %s"%(i+1), linestyle = "-", linewidth = wrap_pred_params[1])
                         if hull_pred:
+                            #Poly = Polygon(Vertices, edgecolor = "grey", fill = False, label = "predicted", linestyle = "-", linewidth = 1)
+                            Poly = Polygon(Vertices, edgecolor = col_class, fill = False, label = "predicted %s"%(i+1), linestyle = "-", linewidth = wrap_pred_params[1])
                             Poly2 = Polygon(Vertices, facecolor = col_class, fill = True, label = "predicted %s"%(i+1), linestyle = "-", linewidth = wrap_pred_params[1], alpha=0.3)
+                            ax.add_patch(copy(Poly))
                     else:
                         #Poly = Polygon(Vertices, edgecolor = col_class, fill = False, linestyle = "-", linewidth = 1)
-                        Poly = Polygon(Vertices, edgecolor = col_class, fill = False, label = "predicted %s"%(i+1), linestyle = "-", linewidth = wrap_pred_params[1])
                         if hull_pred:
+                            Poly = Polygon(Vertices, edgecolor = col_class, fill = False, label = "predicted %s"%(i+1), linestyle = "-", linewidth = wrap_pred_params[1])
                             Poly2 = Polygon(Vertices, facecolor = col_class, fill = True, label = "predicted %s"%(i+1), linestyle = "-", linewidth = wrap_pred_params[1], alpha=0.3) 
-                    ax.add_patch(copy(Poly))
+                            ax.add_patch(copy(Poly))
                     if hull_pred:
                         ax.add_patch(copy(Poly2))
                 else:
@@ -999,7 +1000,7 @@ def plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neighbors = 2, 
         
     
     if legend & (not cluster_colors):
-        plt.legend(ncol = 3)
+        plt.legend(loc = (1.1, 0) , ncol = 3)
                 
     """
     ylim = ax.get_ylim()
@@ -1343,10 +1344,10 @@ def plotClass_separated(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neigh
                                 
                             if cl_var[0][:cut[1]] not in done:
                                 Poly = Polygon(Vertices, edgecolor = true_colors[cl_var[0]], facecolor = true_colors[cl_var[0]], fill = True,label = columns_labels[cl_var[0]][:cut[1]], alpha = alpha)
+                                ax.add_patch(copy(Poly))
                             else:
                                 Poly = Polygon(Vertices, edgecolor = true_colors[cl_var[0]], facecolor = true_colors[cl_var[0]], fill = True)
-                            
-                            ax.add_patch(copy(Poly))
+                                ax.add_patch(copy(Poly))
                             
                             done.append(cl_var[0][:cut[1]])
     
@@ -1419,15 +1420,16 @@ def plotClass_separated(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neigh
                             
                         if i == 0:
                             #Poly = Polygon(Vertices, edgecolor = "grey", fill = False, label = "predicted", linestyle = "-", linewidth = 1)
-                            Poly = Polygon(Vertices, edgecolor = col_class, fill = False, label = "predicted %s"%(i+1), linestyle = "-", linewidth = wrap_pred_params[1])
                             if hull_pred:
+                                Poly = Polygon(Vertices, edgecolor = col_class, fill = False, label = "predicted %s"%(i+1), linestyle = "-", linewidth = wrap_pred_params[1])
                                 Poly2 = Polygon(Vertices, facecolor = col_class, fill = True, label = "predicted %s"%(i+1), linestyle = "-", linewidth = wrap_pred_params[1], alpha=0.3)
+                                ax.add_patch(copy(Poly))
                         else:
                             #Poly = Polygon(Vertices, edgecolor = col_class, fill = False, linestyle = "-", linewidth = 1)
                             Poly = Polygon(Vertices, edgecolor = col_class, fill = False, label = "predicted %s"%(i+1), linestyle = "-", linewidth = wrap_pred_params[1])
                             if hull_pred:
                                 Poly2 = Polygon(Vertices, facecolor = col_class, fill = True, label = "predicted %s"%(i+1), linestyle = "-", linewidth = wrap_pred_params[1], alpha=0.3) 
-                        ax.add_patch(copy(Poly))
+                                ax.add_patch(copy(Poly))
                         if hull_pred:
                             ax.add_patch(copy(Poly2))
                     else:
@@ -1448,7 +1450,7 @@ def plotClass_separated(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neigh
                             plt.plot(outliers[:, 0], outliers[:, 1], marker = oultiers_markers[1], markersize =  oultiers_markers[2], color = col_class, fillstyle = "full", linestyle = "")
                     
         if legend & (not cluster_colors):
-            plt.legend(ncol = 3)
+            plt.legend(loc = (1.1, 0) , ncol = 3)
     
         
         if show_separation:
@@ -1596,6 +1598,8 @@ def plotClass_separated_ver0(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_
             
         else:
             ax.axis("off")
+        
+        #plt.legend(loc = (1.1, 0) , ncol = 3)
         
     return fig, ax
 

@@ -25,7 +25,7 @@ norm_Y: "TRUE"
 clustering_method: "Agglomerative_ward" 
 num_clust: 4
 # 7b. OPTIONAL: Get Silhouette, Elbow, and Distortion to help choose the number of cluster
-eval_clust: TRUE
+eval_clust: TRUE ### must be FALSE when there are too few points in X u Y
 # choose range of evaluation
 min_num: 2
 max_num: 6 ## cannot be larger than the total number of points in X and Y
