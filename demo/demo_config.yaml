@@ -23,7 +23,7 @@ norm_X: "TRUE"
 norm_Y: "TRUE"
 # 7a. Clustering parameters (Option: See README.md
 clustering_method: "Agglomerative_ward" 
-num_clust: 4
+num_clust: 3
 # 7b. OPTIONAL: Get Silhouette, Elbow, and Distortion to help choose the number of cluster
 eval_clust: TRUE ### must be FALSE when there are too few points in X u Y
 # choose range of evaluation

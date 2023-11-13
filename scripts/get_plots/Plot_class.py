@@ -1680,6 +1680,7 @@ fig2, ax = plotClass_separated(Id_Class, X_vars, Y_vars, pdf, dtp,
           scale = False, # scale = "pca", "standard", anything esle is taken as no scaling 
           cluster_colors = True, # chosed_color: if False, true_colors bellow must be given 
           true_colors = None,
+          palette = palette,
           markers = markers, # optional markers list and their size for X and Y
           show_labels = show_labels, # optional show the labels of X and Y
           show_orig = False, #optional show the the axis lines going through embedded origin 
@@ -1708,7 +1709,8 @@ plt.savefig(str(sys.argv[6])+"/"+ fig_method + "_Separate_Panels_p1.svg", bbox_i
 """
 fig, ax = plotClass_separated_ver0(Id_Class, X_vars, Y_vars, pdf, dtp,
           run_num = 1, n_neighbors = n_neighbors, min_dist = min_dist, 
-          method = fig_method, 
+          method = fig_method,
+          palette = palette,
           scale = False, # scale = "pca", "standard", anything esle is taken as no scaling 
           cluster_colors = True, # chosed_color: if False, true_colors bellow must be given 
           true_colors = None, # give a true class colors as dictionary with X_vars and Y_vars as key
