@@ -18,8 +18,40 @@ from copy import copy
 import scipy.spatial as spsp
 import seaborn as sns
 from scipy.spatial import ConvexHull as convex_hull
+import sys
 
-
+try:
+    Connect_assoc = str(sys.argv[14])
+    Connect_thres = float(sys.argv[15])
+    Connect_center = str(sys.argv[16])
+    Connect_assoc = True
+except:
+    try:
+        try:
+            Connect_thres = str(sys.argv[15])
+            Connect_center = str(sys.argv[16]) 
+            try:
+                rawData = pd.read_excel(sys.argv[17], engine='openpyxl')
+                Connect_thres = 0
+            except:
+                rawData = pd.read_csv(sys.argv[17])
+                Connect_thres = 0
+            
+            try:
+                rawData.drop(columns = "Unnamed: 0", inplace = True)
+            except:
+                pass
+            
+            rawData.drop(columns = "variable", inplace = True)
+            Assoc_file = True
+            Connect_assoc = True
+        except:
+            sys.exit("if connect_threshold is not a float, the connection_file must be given")
+            Assoc_file = False
+    except:
+        Assoc_file = False
+        Connect_assoc = False
+     
 def get_col_labs(labels, palette):               
     unique_labs = np.unique(labels)
     colors = sns.color_palette(palette,  len(unique_labs))
@@ -747,9 +779,42 @@ def plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neighbors = 2, 
                    )
          
          plt.legend()
-    """   
-    
-         
+    """
+        
+    if Connect_assoc in ("True", "TRUE", True):
+        if not Assoc_file:
+            if was_orig:
+                Association = Id_Class["DMat"][:M, M+1:]
+            else:
+                Association = Id_Class["DMat"][:M, M:]
+        else:
+            Association = rawData.to_numpy()
+
+        X_0 = Rows_manifold
+        Y_0 = Cols_manifold
+        if Connect_center == "Y":
+            for j in range(Association.shape[1]):
+                locs = np.argsort(Association[:, j])[::-1]
+                if not Assoc_file:
+                    locs = locs[Association[locs, j]<Connect_thres]
+                else:
+                    locs = locs[Association[locs, j]>Connect_thres]
+                # draw connecting lines
+                for i in range(len(locs)):
+                    #if Dist[locs[i], j]< Q1:
+                    ax.plot([Y_0[j, 0], X_0[locs[i], 0]], [Y_0[j, 1],X_0[locs[i], 1]], color = col_cols[columns_labels[Y_vars[j]]], linewidth = 0.5)
+        else:
+            for j in range(Association.shape[0]):
+                locs = np.argsort(Association[j, :])[::-1]
+                if not Assoc_file:
+                    locs = locs[Association[j, locs]<Connect_thres]
+                else:
+                    locs = locs[Association[j, locs]>Connect_thres]
+                # draw connecting lines
+                for i in range(len(locs)):
+                    #if Dist[locs[i], j]< Q1:
+                    ax.plot([X_0[j, 0], Y_0[locs[i], 0]], [X_0[j, 1],Y_0[locs[i], 1]], color = col_rows[rows_labels[X_vars[j]]], linewidth = 0.5)
+      
     if wrap_true:
         pred_class = np.unique(Id_Class["Class_pred"])
         lab_point = False
@@ -1611,7 +1676,6 @@ def plotClass_separated_ver0(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_
 - colored predicted classes or true classes 
 """
 from matplotlib.backends.backend_pdf import PdfPages
-import sys
 import pickle
 res_file=open(sys.argv[1], "rb")
 Id_Class = pickle.load(res_file) 
@@ -1625,7 +1689,13 @@ n_neighbors = int(sys.argv[3])
 palette = str(sys.argv[4])
 min_dist = float(sys.argv[5])
 
-pdf= PdfPages(str(sys.argv[6])+"/"+ fig_method + "_One_Panel.pdf")
+if not Connect_assoc:
+    to_save = "/"+ fig_method + "_One_Panel"
+else:
+    to_save = "/"+ fig_method + "_One_Panel_Connected"
+    
+pdf= PdfPages(str(sys.argv[6])+to_save+".pdf")
+
 if str(sys.argv[7]) == "TRUE" or str(sys.argv[7]) == "True":
     show_labels = True
 else:
@@ -1661,71 +1731,71 @@ fig, ax = plotClass(Id_Class, X_vars, Y_vars, pdf, dtp,
           wrap_type = "convexhull", # convexhull or ellipse (ellipse does not look accurate)
           dataname = "Dist") # true cluster markers for this simulation
 
-#plt.legend(loc = (1,1), fontsize = 15, ncol = 3)
-plt.legend(loc = (0,1), fontsize = 9, ncol = 10)
+
+
 pdf.savefig(fig, bbox_inches = "tight")
 pdf.close()
-plt.savefig(str(sys.argv[6])+"/"+ fig_method + "_One_Panel.svg", bbox_inches='tight')
-
-"""2-Dimensional visualization visualization of clusters (UMAP visualization) 
-- separated predicted classes 
-- wrapped true classes
-"""
+plt.savefig(str(sys.argv[6])+to_save+".svg", bbox_inches='tight')
 
 
-pdf2= PdfPages(str(sys.argv[6])+"/"+ fig_method + "_Separate_Panels.pdf")
-fig2, ax = plotClass_separated(Id_Class, X_vars, Y_vars, pdf, dtp,
-          run_num = 1, n_neighbors = n_neighbors, min_dist = min_dist, 
-          method = fig_method, 
-          scale = False, # scale = "pca", "standard", anything esle is taken as no scaling 
-          cluster_colors = True, # chosed_color: if False, true_colors bellow must be given 
-          true_colors = None,
-          palette = palette,
-          markers = markers, # optional markers list and their size for X and Y
-          show_labels = show_labels, # optional show the labels of X and Y
-          show_orig = False, #optional show the the axis lines going through embedded origin 
-          legend = False, # add legend only if true cluster are required
-          wrap_true = False, # wrapp the members of a true cluster , in each indentified clusters
-          hull_pred = hull_pred,
-          group_annot_size = 35, ### size of the annotations in the center of polygones‚
-          group_color = "black", ### color of cluster annotatations (if None then true colors)
-          wrap_predicted = True, # full lines to wrap around the predicted cluster (excluding some outliers)
-          #wrap_pred_params = ("black", 3), ### optional for pred wrap (color, linewidth)
-          show_pred_outliers = False, 
-          def_pred_outliers = (3.25, 0.75), # (a, b), greater than a*std of pairwise dist for more than b*100% of the points in the predicted class
-          oultiers_markers = ("P", "^", 15), # (true, predicted, size)
-          wrap_type = "convexhull", # convexhull or ellipse (ellipse does not look accurate)
-          points_hull = 3, ## threshold for connecting points in convex hull
-          dataname = "Dist",# true cluster markers for this simulation
-          show_separation = True, ### show axis to clearly separate all predicted clusters
-          num_row_col = (int(np.ceil(num_clust/num_col)), num_col),
-          alpha = 0.25) 
-
-pdf2.savefig(fig2, bbox_inches = "tight")
-plt.savefig(str(sys.argv[6])+"/"+ fig_method + "_Separate_Panels_p1.svg", bbox_inches='tight')
-"""2-Dimensional visualization visualization of clusters (UMAP visualization) 
-- separated predicted classes 
-- colored true classes
-"""
-fig, ax = plotClass_separated_ver0(Id_Class, X_vars, Y_vars, pdf, dtp,
-          run_num = 1, n_neighbors = n_neighbors, min_dist = min_dist, 
-          method = fig_method,
-          palette = palette,
-          scale = False, # scale = "pca", "standard", anything esle is taken as no scaling 
-          cluster_colors = True, # chosed_color: if False, true_colors bellow must be given 
-          true_colors = None, # give a true class colors as dictionary with X_vars and Y_vars as key
-          markers = markers, # optional markers list and their size for X and Y
-          sub_fig_size = 10, # optional sub figure size (as a square)
-          show_labels = show_labels, # optional show the labels of X and Y
-          show_orig = False, # optional show the the axis lines going through origin 
-          show_separation = True, # optional separate all subfigs
-          num_row_col = (int(np.ceil(num_clust/num_col)), num_col),  # number of subfigs in row and col
-          dataname = "Dist",# true cluster markers for this simulation
-          ) 
-
-pdf2.savefig(fig, bbox_inches = "tight")    
-pdf2.close()
-plt.savefig(str(sys.argv[6])+"/"+ fig_method + "_Separate_Panels_p2.svg", bbox_inches='tight')
+if not Connect_assoc:
+    """2-Dimensional visualization visualization of clusters (UMAP visualization) 
+    - separated predicted classes 
+    - wrapped true classes
+    """
+    pdf2= PdfPages(str(sys.argv[6])+"/"+ fig_method + "_Separate_Panels.pdf")
+    fig2, ax = plotClass_separated(Id_Class, X_vars, Y_vars, pdf, dtp,
+              run_num = 1, n_neighbors = n_neighbors, min_dist = min_dist, 
+              method = fig_method, 
+              scale = False, # scale = "pca", "standard", anything esle is taken as no scaling 
+              cluster_colors = True, # chosed_color: if False, true_colors bellow must be given 
+              true_colors = None,
+              palette = palette,
+              markers = markers, # optional markers list and their size for X and Y
+              show_labels = show_labels, # optional show the labels of X and Y
+              show_orig = False, #optional show the the axis lines going through embedded origin 
+              legend = False, # add legend only if true cluster are required
+              wrap_true = False, # wrapp the members of a true cluster , in each indentified clusters
+              hull_pred = hull_pred,
+              group_annot_size = 35, ### size of the annotations in the center of polygones‚
+              group_color = "black", ### color of cluster annotatations (if None then true colors)
+              wrap_predicted = True, # full lines to wrap around the predicted cluster (excluding some outliers)
+              #wrap_pred_params = ("black", 3), ### optional for pred wrap (color, linewidth)
+              show_pred_outliers = False, 
+              def_pred_outliers = (3.25, 0.75), # (a, b), greater than a*std of pairwise dist for more than b*100% of the points in the predicted class
+              oultiers_markers = ("P", "^", 15), # (true, predicted, size)
+              wrap_type = "convexhull", # convexhull or ellipse (ellipse does not look accurate)
+              points_hull = 3, ## threshold for connecting points in convex hull
+              dataname = "Dist",# true cluster markers for this simulation
+              show_separation = True, ### show axis to clearly separate all predicted clusters
+              num_row_col = (int(np.ceil(num_clust/num_col)), num_col),
+              alpha = 0.25) 
+    
+    pdf2.savefig(fig2, bbox_inches = "tight")
+    plt.savefig(str(sys.argv[6])+"/"+ fig_method + "_Separate_Panels_p1.svg", bbox_inches='tight')
+    """2-Dimensional visualization visualization of clusters (UMAP visualization) 
+    - separated predicted classes 
+    - colored true classes
+    """
+    fig, ax = plotClass_separated_ver0(Id_Class, X_vars, Y_vars, pdf, dtp,
+              run_num = 1, n_neighbors = n_neighbors, min_dist = min_dist, 
+              method = fig_method,
+              palette = palette,
+              scale = False, # scale = "pca", "standard", anything esle is taken as no scaling 
+              cluster_colors = True, # chosed_color: if False, true_colors bellow must be given 
+              true_colors = None, # give a true class colors as dictionary with X_vars and Y_vars as key
+              markers = markers, # optional markers list and their size for X and Y
+              sub_fig_size = 10, # optional sub figure size (as a square)
+              show_labels = show_labels, # optional show the labels of X and Y
+              show_orig = False, # optional show the the axis lines going through origin 
+              show_separation = True, # optional separate all subfigs
+              num_row_col = (int(np.ceil(num_clust/num_col)), num_col),  # number of subfigs in row and col
+              dataname = "Dist",# true cluster markers for this simulation
+              ) 
+    
+    pdf2.savefig(fig, bbox_inches = "tight")    
+    pdf2.close()
+    plt.savefig(str(sys.argv[6])+"/"+ fig_method + "_Separate_Panels_p2.svg", bbox_inches='tight')
 
 #status_df=pd.DataFrame({"plot_one":"ok", "plot_separate":"ok"}, index=[1,2])
 #status_df.to_csv(str(sys.argv[6])+"/status.csv")
