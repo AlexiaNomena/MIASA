@@ -1,6 +1,6 @@
 ## **M**ulti-**I**nput data **AS**sembly for joint **A**nalysis
 [![GPLv3 License](https://img.shields.io/badge/License-GPL%20v3-yellow.svg)](https://opensource.org/licenses/)
-
+[![DOI](https://zenodo.org/badge/681107366.svg)](https://doi.org/10.5281/zenodo.10124274)
 
 ### Operating System
 This workflow was tested on macOS Monterey Version 12.5
