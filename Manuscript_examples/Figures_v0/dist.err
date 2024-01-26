@@ -1,0 +1,2 @@
+/Users/raharinirina/opt/anaconda3/envs/macPy3/lib/python3.10/site-packages/sklearn_extra/cluster/_k_medoids.py:243: ConvergenceWarning: Maximum number of iteration reached before convergence. Consider increasing max_iter to improve the fit.
+  warnings.warn(

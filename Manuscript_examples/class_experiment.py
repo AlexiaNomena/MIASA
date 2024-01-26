@@ -12,22 +12,20 @@ from matplotlib.backends.backend_pdf import PdfPages
 import pickle
 import time
 import sys
-import numpy as np
 
-type_list = ["Dist", "Corr"]#["Dist","Corr"]#["Dist", "Corr", "GRN"]
-repeat_list = [200]#, 101, 102, 103, 104, 105, 106, 107, 108, 109]
+type_list = ["GRN"]#["Dist", "Corr", "GRN"]
+repeat_list = [40]*50 # for GRN
+#repeat_list = [1000, 1010] # for Dist and Corr
 
 sim_list = []
-### 1-30th 
+### sys.argv = 1 - (len(type_list)*len(repeat_list))-th 
 for tp in type_list:
     for j in range(len(repeat_list)):
         sim_list.append((tp, j))
 
-sim_list.append(("Test", 0)) ### len(type_list)*len(repeat_list) - th
+sim_list.append(("Test", 0)) ### sys.argv = (len(type_list)*len(repeat_list) + 1) - th
 
-#pdb.set_trace()
 to_sim = sim_list[int(sys.argv[1]) - 1] 
-
 
 """ Classification experiments for different data types """
 repeat = repeat_list[to_sim[1]] # Number of replicates of each experiments used for the barplots
@@ -37,40 +35,35 @@ var_data_list_labs = ["False", "True"]
 if to_sim[0] == "Dist":
     """ First methods set"""
     set_num = 1
-    #save_at = "Class_Data/meth_set_1/" #sample size = 300
-    save_at = "Class_Data/meth_set_1_rand_c_dic/"
-    classifiers = ["MIASA"]*2 + ["non_MD"]*1 # non_MD = Non_Metric_Distance
-    clust_methods = ["Agglomerative_ward", "Kmedoids"] # for MIASA
-    clust_methods = clust_methods + ["Kmedoids"] # for non_MD
+    save_at = "Class_Data/meth_set_1/" #sample size = 300
+    classifiers = ["MIASA"]*7 + ["non_MD"]*6 # non_MD = Non_Metric_Distance
+    clust_methods = ["Kmedoids", "Agglomerative_ward", "Agglomerative_complete", "Agglomerative_average", "Agglomerative_single", "Spectral", "DBSCAN"] # for MIASA
+    clust_methods = clust_methods + ["Kmedoids", "Agglomerative_complete", "Agglomerative_average", "Agglomerative_single", "Spectral", "DBSCAN"] # for non_MD
     metric_methods = [("Hist", "KS-p1")] #[("eCDF", "eCDF"), ("eCDF", "KS-stat"), ("eCDF", "KS-p1")] 
     # Already separated X, Y samples otherwise randomly separate the dataset into two equal number of sample sets
     sep_vars = True
     # data generating function
     generate_data = generate_data_dist
     # Euclidean embedding pameters only used in MIASA (includes a finite number of auto adjustements)
-    c1, c2, c3 = np.random.uniform(0, 1, 3)
-    c_dic = {"c1":c1, "c2":c2, "c3":c3}#"default" # seems no-auto adjustments was performed, default works well for this the datatype and distance functions
+    c_dic = "default" # seems no-auto adjustments was performed, default works well for this the datatype and distance functions
     in_threads = True # avoid broken runs when using parallel jobs (repeat>10)
     plotfew = False # first run and plot 10 repeats (umap visualization) saved in Figures/
 
 elif to_sim[0] == "Corr":
     """ Second methods set: Saved/meth_set_2/"""
     set_num = 2
-    #save_at = "Class_Data/meth_set_2/"
-    save_at = "Class_Data/meth_set_2_rand_c_dic/"
-    classifiers = ["MIASA"]*2 + ["non_MD"]*1 # non_MD = Non_Metric_Distance = Non_MIASA
-    clust_methods = ["Agglomerative_ward", "Kmedoids"] # for MIASA
-    clust_methods = clust_methods + ["Kmedoids"] # for non_MD
-    #metric_methods = [("eCDF", "Pearson_pval"), ("eCDF", "Pearson_R"), ("eCDF", "Spearman_pval"), ("eCDF", "Spearman_R")] # Chosen runs, only normally distributed samples, samples size = 300 , already separated X, Y samples, i.e. , sep_vars = True
+    save_at = "Class_Data/meth_set_2/"
+    classifiers = ["MIASA"]*7 + ["non_MD"]*6 # non_MD = Non_Metric_Distance = Non_MIASA
+    clust_methods = ["Kmedoids", "Agglomerative_ward", "Agglomerative_complete", "Agglomerative_average", "Agglomerative_single", "Spectral", "DBSCAN"] # for MIASA
+    clust_methods = clust_methods + ["Kmedoids", "Agglomerative_complete", "Agglomerative_average", "Agglomerative_single", "Spectral", "DBSCAN"] # for non_MD
+    metric_methods = [("eCDF", "Pearson_pval"), ("eCDF", "Pearson_R"), ("eCDF", "Spearman_pval"), ("eCDF", "Spearman_R")] # Chosen runs, only normally distributed samples, samples size = 300 , already separated X, Y samples, i.e. , sep_vars = True
     
-    metric_methods = [("eCDF", "Spearman_R")] 
     # Already separated X, Y samples otherwise randomly separate the dataset into two equal number of sample sets
     sep_vars = True
     # data generating function
     generate_data = generate_data_correlated
     # Euclidean embedding pameters only used in MIASA (includes a finite number of auto adjustements)
-    c1, c2, c3 = np.random.uniform(0, 1, 3)
-    c_dic = {"c1":c1, "c2":c2, "c3":c3}#"default" 
+    c_dic = "default" 
     in_threads = True # avoid broken runs when using parallel jobs (repeat>10)
     plotfew = False # first run and plot 10 repeats (umap visualization) saved in Figures/
     
@@ -78,10 +71,10 @@ elif to_sim[0] == "GRN":
     """ Third methods set"""
     set_num = 3
     save_at = "Class_Data/meth_set_3/"
-    classifiers = ["MIASA"]*2 + ["non_MD"]*1 # non_MD = Non_Metric_Distance
-    clust_methods = ["Agglomerative_ward", "Kmedoids"] # for MIASA
-    clust_methods = clust_methods + ["Kmedoids"] # for non_MD
-    metric_methods = [("Eucl", "Granger-Cause-3diff-chi2")]  
+    classifiers = ["MIASA"]*7 + ["non_MD"]*6 # non_MD = Non_Metric_Distance
+    clust_methods = ["Kmedoids", "Agglomerative_ward", "Agglomerative_complete", "Agglomerative_average", "Agglomerative_single", "Spectral", "DBSCAN"] # for MIASA
+    clust_methods = clust_methods + ["Kmedoids", "Agglomerative_complete", "Agglomerative_average", "Agglomerative_single", "Spectral", "DBSCAN"] # for non_MD
+    metric_methods = [("Eucl", "Granger-Cause-3diff-chi2")] # 
     
     # Already separated X, Y samples otherwise randomly separate the dataset into two equal number of sample sets
     sep_vars = True
@@ -96,23 +89,23 @@ elif to_sim[0] == "GRN":
 else:
     """ Test method """
     print("Run Test")
-    repeat = 5
+    repeat = 1
     set_num = 0
     save_at = ""
     classifiers = ["MIASA", "non_MD"]
     clust_methods = ["Agglomerative_ward", "Kmedoids"] # Must be of the same length as classifiers and with a one-to-one mapping i.e. classifiers[i] uses clust_method[i]
-    metric_methods = [("Eucl", "Granger-Cause-3diff-params")] # (similarity, association) used by all couple (classifiers[i], clust_method[i])
+    metric_methods = [("eCDF", "Pearson_pval"), ("eCDF", "Pearson_R"), ("eCDF", "Spearman_pval"), ("eCDF", "Spearman_R")] # (similarity, association) used by all couple (classifiers[i], clust_method[i])
     
     # Already separated X, Y samples otherwise randomly separate the dataset into two equal number of sample sets
     sep_vars = False
     # data generating function
-    generate_data = load_data_twoGRN #generate_data_dist
+    generate_data = generate_data_correlated#load_data_twoGRN #generate_data_dist
     
     # Euclidean embedding pameters only usied in MIASA (includes a finite number of auto adjustements)
     c_dic = "default" 
     in_threads = True # avoid broken runs when using parallel jobs (repeat>10)
-    plotfew = True # first run and plot 10 repeats (umap visualization) saved in Figures/
-    
+    plotfew = False # first run and plot 10 repeats (umap visualization) saved in Figures/
+       
 """ Simulations """
 t0 = time.time()
 for j in range(len(var_data_list)):
@@ -157,6 +150,7 @@ for j in range(len(var_data_list)):
 
 t1 = time.time()
 print("run time = ", t1 - t0, "s")
+
 
 
 
