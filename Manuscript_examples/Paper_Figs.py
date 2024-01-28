@@ -159,16 +159,23 @@ def Plot_ARI():
     repeat_1 = [(1000, 1), (1010, 2)]
     #save_at_1 = "Class_Data/meth_set_1_rand_c_dic/" ### test random initialization of c_dic parameter uniformly within (0, 1)
     #repeat_1 = [(200, 1)]
-    select_1 = ("MIASA-(Hist, KS-p1)--Agglomerative_ward", 
-                "MIASA-(Hist, KS-p1)--Agglomerative_complete", "non_MD-(Hist, KS-p1)--Agglomerative_complete", 
-                "MIASA-(Hist, KS-p1)--Agglomerative_average", "non_MD-(Hist, KS-p1)--Agglomerative_average", 
-                "MIASA-(Hist, KS-p1)--Agglomerative_single", "non_MD-(Hist, KS-p1)--Agglomerative_single",
-                "MIASA-(Hist, KS-p1)--Kmedoids", "non_MD-(Hist, KS-p1)--Kmedoids",
-                "MIASA-(Hist, KS-p1)--Spectral", "non_MD-(Hist, KS-p1)--Spectral")
+    #select_1 = ("MIASA-(Hist, KS-p1)--Agglomerative_ward", 
+    #            "MIASA-(Hist, KS-p1)--Agglomerative_complete", "non_MD-(Hist, KS-p1)--Agglomerative_complete", 
+    #            "MIASA-(Hist, KS-p1)--Agglomerative_average", "non_MD-(Hist, KS-p1)--Agglomerative_average", 
+    #            "MIASA-(Hist, KS-p1)--Agglomerative_single", "non_MD-(Hist, KS-p1)--Agglomerative_single",
+    #            "MIASA-(Hist, KS-p1)--Kmedoids", "non_MD-(Hist, KS-p1)--Kmedoids",
+    #            "MIASA-(Hist, KS-p1)--Spectral", "non_MD-(Hist, KS-p1)--Spectral")
                 #"MIASA-(Hist, KS-p1)--DBSCAN", "non_MD-(Hist, KS-p1)--DBSCAN")
+    
+    select_1 = ("MIASA-(Hist, KS-p1)--Agglomerative_ward", 
+                "non_MD-(Hist, KS-p1)--Agglomerative_complete", 
+                "non_MD-(Hist, KS-p1)--Agglomerative_average", 
+                "non_MD-(Hist, KS-p1)--Agglomerative_single",
+                "non_MD-(Hist, KS-p1)--Kmedoids",
+                "non_MD-(Hist, KS-p1)--Spectral")
 
     select_1_MW = select_1 ## included it MW test
-    slim_1 = (0., 1)# range of statistic to show on final plot
+    slim_1 = (-0.1, 1)# range of statistic to show on final plot
     sticks_1 = np.arange(slim_1[0], slim_1[1]+0.1, 0.1)
     name_1 = "Distribution"
     
@@ -178,16 +185,23 @@ def Plot_ARI():
     repeat_2 = [(1000, 1), (1010, 2)]
     #save_at_2 = "Class_Data/meth_set_2_rand_c_dic/" ### test random initialization of c_dic parameter uniformly within (0, 1)
     #repeat_2 = [(200, 2)]
-    select_2 = ("MIASA-(eCDF, Spearman_R)--Agglomerative_ward", 
-                "MIASA-(eCDF, Spearman_R)--Agglomerative_complete", "non_MD-(eCDF, Spearman_R)--Agglomerative_complete", 
-                "MIASA-(eCDF, Spearman_R)--Agglomerative_average", "non_MD-(eCDF, Spearman_R)--Agglomerative_average", 
-                "MIASA-(eCDF, Spearman_R)--Agglomerative_single", "non_MD-(eCDF, Spearman_R)--Agglomerative_single",
-                "MIASA-(eCDF, Spearman_R)--Kmedoids", "non_MD-(eCDF, Spearman_R)--Kmedoids",
-                "MIASA-(eCDF, Spearman_R)--Spectral", "non_MD-(eCDF, Spearman_R)--Spectral",)
+    #select_2 = ("MIASA-(eCDF, Spearman_R)--Agglomerative_ward", 
+    #            "MIASA-(eCDF, Spearman_R)--Agglomerative_complete", "non_MD-(eCDF, Spearman_R)--Agglomerative_complete", 
+    #            "MIASA-(eCDF, Spearman_R)--Agglomerative_average", "non_MD-(eCDF, Spearman_R)--Agglomerative_average", 
+    #            "MIASA-(eCDF, Spearman_R)--Agglomerative_single", "non_MD-(eCDF, Spearman_R)--Agglomerative_single",
+    #            "MIASA-(eCDF, Spearman_R)--Kmedoids", "non_MD-(eCDF, Spearman_R)--Kmedoids",
+    #            "MIASA-(eCDF, Spearman_R)--Spectral", "non_MD-(eCDF, Spearman_R)--Spectral",)
                 #"MIASA-(eCDF, Spearman_R)--DBSCAN", "non_MD-(eCDF, Spearman_R)--DBSCAN")
     
+    select_2 = ("MIASA-(eCDF, Spearman_R)--Agglomerative_ward", 
+                "non_MD-(eCDF, Spearman_R)--Agglomerative_complete", 
+                "non_MD-(eCDF, Spearman_R)--Agglomerative_average", 
+                "non_MD-(eCDF, Spearman_R)--Agglomerative_single",
+                "non_MD-(eCDF, Spearman_R)--Kmedoids",
+                "non_MD-(eCDF, Spearman_R)--Spectral",)
+    
     select_2_MW = select_2
-    slim_2 = (0., 1.05) # (-0.01, 0.9) # range of statistic to show on final plot
+    slim_2 = (-0.1, 1.05) # (-0.01, 0.9) # range of statistic to show on final plot
     sticks_2 = np.arange(slim_2[0], slim_2[1]+0.1, 0.1)
     name_2 = "Correlation"
     
@@ -195,16 +209,23 @@ def Plot_ARI():
     set_num_3 = 3
     save_at_3 = "Class_Data/meth_set_3/"
     repeat_3 = [(40, i) for i in range(1, 51)]
-    select_3 = ("MIASA-(Eucl, Granger-Cause-3diff-chi2)--Agglomerative_ward", 
-                "MIASA-(Eucl, Granger-Cause-3diff-chi2)--Agglomerative_complete", "non_MD-(Eucl, Granger-Cause-3diff-chi2)--Agglomerative_complete", 
-                "MIASA-(Eucl, Granger-Cause-3diff-chi2)--Agglomerative_average", "non_MD-(Eucl, Granger-Cause-3diff-chi2)--Agglomerative_average", 
-                "MIASA-(Eucl, Granger-Cause-3diff-chi2)--Agglomerative_single", "non_MD-(Eucl, Granger-Cause-3diff-chi2)--Agglomerative_single",
-                "MIASA-(Eucl, Granger-Cause-3diff-chi2)--Kmedoids", "non_MD-(Eucl, Granger-Cause-3diff-chi2)--Kmedoids",
-                "MIASA-(Eucl, Granger-Cause-3diff-chi2)--Spectral", "non_MD-(Eucl, Granger-Cause-3diff-chi2)--Spectral",)
+    #select_3 = ("MIASA-(Eucl, Granger-Cause-3diff-chi2)--Agglomerative_ward", 
+    #            "MIASA-(Eucl, Granger-Cause-3diff-chi2)--Agglomerative_complete", "non_MD-(Eucl, Granger-Cause-3diff-chi2)--Agglomerative_complete", 
+    #            "MIASA-(Eucl, Granger-Cause-3diff-chi2)--Agglomerative_average", "non_MD-(Eucl, Granger-Cause-3diff-chi2)--Agglomerative_average", 
+    #            "MIASA-(Eucl, Granger-Cause-3diff-chi2)--Agglomerative_single", "non_MD-(Eucl, Granger-Cause-3diff-chi2)--Agglomerative_single",
+    #            "MIASA-(Eucl, Granger-Cause-3diff-chi2)--Kmedoids", "non_MD-(Eucl, Granger-Cause-3diff-chi2)--Kmedoids",
+    #            "MIASA-(Eucl, Granger-Cause-3diff-chi2)--Spectral", "non_MD-(Eucl, Granger-Cause-3diff-chi2)--Spectral",)
                 #"MIASA-(Eucl, Granger-Cause-3diff-chi2)--DBSCAN", "non_MD-(Eucl, Granger-Cause-3diff-chi2)--DBSCAN")
+                
+    select_3 = ("MIASA-(Eucl, Granger-Cause-3diff-chi2)--Agglomerative_ward", 
+                "non_MD-(Eucl, Granger-Cause-3diff-chi2)--Agglomerative_complete", 
+                "non_MD-(Eucl, Granger-Cause-3diff-chi2)--Agglomerative_average", 
+                "non_MD-(Eucl, Granger-Cause-3diff-chi2)--Agglomerative_single",
+                "non_MD-(Eucl, Granger-Cause-3diff-chi2)--Kmedoids",
+                "non_MD-(Eucl, Granger-Cause-3diff-chi2)--Spectral",)
     
     select_3_MW = select_3
-    slim_3 = (0., 1.05) #(-0.05, 0.7) # range of statistic to show on final plot
+    slim_3 = (-0.1, 1.05) #(-0.05, 0.7) # range of statistic to show on final plot
     sticks_3 = np.arange(slim_3[0], slim_3[1]+0.1, 0.1)
     name_3 = "GRN"
     
