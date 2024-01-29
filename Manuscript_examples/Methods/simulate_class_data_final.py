@@ -297,7 +297,7 @@ def GRN_load(sample_size, filename, loc_species, random_state = None):
         mean_timecourse[np.isnan(mean_timecourse)] = 0
         variance_timecourse[np.isnan(skew_timecourse)] = 0
         skew_timecourse[np.isnan(skew_timecourse)] = 0
-        ### min-max normalization to bring the central moments on the same scale
+
         Z_sub = np.row_stack((mean_timecourse, variance_timecourse, skew_timecourse))      
         if s == 0:
             Z = Z_sub[:, :, np.newaxis]
