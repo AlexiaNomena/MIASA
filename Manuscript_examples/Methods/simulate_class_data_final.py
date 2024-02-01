@@ -272,11 +272,72 @@ def load_data_twoGRN(var_data = False, noise = False, palette = "tab20", random_
     data_dic["true_colors"] = colors_dic
     dtp = (str, str) #This is the type of the labels checked from printing
     return data_dic, class_dic, num_clust, dtp
+
+def load_data_twoGRN_test(var_data = False, noise = False, palette = "tab20", random_state = None):
+    
+    #if random_state is not None:
+    #    np.random.seed(random_state) # in case one needs a reproducible result
+    
+    loc_mRNA = np.array([False,False,True,True,True,True]) #np.array([4, 5]) # M1, M2 are the simulated mRNA counts
+    
+    data_dic = {}
+    class_type1 = ["NoI_", "S_Up_", "D_Up_"] 
+    files = ["Data/2mRNA_100000/two_MRNA_No_Up_data_100000.pck", "Data/2mRNA_100000/two_MRNA_Single_Up_data_100000.pck", "Data/2mRNA_100000/two_MRNA_Double_Up_data_100000.pck"]
+    
+    labs = np.cumsum(np.ones(len(class_type1))) - 1
+    num_clust = len(class_type1) + 1 #if the 2 Genes in the NoI was assigned to different classes (does not make much difference)
+    
+    # Number of samples per classes
+    MaxNumVar = 25
+    if var_data:
+        num_var_list = np.random.choice(np.arange(2, MaxNumVar), size = len(labs), replace = False)
+        num_var = {labs[k]: num_var_list[k] for k in range(len(labs))}
+    else:
+        num_var = {labs[k]:MaxNumVar for k in range(len(labs))}
+    
+    ## collecting separated samples
+    data_dic["X_vars"] = []
+    data_dic["Y_vars"] = []    
+    
+    colors_dic = {}
+    colors = sns.color_palette(palette, num_clust)
+    
+    class_dic = {}
+    k = 0
+    for i in range(len(class_type1)):
+        lab = [labs[k]]
+        ## Load relevant datafiles
+        Z, Cells = GRN_load_v2(num_var[lab[0]], filename = files[i], loc_species = loc_mRNA, random_state = random_state)
+       
+        ## place the runs into the data_dic 
+        for j in range(MaxNumVar + 1):
+            if j < num_var[lab[0]]:
+                data_dic["Prot_"+class_type1[i]+"%d_%d"%(j+1, 0)] = Cells[j, :, 2, :] 
+                data_dic["Prot_"+class_type1[i]+"%d_%d"%(j+1, 1)] = Cells[j, :, 3, :]
+                data_dic[class_type1[i]+"%d_%d"%(j+1, 0)] = Z[:, 0, j]
+                data_dic[class_type1[i]+"%d_%d"%(j+1, 1)] = Z[:, 1, j]
+                data_dic["X_vars"].append(class_type1[i]+"%d_%d"%(j+1, 0))
+                data_dic["Y_vars"].append(class_type1[i]+"%d_%d"%(j+1, 1))
+                if class_type1[i] != "NoI_":
+                    class_dic[class_type1[i]+"%d_%d"%(j+1, 0)] = lab[0]
+                    class_dic[class_type1[i]+"%d_%d"%(j+1, 1)] = lab[0]
+                    
+                    colors_dic[class_type1[i]+"%d_%d"%(j+1, 0)] = colors[i]
+                    colors_dic[class_type1[i]+"%d_%d"%(j+1, 1)] = colors[i]
+                else:
+                    class_dic[class_type1[i]+"%d_%d"%(j+1, 0)] = lab[0]
+                    class_dic[class_type1[i]+"%d_%d"%(j+1, 1)] = max(labs)+1+lab[0] # separate label for non-interacting species 
+                    colors_dic[class_type1[i]+"%d_%d"%(j+1, 0)] = colors[i]
+                    colors_dic[class_type1[i]+"%d_%d"%(j+1, 1)] = colors[i] ## keep the same color because the difference is already shown in the shapes of the points
+        
+        k += 1    
+    data_dic["true_colors"] = colors_dic
+    dtp = (str, str) #This is the type of the labels checked from printing
+    return data_dic, class_dic, num_clust, dtp
  
 import pickle 
 import matplotlib.pyplot as plt
-
-def GRN_load(sample_size, filename, loc_species, random_state = None):
+def GRN_load(sample_size, filename, loc_species, random_state = None, num_cells = 4000):
     if random_state is not None:
         np.random.seed(random_state) # in case one needs a reproducible result   
  
@@ -286,7 +347,7 @@ def GRN_load(sample_size, filename, loc_species, random_state = None):
     
     Sim_data = input_dic['Obs'] # -> numpy array           (#Time, #Dim, #Repeats)
     inds = np.arange(0,Sim_data.shape[-1],1).astype(int) # repeats indexes, i.e., different cells
-    sampled_inds = np.random.choice(inds, size=(4000, sample_size), replace = False) ### No repeating cells
+    sampled_inds = np.random.choice(inds, size=(num_cells, sample_size), replace = False) ### No repeating cells
     
     for s in range(sample_size):
         Samples = Sim_data[:, loc_species][:, :, sampled_inds[:, s]]
@@ -298,7 +359,7 @@ def GRN_load(sample_size, filename, loc_species, random_state = None):
         variance_timecourse[np.isnan(skew_timecourse)] = 0
         skew_timecourse[np.isnan(skew_timecourse)] = 0
 
-        Z_sub = np.row_stack((mean_timecourse, variance_timecourse, skew_timecourse))      
+        Z_sub = np.row_stack((mean_timecourse, variance_timecourse, skew_timecourse)) # => (#3*Time, #Dim)
         if s == 0:
             Z = Z_sub[:, :, np.newaxis]
         else:
@@ -333,3 +394,79 @@ def GRN_load(sample_size, filename, loc_species, random_state = None):
     print("-----------------------------------------------------------------")
     """
     return Z
+
+
+def GRN_load_v2(sample_size, filename, loc_species, random_state = None, num_cells = 4000):
+    if random_state is not None:
+        np.random.seed(random_state) # in case one needs a reproducible result   
+ 
+    f = open(filename,'rb')
+    input_dic = pickle.load(f)
+    f.close()
+    
+    Sim_data = input_dic['Obs'] # -> numpy array           (#Time, #Dim, #Repeats)
+    inds = np.arange(0,Sim_data.shape[-1],1).astype(int) # repeats indexes, i.e., different cells
+    sampled_inds = np.random.choice(inds, size=(num_cells, sample_size), replace = False) ### No repeating cells
+    Cells = []
+    for s in range(sample_size):
+        Samples = Sim_data[:, loc_species][:, :, sampled_inds[:, s]]
+        Cells.append(Samples)
+        mean_timecourse = np.mean(Samples, axis = 2)
+        variance_timecourse = np.var(Samples, axis = 2)
+        skew_timecourse = stats.skew(Samples, axis = 2)
+        ### Delete Nan informations
+        mean_timecourse[np.isnan(mean_timecourse)] = 0
+        variance_timecourse[np.isnan(skew_timecourse)] = 0
+        skew_timecourse[np.isnan(skew_timecourse)] = 0
+
+        Z_sub = np.row_stack((mean_timecourse, variance_timecourse, skew_timecourse)) # => (#3*Time, #Dim)
+        if s == 0:
+            Z = Z_sub[:, :, np.newaxis]
+        else:
+            Z = np.concatenate((Z, Z_sub[:, :, np.newaxis]), axis = 2)
+    
+    ### min-max normalization to bring all central moments on the same scale
+    Z = (Z[:, -2:, :] - np.min(Z[:, -2:, :]))/(np.max(Z[:, -2:, :]) - np.min(Z[:, -2:, :])) ### Only save the mRNAs in Z
+    
+    """
+    w1 = 1#(1e-20+ np.linalg.norm(skew_timecourse[20:, 0]))
+    w2 = 1#(1e-20+ np.linalg.norm(skew_timecourse[20:, 1]))
+    
+    fig = plt.figure(figsize = (3*10, 10))
+    ax = fig.add_subplot(int("%d%d%d"%(1, 3, 1)))
+    plt.plot(mean_timecourse[:, 0]/w1, label = "mean A")
+    plt.plot(mean_timecourse[:, 1]/w2, label = "mean B")
+    #ax.set_aspect("equal")
+    plt.legend()
+    
+    ax1 = fig.add_subplot(int("%d%d%d"%(1, 3, 2)))
+    plt.plot(variance_timecourse[:, 0]/w1, label = "var A")
+    plt.plot(variance_timecourse[:, 1]/w2, label = "var B")
+    #ax1.set_aspect("equal")
+    plt.legend()
+    
+    ax2 = fig.add_subplot(int("%d%d%d"%(1, 3, 3)))
+    plt.plot(skew_timecourse[:, 0]/w1, label = "skew A")
+    plt.plot(skew_timecourse[:, 1]/w2, label = "skew B")
+    #ax2.set_aspect("equal")
+    plt.legend()
+    plt.show()
+    print("-----------------------------------------------------------------")
+    """
+    return Z, np.array(Cells)
+
+def GRN_load_cells(sample_size, filename, loc_species, random_state = None):
+    if random_state is not None:
+        np.random.seed(random_state) # in case one needs a reproducible result   
+ 
+    f = open(filename,'rb')
+    input_dic = pickle.load(f)
+    f.close()
+    
+    Sim_data = input_dic['Obs'] # -> numpy array           (#Time, #Dim, #Repeats)
+    inds = np.arange(0,Sim_data.shape[-1],1).astype(int) # repeats indexes, i.e., different cells
+    sampled_inds = np.random.choice(inds, size=(sample_size), replace = False) ### No repeating cells
+    
+    Samples = Sim_data[:, loc_species][:, :, sampled_inds]
+    return Samples
+

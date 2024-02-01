@@ -11,6 +11,7 @@ import scipy.spatial as scSp
 from statsmodels.tsa.stattools import grangercausalitytests as GrCausTest
 import joblib as jb
 from functools import partial 
+import re
 
 import pdb
 import sys
@@ -138,10 +139,10 @@ def Granger_Cause(X, Y, diff = False):
     for i in range(max(X.shape[0], Y.shape[0])):
         if i < X.shape[0] :
             for j in range(X.shape[0]):
-                Feature_X[i, j] =  GrCaus_Test_p_val((X[i, :],X[j, :]), diff = diff)
+                Feature_X[i, j] =  GrCaus_Test_p_val_n((X[i, :],X[j, :]), diff = diff, n=1)
         if i < Y.shape[0] :
             for j in range(Y.shape[0]):
-                Feature_Y[i, j] = GrCaus_Test_p_val((Y[i, :],Y[j, :]), diff = diff)
+                Feature_Y[i, j] = GrCaus_Test_p_val_n((Y[i, :],Y[j, :]), diff = diff, n=1)
     return Feature_X, Feature_Y
         
 
@@ -202,23 +203,23 @@ def get_assoc_func(assoc_type, in_threads = False):
         #func, ftype = lambda Z: 1e-5 + GrCaus_Test_p_val(Z, diff = False, test = assoc_type[18:]) , "not_vectorized" # H0: Z[1] does NOT granger cause Z[0] and vis versa,small p_value = reject the null, we want to reject the null by definition of association, thus we take p_val
         if not in_threads:
             #func, ftype = lambda Z: 1e-5 + vect_GrCaus_Test_p_val(Z, diff = False, test = assoc_type[18:]), "vectorized"
-            func, ftype = lambda Z: 1e-5 + GrCaus_Test_p_val(Z, diff = False, test = assoc_type[18:]), "not_vectorized"
+            func, ftype = lambda Z: 1e-5 + GrCaus_Test_p_val_n(Z, diff = False, test = assoc_type[18:], n=1), "not_vectorized"
         else:
-            func, ftype = lambda Z: 1e-5 + GrCaus_Test_p_val(Z, diff = False, test = assoc_type[18:]), "not_vectorized"
+            func, ftype = lambda Z: 1e-5 + GrCaus_Test_p_val_n(Z, diff = False, test = assoc_type[18:], n=1), "not_vectorized"
 
     elif assoc_type[:18] == "Granger-Cause-diff":
         #func, ftype = lambda Z: 1e-5 + GrCaus_Test_p_val(Z, diff = True, test = assoc_type[18:]), "not_vectorized"
         if not in_threads:
-            func, ftype = lambda Z: 1e-5 + GrCaus_Test_p_val(Z, diff = True, test = assoc_type[19:]), "not_vectorized"
+            func, ftype = lambda Z: 1e-5 + GrCaus_Test_p_val_n(Z, diff = True, test = assoc_type[19:], n=1), "not_vectorized"
         else:
-            func, ftype = lambda Z: 1e-5 + GrCaus_Test_p_val(Z, diff = True, test = assoc_type[19:]), "not_vectorized"
+            func, ftype = lambda Z: 1e-5 + GrCaus_Test_p_val_n(Z, diff = True, test = assoc_type[19:], n=1), "not_vectorized"
             
     elif assoc_type[:19] == "Granger-Cause-2diff":
         #func, ftype = lambda Z: 1e-5 + GrCaus_Test_p_val(Z, diff = True, test = assoc_type[18:]), "not_vectorized"
         if not in_threads:
-            func, ftype = lambda Z: 1e-5 + GrCaus_Test_p_val_2(Z, diff = True, test = assoc_type[20:]), "not_vectorized"
+            func, ftype = lambda Z: 1e-5 + GrCaus_Test_p_val_n(Z, diff = True, test = assoc_type[20:], n=2), "not_vectorized"
         else:
-            func, ftype = lambda Z: 1e-5 + GrCaus_Test_p_val_2(Z, diff = True, test = assoc_type[20:]), "not_vectorized"
+            func, ftype = lambda Z: 1e-5 + GrCaus_Test_p_val_n(Z, diff = True, test = assoc_type[20:], n=2), "not_vectorized"
     
             
     elif assoc_type[:19] == "Granger-Cause-3diff":
@@ -227,76 +228,29 @@ def get_assoc_func(assoc_type, in_threads = False):
             func, ftype = lambda Z: 1e-5 + GrCaus_Test_p_val_n(Z, diff = True, test = assoc_type[20:], n = 3), "not_vectorized"
         else:
             func, ftype = lambda Z: 1e-5 + GrCaus_Test_p_val_n(Z, diff = True, test = assoc_type[20:], n = 3), "not_vectorized"
-            
-    else:
-        if in_threads:
-            print(assoc_type)
-            sys.exit("Association type is not implemented")
     
+    elif assoc_type[:19] == "Granger-Cause-3diff":
+        #func, ftype = lambda Z: 1e-5 + GrCaus_Test_p_val(Z, diff = True, test = assoc_type[18:]), "not_vectorized"
+        if not in_threads:
+            func, ftype = lambda Z: 1e-5 + GrCaus_Test_p_val_n(Z, diff = True, test = assoc_type[20:], n = 3), "not_vectorized"
+        else:
+            func, ftype = lambda Z: 1e-5 + GrCaus_Test_p_val_n(Z, diff = True, test = assoc_type[20:], n = 3), "not_vectorized"
+    
+    elif assoc_type[:13] == "Granger-Cause" and "diff" in assoc_type[13:]:
+        #func, ftype = lambda Z: 1e-5 + GrCaus_Test_p_val(Z, diff = True, test = assoc_type[18:]), "not_vectorized"
+        n = int(re.findall(r'\d+', (assoc_type.split("-")[2]))[0])
+        if not in_threads:
+            func, ftype = lambda Z: 1e-5 + GrCaus_Test_p_val_n(Z, diff = True, test = assoc_type[20:], n = n), "not_vectorized"
+        else:
+            func, ftype = lambda Z: 1e-5 + GrCaus_Test_p_val_n(Z, diff = True, test = assoc_type[20:], n = n), "not_vectorized"                
+    else:
+        func, ftype = None, None
+        if in_threads:
+            sys.exit("Association type is wrong or not implemented = ", assoc_type)
+        else:
+            print("Association type is wrong or not implemented = ", assoc_type)
     return func, ftype
 
-
-def GrCaus_Test_p_val(Z, maxlag = 10, diff = False, test = "chi2"):
-    if test == "ssr":
-        test = "ssr_ftest"
-    elif test == "params":
-        test = "params_ftest"
-    elif test == "lr":
-        test == "lrtest"
-    else:
-        test = "ssr_chi2test"
-    if diff:
-        Z1 = np.diff(Z[0])
-        Z2 = np.diff(Z[1])
-    else:
-        Z1 = Z[0]
-        Z2 = Z[1]
-    # test Z[1] does not Granger Cause Z[0]
-    test_res_1 = GrCausTest(np.column_stack((Z1, Z2)), maxlag = maxlag, verbose = False)
-    p_values_1 = [test_res_1[i+1][0][test][1] for i in range(maxlag)]
-    p_mes_1 = np.min(np.array(p_values_1))
-    
-    # test Z[0] does not Granger Cause Z[1]
-    test_res_2 = GrCausTest(np.column_stack((Z2, Z1)), maxlag = maxlag, verbose = False)
-    p_values_2 = [test_res_2[i+1][0][test][1] for i in range(maxlag)]
-    p_mes_2 = np.min(np.array(p_values_2))
-    res = np.mean([p_mes_1, p_mes_2])
-    return res
-
-
-def GrCaus_Test_p_val_2(Z, maxlag = 10, diff = False, test = "chi2"):
-    if test == "ssr":
-        test = "ssr_ftest"
-    elif test == "params":
-        test = "params_ftest"
-    elif test == "lr":
-        test == "lrtest"
-    else:
-        test = "ssr_chi2test"
-    
-    """We know beforehand that there were 2 stacked informations so we separate them """
-    N = int(len(Z[0])//2)
-    res = []
-    for p in range(2):
-        if diff:
-            Z1 = np.diff(Z[0][p*N:(p+1)*N])
-            Z2 = np.diff(Z[1][p*N:(p+1)*N])
-        else:
-            Z1 = Z[0][p*N:(p+1)*N]
-            Z2 = Z[1][p*N:(p+1)*N]
-            
-        # test Z[1] does not Granger Cause Z[0]
-        test_res_1 = GrCausTest(np.column_stack((Z1, Z2)), maxlag = maxlag, verbose = False)
-        p_values_1 = [test_res_1[i+1][0][test][1] for i in range(maxlag)]
-        p_mes_1 = np.min(np.array(p_values_1))
-        
-        # test Z[0] does not Granger Cause Z[1]
-        test_res_2 = GrCausTest(np.column_stack((Z2, Z1)), maxlag = maxlag, verbose = False)
-        p_values_2 = [test_res_2[i+1][0][test][1] for i in range(maxlag)]
-        p_mes_2 = np.min(np.array(p_values_2))
-        res_sub = np.mean([p_mes_1, p_mes_2])
-        res.append(res_sub)
-    return np.mean(res)
 
 def GrCaus_Test_p_val_n(Z, maxlag = 10, diff = False, test = "chi2", n=2):
     if test == "ssr":
@@ -305,10 +259,12 @@ def GrCaus_Test_p_val_n(Z, maxlag = 10, diff = False, test = "chi2", n=2):
         test = "params_ftest"
     elif test == "lr":
         test == "lrtest"
+    elif test[:4] == "chi2":
+        test = "ssr_chi2test"
     else:
         test = "ssr_chi2test"
     
-    """We know beforehand that there were 3 stacked informations so we separate them """
+    """We know beforehand that there were informations are stacked with n different trends e.g: mean, var, skew, so we separate them """
     N = int(len(Z[0])//n)
     res = []
     for p in range(n):
@@ -319,22 +275,29 @@ def GrCaus_Test_p_val_n(Z, maxlag = 10, diff = False, test = "chi2", n=2):
             Z1 = Z[0][p*N:(p+1)*N]
             Z2 = Z[1][p*N:(p+1)*N]
         
-        # test Z[1] does not Granger Cause Z[0]
-        # use an alpha level 0.01 to reject the null 
-        test_res_1 = GrCausTest(np.column_stack((Z1, Z2)), maxlag = maxlag, verbose = False)
-        p_values_1 = np.array([test_res_1[i+1][0][test][1] for i in range(maxlag)])
-        p_mes_1 = np.min(p_values_1)
-        
-        # test Z[0] does not Granger Cause Z[1]
-        test_res_2 = GrCausTest(np.column_stack((Z2, Z1)), maxlag = maxlag, verbose = False)
-        p_values_2 = np.array([test_res_2[i+1][0][test][1] for i in range(maxlag)])
-        p_mes_2 = np.min(p_values_2)
-        
-        res_sub = np.mean([p_mes_1, p_mes_2])
-        res.append(res_sub)
+        if test[-6:]!="strict":
+            # test Z[1] does not Granger Cause Z[0]
+            test_res_1 = GrCausTest(np.column_stack((Z1, Z2)), maxlag = maxlag, verbose = False)
+            p_values_1 = np.array([test_res_1[i+1][0][test][1] for i in range(maxlag)])
+            p_mes_1 = np.min(p_values_1)
+            # test Z[0] does not Granger Cause Z[1]
+            test_res_2 = GrCausTest(np.column_stack((Z2, Z1)), maxlag = maxlag, verbose = False)
+            p_values_2 = np.array([test_res_2[i+1][0][test][1] for i in range(maxlag)])
+            p_mes_2 = np.min(p_values_2)
+            res_sub = np.mean([p_mes_1, p_mes_2])
+            res.append(res_sub)
+        else:
+            # test Z[1] does not Granger Cause Z[0]
+            test_res_1 = GrCausTest(np.column_stack((Z1, Z2)), maxlag = maxlag, verbose = False)
+            p_values_1 = np.array([test_res_1[i+1][0][test][1] for i in range(maxlag)])
+            p_mes_1 = np.min(p_values_1)
+            res_sub = p_mes_1
+            res.append(res_sub)
         
     return np.mean(res) 
 
+
+"""
 def vect_GrCaus_Test_p_val(Z, diff = False, test = "chi2"):
     X, Y = Z
     func1 = lambda i, x, y : GrCaus_Test_p_val((x[i, :], y), diff = diff, test = test)
@@ -344,8 +307,6 @@ def vect_GrCaus_Test_p_val(Z, diff = False, test = "chi2"):
     res = np.array(res).T
     return res
 
-
-"""
 #from numba import njit, float64, boolean, void, types
 #from numba.pycc import CC
 #cc = CC('foo_extensionlib')
