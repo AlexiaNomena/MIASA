@@ -84,8 +84,8 @@ def get_clusters(Coords, num_clust, palette, method = "Kmeans", init = "k-means+
         clusters = sklc.AgglomerativeClustering(n_clusters = num_clust, linkage = "ward", distance_threshold = None).fit(Coords)
         labels_0 = clusters.labels_
         centroids_0 = np.array([np.mean(Coords[labels_0 == labs, :], axis = 0) for labs in np.unique(labels_0)])
-        epochs = 5 # maximun number of random perturbations of the centroids
-        labels = SOM_MIASA(initial_centroids = centroids_0, vareps_miasa = vareps_miasa, lambda_miasa = 1000, m=num_clust, n=1, sigma=1, lr=1, dim = Coords.shape[1], random_state = rand, max_iter = epochs*Coords.shape[0]).fit_predict(Coords, epochs=epochs)
+        epochs = 2 # maximun number of random perturbations of the centroids
+        labels = SOM_MIASA(initial_centroids = centroids_0, vareps_miasa = vareps_miasa, lambda_miasa = (1/100)*vareps_miasa, m=num_clust, n=1, sigma=1, lr=3, dim = Coords.shape[1], random_state = rand, max_iter = epochs*Coords.shape[0]).fit_predict(Coords, epochs=epochs)
     
     col_labels = get_col_labs(labels, palette)
     return labels, col_labels
