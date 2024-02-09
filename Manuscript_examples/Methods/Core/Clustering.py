@@ -14,8 +14,12 @@ import scipy as sp
 from sklearn.preprocessing import StandardScaler
 import pdb
 
-rand  = 0
-def get_clusters(Coords, num_clust, palette, method = "Kmeans", init = "k-means++", metric = None):
+from sklearn_som.som import SOM
+from .som_miasa import SOM_MIASA
+
+rand  = 0 ## reproducibility of clustering for each method
+
+def get_clusters(Coords, num_clust, palette, method = "Kmeans", init = "k-means++", metric = None, vareps_miasa=0):
     if method == "Kmeans":
         clusters = sklc.KMeans(n_clusters = num_clust, init = init, random_state = rand).fit(Coords)
         labels = clusters.labels_
@@ -71,12 +75,22 @@ def get_clusters(Coords, num_clust, palette, method = "Kmeans", init = "k-means+
         labels = Simple_Min_Dist(Coords, metric, num_clust)
     
     elif method[0] == "MLPClassifier":
-        labels = Neural_Net(Coords, params = method[1])
+        labels = Neural_Net(Coords, params = method[1], random_state=rand, max_iter = 500)
+        
+    elif method == "SOM":
+        labels = SOM(m=num_clust, n=1, sigma=1, lr=1, dim = Coords.shape[1], random_state = rand, max_iter = 3000).fit_predict(Coords)
+    
+    elif method == "SOM_MIASA":
+        clusters = sklc.AgglomerativeClustering(n_clusters = num_clust, linkage = "ward", distance_threshold = None).fit(Coords)
+        labels_0 = clusters.labels_
+        centroids_0 = np.array([np.mean(Coords[labels_0 == labs, :], axis = 0) for labs in np.unique(labels_0)])
+        epochs = 5 # maximun number of random perturbations of the centroids
+        labels = SOM_MIASA(initial_centroids = centroids_0, vareps_miasa = vareps_miasa, lambda_miasa = 1000, m=num_clust, n=1, sigma=1, lr=1, dim = Coords.shape[1], random_state = rand, max_iter = epochs*Coords.shape[0]).fit_predict(Coords, epochs=epochs)
     
     col_labels = get_col_labs(labels, palette)
     return labels, col_labels
 
-def get_col_labs(labels, palette):               
+def get_col_labs(labels, palette):  
     unique_labs = np.unique(labels)
     colors = sns.color_palette(palette,  len(unique_labs))
     col_labs = np.zeros((len(labels), 3))
@@ -89,7 +103,6 @@ def get_col_labs(labels, palette):
         col_labs[labels == unique_labs[i], :] = '#%02x%02x%02x'%tuple(col_i)
         """  
         col_labs[labels == unique_labs[i], :] = colors[i]
-    
     return col_labs
 
 
@@ -278,11 +291,15 @@ def Simple_Min_Dist(Coords, metric, num_clust = None):
         labels[i] = centre_labels[nearest_centre]
         
     return labels
+
+
 from sklearn.neural_network import MLPClassifier
-def Neural_Net(Coords, params, metric = None):
-    """Remember that Class_True does not contain the origin and the origin"""
+def Neural_Net(Coords, params, metric = None, random_state=rand, max_iter = 500):
+    """Remember that Class_True does not contain the origin"""
     M, N, Class_True, perc_train = params
     
+    # In the non-Euclidean case it is the distance matrix that is used 
+
     #Coords = StandardScaler().fit_transform(Coords) ## scale
     Coords_data = np.row_stack((Coords[:M, :], Coords[-N:, :]))
     K = int((perc_train/100)*len(Class_True))
@@ -290,15 +307,9 @@ def Neural_Net(Coords, params, metric = None):
     Inds = np.arange(0, Coords_data.shape[0], 1, dtype = int)
     np.random.shuffle(Inds)
     
-    # remember to set metric  == precomputed for Non-metric Classification
-    #DMat= sp.spatial.distance.pdist(Coords)
-    #DMat = sp.spatial.distance.squareform(DMat)
-    #DMat = StandardScaler().fit_transform(DMat)
-    #DMat_data = np.row_stack((DMat[:M, :], DMat[-N:, :]))
-    
     Coords_train = Coords_data[Inds[:K], :]
     Class_train = Class_True[Inds[:K]]
-    clf = MLPClassifier(random_state=1, max_iter = 500).fit(Coords_train, Class_train)
+    clf = MLPClassifier(random_state=rand, max_iter = max_iter).fit(Coords_train, Class_train)
     
     labels_pred = clf.predict(Coords)
     

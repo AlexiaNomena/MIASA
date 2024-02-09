@@ -482,14 +482,29 @@ def Moments_feature(Z):
     
     return res
 
+
 def Histogram_feature(Z):
     #Z = (Z - np.min(Z, axis = 0))/(np.max(Z, axis = 0) - np.min(Z, axis = 0))
     #Z = (Z - np.min(Z))/(np.max(Z) - np.min(Z))
     res = []
     for i in range(Z.shape[0]):
         hist, bin_edges = np.histogram(Z[i, :])
+
         res.append(hist)
-        
+    
+    res = np.array(res)
+    return res
+
+def Histogram_feature_test(Z):
+    #Z = (Z - np.min(Z, axis = 0))/(np.max(Z, axis = 0) - np.min(Z, axis = 0))
+    #Z = (Z - np.min(Z))/(np.max(Z) - np.min(Z))
+    res = []
+    for i in range(Z.shape[0]):
+        Z_i = (Z[i, :])/np.max(Z[i, :])
+        hist, bin_edges = np.histogram(Z_i, range=(np.min(Z[i, :])/np.max(Z[i, :]), 1))
+        hist = hist/np.max(hist) ### we only need to capture the shape of the distribution
+        res.append(hist)
+    
     res = np.array(res)
     return res
 

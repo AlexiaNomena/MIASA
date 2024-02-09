@@ -185,7 +185,6 @@ def get_NMDclass(X, Y, Feature_X, Feature_Y, func, ftype, metric_method, DMat = 
         else:
             sys.exit("A non-metric distance clustering method is required for Non Metric Distance \n Available here is Kmedoids")
         
-        
         if (dist_origin[0] or dist_origin[1]) & (metric_method not in ("KS-stat-stat", "KS-p1-p1", "KS-p1-stat", "KS-stat-p1")):
             Class_pred = np.concatenate((clust_labels[:M], clust_labels[-N:]), axis = 0)
             was_orig = True
