@@ -178,12 +178,26 @@ def get_NMDclass(X, Y, Feature_X, Feature_Y, func, ftype, metric_method, DMat = 
         
         elif clust_method == "DBSCAN":
             clust_labels, color_clustered = get_clusters(DMat_0, num_clust, palette, method = clust_method, metric = "precomputed")
-            
+        
         elif clust_method[0] == "MLPClassifier":
             clust_labels, color_clustered = get_clusters(DMat_0, num_clust, palette, method = clust_method)
         
+        elif clust_method[0] == "MLPRegressor":
+            clust_labels, color_clustered = get_clusters(DMat_0, num_clust, palette, method = clust_method)
+            
+        elif clust_method[0] == "SVM_SVC":
+            clust_labels, color_clustered = get_clusters(DMat_0, num_clust, palette, method = clust_method)
+            
+        elif clust_method[0] == "SOM": 
+            """vareps_miasa parameter is here only used to pass a chosen learning rate as clust_method[1]"""
+            clust_labels, color_clustered = get_clusters(DMat_0, num_clust, palette, method = clust_method, vareps_miasa="Non_MD_Case")
+        
+        elif clust_method[0] == "SOM_MIASA": 
+            """vareps_miasa parameter is here only used to pass a chosen learning rate as clust_method[1]"""
+            clust_labels, color_clustered = get_clusters(DMat_0, num_clust, palette, method = clust_method, vareps_miasa="Non_MD_Case")
+        
         else:
-            sys.exit("A non-metric distance clustering method is required for Non Metric Distance \n Available here is Kmedoids")
+            sys.exit("A non-metric distance clustering method is required for Non Metric Distance")
         
         if (dist_origin[0] or dist_origin[1]) & (metric_method not in ("KS-stat-stat", "KS-p1-p1", "KS-p1-stat", "KS-stat-p1")):
             Class_pred = np.concatenate((clust_labels[:M], clust_labels[-N:]), axis = 0)

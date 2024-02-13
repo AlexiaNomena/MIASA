@@ -647,7 +647,9 @@ def plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neighbors = 2, 
     low_meth = method # methods: MDS, Isomap, TSNE
     if metric == "precomputed":
         DMat = Id_Class["DMat"]
-        Coords_manifold = low_dim_coords(DMat, dim = 2, method = low_meth, scale = scale)
+        if method == "umap":
+            sys.exit("umap, implemented here, is not designed to deal with metric = precomputed choose MDS, t-SNE, or Isomap ")
+        Coords_manifold = low_dim_coords(DMat, dim = 2, method = low_meth, scale = scale, metric = metric)
     else:
         Coords = Id_Class["Coords"]
         Coords_manifold = low_dim_coords(Coords, dim=2, method  = low_meth, n_neighbors = n_neighbors, min_dist = min_dist, scale = scale) 
@@ -1120,7 +1122,9 @@ def plotClass_separated(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neigh
     low_meth = method # methods: MDS, Isomap, TSNE
     if metric == "precomputed":
         DMat = Id_Class["DMat"]
-        Coords_manifold = low_dim_coords(DMat, dim = 2, method = low_meth, scale = scale)
+        if method == "umap":
+            sys.exit("umap, implemented here, is not designed to deal with metric = precomputed choose MDS, t-SNE, or Isomap ")
+        Coords_manifold = low_dim_coords(DMat, dim = 2, method = low_meth, scale = scale, metric = metric)
     else:
         Coords = Id_Class["Coords"]
         Coords_manifold = low_dim_coords(Coords, dim=2, method  = low_meth, n_neighbors = n_neighbors, min_dist = min_dist, scale = scale) 
@@ -1535,14 +1539,21 @@ def plotClass_separated(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neigh
     return fig, ax
 
 def plotClass_separated_ver0(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neighbors = 2, min_dist = 0.99, method = "umap", 
-                        scale = None, sub_fig_size = 7, num_row_col = None, palette="tab20", cluster_colors = False, true_colors = None, markers = [("o",10),("o",10)], 
+                        scale = None, metric = "euclidean", sub_fig_size = 7, num_row_col = None, palette="tab20", cluster_colors = False, true_colors = None, markers = [("o",10),("o",10)], 
                         show_labels = False, show_orig = False, show_separation = False, legend = True, shorten_annots = False, dataname = None, cut = (2, 2)):   
     """@brief Plot and Save class figures"""
     
     Coords = Id_Class["Coords"]
     """Lower Dimensional visualization of clusters"""
     low_meth = method # methods: MDS, Isomap, TSNE
-    Coords_manifold = low_dim_coords(Coords, dim=2, method  = low_meth, n_neighbors = n_neighbors, min_dist = min_dist, scale = scale) 
+    if metric == "precomputed":
+        DMat = Id_Class["DMat"]
+        if method == "umap":
+            sys.exit("umap, implemented here, is not designed to deal with metric = precomputed choose MDS, t-SNE, or Isomap ")
+        Coords_manifold = low_dim_coords(DMat, dim = 2, method = low_meth, scale = scale, metric = metric)
+    else:
+        Coords = Id_Class["Coords"]
+        Coords_manifold = low_dim_coords(Coords, dim=2, method  = low_meth, n_neighbors = n_neighbors, min_dist = min_dist, scale = scale) 
     """
     Kmeans and UMAP are already parameterized for reproducibility (random_state = 0 for both).
     However, slight changes could still happen due to the optimization procedure and versions of these packages.

@@ -197,14 +197,20 @@ def get_class(X, Y, Feature_X, Feature_Y, func, ftype, metric_method, c_dic, DMa
         elif clust_method[0] == "MLPClassifier":
             clust_labels, color_clustered = get_clusters(Coords_0, num_clust, palette, method = clust_method)
         
-        elif clust_method == "SOM":
+        elif clust_method[0] == "MLPRegressor":
             clust_labels, color_clustered = get_clusters(Coords_0, num_clust, palette, method = clust_method)
         
-        elif clust_method == "SOM_MIASA":
+        elif clust_method[0] == "SVM_SVC":
+            clust_labels, color_clustered = get_clusters(Coords_0, num_clust, palette, method = clust_method)
+            
+        elif clust_method[0] == "SOM":
             clust_labels, color_clustered = get_clusters(Coords_0, num_clust, palette, method = clust_method, vareps_miasa = vareps)
-                
+        
+        elif clust_method[0] == "SOM_MIASA":
+            clust_labels, color_clustered = get_clusters(Coords_0, num_clust, palette, method = clust_method, vareps_miasa = vareps)
+    
         else:
-            sys.exit("A metric-distance based clustering method is better for MIASA \n Available here is Kmeans")
+            sys.exit("A metric-distance based clustering method is better for MIASA")
         
         
         if dist_origin[0] or dist_origin[1]:

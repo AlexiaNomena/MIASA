@@ -10,8 +10,12 @@ import sklearn.cluster as sklc
 import sklearn.mixture as sklMixt
 import sklearn_extra.cluster as sklEc
 import seaborn as sns
+from sklearn import svm
 import scipy as sp
 from sklearn.preprocessing import StandardScaler
+from sklearn.neural_network import MLPClassifier, MLPRegressor
+import sys
+
 import pdb
 
 from sklearn_som.som import SOM
@@ -19,7 +23,7 @@ from .som_miasa import SOM_MIASA
 
 rand  = 0 ## reproducibility of clustering for each method
 
-def get_clusters(Coords, num_clust, palette, method = "Kmeans", init = "k-means++", metric = None, vareps_miasa=0):
+def get_clusters(Coords, num_clust, palette, method = "Kmeans", init = "k-means++", metric = None, vareps_miasa=None):
     if method == "Kmeans":
         clusters = sklc.KMeans(n_clusters = num_clust, init = init, random_state = rand).fit(Coords)
         labels = clusters.labels_
@@ -72,21 +76,73 @@ def get_clusters(Coords, num_clust, palette, method = "Kmeans", init = "k-means+
         labels = BRW(Coords, num_clust)
     
     elif method == "Simple_Min_Dist":
+        epochs = 3
         labels = Simple_Min_Dist(Coords, metric, num_clust)
     
-    elif method[0] == "MLPClassifier":
-        labels = Neural_Net(Coords, params = method[1], random_state=rand, max_iter = 500)
-        
-    elif method == "SOM":
-        labels = SOM(m=num_clust, n=1, sigma=1, lr=1, dim = Coords.shape[1], random_state = rand, max_iter = 3000).fit_predict(Coords)
+    elif method[0] == "MLPClassifier": ### uses a log loss function = cross-entropy
+        epochs = 3
+        labels = Neural_Net(Coords, params = method[1], random_state=rand, max_iter = epochs*Coords.shape[0])
     
-    elif method == "SOM_MIASA":
+    elif method[0] == "MLPRegressor": ### uses a Square Error Loss (SEL) function (more related to the Euclidean distance)
+        epochs = 3
+        labels = Neural_Net_Regressor(Coords, params = method[1], random_state=rand, max_iter = epochs*Coords.shape[0])
+    
+    elif method[0] == "SVM_SVC":
+        epochs = 3
+        labels = SVM_SVC(Coords, params = method[1], random_state=rand, max_iter = epochs*Coords.shape[0])
+        
+    elif method[0] == "SOM":
+        epochs = 3
+        
+        if (vareps_miasa != "Non_MD_Case") and (vareps_miasa != 0):
+            type_lr = method[1]
+            if type_lr == "1/sqrt(vareps)":
+                labels = SOM(m=num_clust, n=1, sigma=1, lr=1/np.sqrt(vareps_miasa), dim = Coords.shape[1], random_state = rand, max_iter = epochs*Coords.shape[0]).fit_predict(Coords, epochs = epochs)
+            elif type_lr == "sqrt(vareps)":
+                labels = SOM(m=num_clust, n=1, sigma=1, lr=np.sqrt(vareps_miasa), dim = Coords.shape[1], random_state = rand, max_iter = epochs*Coords.shape[0]).fit_predict(Coords, epochs = epochs)
+            else:
+                try:
+                    labels = SOM(m=num_clust, n=1, sigma=1, lr= type_lr * np.sqrt(vareps_miasa), dim = Coords.shape[1], random_state = rand, max_iter = epochs*Coords.shape[0]).fit_predict(Coords, epochs = epochs)
+                except:
+                    sys.exit("clust_method[1] only options for SOM in qEE-MIASA are: str(1/sqrt(vareps)) to give lr params, str(sqrt(vareps)) to give lr params, or float(prop) to make lr = float(prop)*sqrt(vareps)")
+        else:
+            try:
+                labels = SOM(m=num_clust, n=1, sigma=1, lr=method[1], dim = Coords.shape[1], random_state = rand, max_iter = epochs*Coords.shape[0]).fit_predict(Coords, epochs = epochs)
+            except:
+                sys.exit("clust_method[1] only options for SOM Non_MD case MIASA is exactly equal to lr: float(lr)")
+       
+
+    elif method[0] == "SOM_MIASA":
         clusters = sklc.AgglomerativeClustering(n_clusters = num_clust, linkage = "ward", distance_threshold = None).fit(Coords)
         labels_0 = clusters.labels_
         centroids_0 = np.array([np.mean(Coords[labels_0 == labs, :], axis = 0) for labs in np.unique(labels_0)])
-        epochs = 2 # maximun number of random perturbations of the centroids
-        labels = SOM_MIASA(initial_centroids = centroids_0, vareps_miasa = vareps_miasa, lambda_miasa = (1/100)*vareps_miasa, m=num_clust, n=1, sigma=1, lr=3, dim = Coords.shape[1], random_state = rand, max_iter = epochs*Coords.shape[0]).fit_predict(Coords, epochs=epochs)
-    
+        epochs = 3 ### des
+        
+        """
+        Learing rate is taylored for MIASA lr_miasa = lr*(sqrt(vareps_miasa)/lambda_miasa) 
+        --- because in the qEE spac, for every points z in space, there exists at most one sample point z* such that
+        dist(z*, z) => R, where R=sqrt(vareps_miasa)/lambda_miasa (less than or equal to)
+        which is actually true for all cloud of points if we take R = min(of all interpoint distances),
+        however, in the qEE space, vareps_miasa is quite large, therefore we use it to have a better control our step sized in the learning process 
+        """
+        if (vareps_miasa != "Non_MD_Case") and (vareps_miasa != 0):
+            type_lr = method[1]
+            if type_lr == "1/sqrt(vareps)":
+                lambda_miasa = vareps_miasa
+            elif type_lr == "sqrt(vareps)":
+                lambda_miasa = 1
+            else:
+                lambda_miasa = (1/type_lr)*np.sqrt(vareps_miasa)
+            try:
+                labels = SOM_MIASA(initial_centroids = centroids_0, vareps_miasa = vareps_miasa, lambda_miasa = lambda_miasa, m=num_clust, n=1, sigma=1, lr=1, dim = Coords.shape[1], random_state = rand, max_iter = epochs*Coords.shape[0]).fit_predict(Coords, epochs=epochs)
+            except:
+                sys.exit("clust_method[1] only options for SOM_MIASA in qEE-MIASA are: str(1/sqrt(vareps)) to give lr params, str(sqrt(vareps)) to give lr params, or float(prop) to make lr = float(prop)*sqrt(vareps)")
+        else:
+            try:
+                labels = SOM_MIASA(initial_centroids = centroids_0, vareps_miasa = 1, lambda_miasa = 1, m=num_clust, n=1, sigma=1, lr=method[1], dim = Coords.shape[1], random_state = rand, max_iter = epochs*Coords.shape[0]).fit_predict(Coords, epochs=epochs)
+            except:
+                sys.exit("clust_method[1] only options for SOM_MIAS Non_MD case MIASA is exactly equal to lr: float(lr)")
+        
     col_labels = get_col_labs(labels, palette)
     return labels, col_labels
 
@@ -293,24 +349,71 @@ def Simple_Min_Dist(Coords, metric, num_clust = None):
     return labels
 
 
-from sklearn.neural_network import MLPClassifier
-def Neural_Net(Coords, params, metric = None, random_state=rand, max_iter = 500):
+def Neural_Net(Coords, params, metric = None, random_state=None, max_iter = 500):
     """Remember that Class_True does not contain the origin"""
     M, N, Class_True, perc_train = params
     
-    # In the non-Euclidean case it is the distance matrix that is used 
+    """In the non-Euclidean case it is the distance matrix could be used, but we are not sure how legit that is"""
 
     #Coords = StandardScaler().fit_transform(Coords) ## scale
     Coords_data = np.row_stack((Coords[:M, :], Coords[-N:, :]))
     K = int((perc_train/100)*len(Class_True))
     
     Inds = np.arange(0, Coords_data.shape[0], 1, dtype = int)
-    np.random.shuffle(Inds)
+    if random_state is not None:
+        np.random.seed(random_state) # in case one needs a reproducible result
     
+    np.random.shuffle(Inds)
     Coords_train = Coords_data[Inds[:K], :]
     Class_train = Class_True[Inds[:K]]
     clf = MLPClassifier(random_state=rand, max_iter = max_iter).fit(Coords_train, Class_train)
     
+    labels_pred = clf.predict(Coords)
+    
+    return labels_pred
+
+def Neural_Net_Regressor(Coords, params, metric = None, random_state=None, max_iter = 500):
+    """Remember that Class_True does not contain the origin"""
+    M, N, Class_True, perc_train = params
+    
+    """In the non-Euclidean case it is the distance matrix could be used, but we are not sure how legit that is"""
+
+    #Coords = StandardScaler().fit_transform(Coords) ## scale
+    Coords_data = np.row_stack((Coords[:M, :], Coords[-N:, :]))
+    K = int((perc_train/100)*len(Class_True))
+    
+    Inds = np.arange(0, Coords_data.shape[0], 1, dtype = int)
+    if random_state is not None:
+        np.random.seed(random_state) # in case one needs a reproducible result
+    
+    np.random.shuffle(Inds)
+    Coords_train = Coords_data[Inds[:K], :]
+    Class_train = Class_True[Inds[:K]]
+    clf = MLPRegressor(random_state=rand, max_iter = max_iter).fit(Coords_train, Class_train)
+    
+    labels_pred = clf.predict(Coords)
+    
+    return labels_pred
+
+def SVM_SVC(Coords, params, metric = None, random_state=None, max_iter = 500, vareps_miasa=0):
+    """Remember that Class_True does not contain the origin"""
+    M, N, Class_True, perc_train = params
+    
+    """In the non-Euclidean case it is the distance matrix could be used, but we are not sure how legit that is"""
+
+    #Coords = StandardScaler().fit_transform(Coords) ## scale
+    Coords_data = np.row_stack((Coords[:M, :], Coords[-N:, :]))
+    K = int((perc_train/100)*len(Class_True))
+    
+    Inds = np.arange(0, Coords_data.shape[0], 1, dtype = int)
+    if random_state is not None:
+        np.random.seed(random_state) # in case one needs a reproducible result
+    
+    np.random.shuffle(Inds)
+    Coords_train = Coords_data[Inds[:K], :]
+    Class_train = Class_True[Inds[:K]]
+    clf = svm.SVC(random_state=rand, max_iter = max_iter).fit(Coords_train, Class_train)
+    #clf = svm.SVC(random_state=rand, max_iter = max_iter, gamma = 1, degree=1, coef0 = np.sqrt(vareps_miasa), kernel = "poly").fit(Coords_train, Class_train)
     labels_pred = clf.predict(Coords)
     
     return labels_pred

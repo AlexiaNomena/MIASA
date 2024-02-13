@@ -29,6 +29,15 @@ def eCDF(X,Y):
     Feature_Y = EmpCDF(Y, interval)
     return Feature_X, Feature_Y  
 
+def eCDF_test(X,Y):
+    """ Empirical CDF similarity and Komogorov-Smirnov statistics association"""
+    lbd = min(np.min(X), np.min(Y))
+    ubd = max(np.max(X), np.max(Y))
+    interval = np.linspace(lbd, ubd, 500)
+    Feature_X = EmpCDF_test(X, interval)
+    Feature_Y = EmpCDF_test(Y, interval)
+    return Feature_X, Feature_Y  
+
 def Sim_GRN(X, Y, n=1):
     """ Euclidean similarity and Association distance = Max of paiwise distances between all vector components"""
     """We know beforehand that there were 3 stacked informations (mean, variance, skewness) so we separate """
@@ -42,6 +51,12 @@ def Eucl(X, Y):
     """ Euclidean similarity and Association distance = Max of paiwise distances between all vector components"""
     Feature_X = X.copy()
     Feature_Y = Y.copy()
+    return Feature_X, Feature_Y
+
+def Eucl_test(X, Y):
+    """ Euclidean similarity and Association distance = Max of paiwise distances between all vector components"""
+    Feature_X = X.copy()/np.max(X, axis = 1)[:, np.newaxis]
+    Feature_Y = Y.copy()/np.max(Y, axis = 1)[:, np.newaxis]
     return Feature_X, Feature_Y
 
 def covariance(X, Y):
@@ -174,6 +189,9 @@ def get_assoc_func(assoc_type, in_threads = False):
     
     elif assoc_type == "Spearman_R": ### We want to reject H0 = no correlation, thus we take pval
         func, ftype = lambda Z: 1e-5 + 1 - np.abs(spearmanr(Z[0], Z[1]).correlation), "not_vectorized"
+    
+    elif assoc_type[:11] == "Spearman_R_": ### We want to reject H0 = no correlation, thus we take pval
+        func, ftype = lambda Z: 1e-5 + float(assoc_type[11:])*(1 - np.abs(spearmanr(Z[0], Z[1]).correlation)), "not_vectorized"
     
     elif assoc_type == "Sub_Eucl":
         func, ftype = lambda Z: np.max(np.abs(Z[0][:, np.newaxis] - Z[1][np.newaxis, :])), "vectorized"
@@ -416,6 +434,12 @@ def EmpCDF(X, interval):
     cdf = np.sum(X[:, :, np.newaxis]<= interval, axis = 1)/X.shape[1]
     return cdf
 
+def EmpCDF_test(X, interval):
+    cdf = np.zeros((X.shape[0], len(interval)))
+    for i in range(X.shape[0]):
+        cdf_i = np.sum(X[i, :, np.newaxis]<= interval, axis = 0)/X.shape[1]
+        cdf[i, :] = cdf_i/(3*np.max(cdf_i))
+    return cdf
 
 def dCDF(Z):
     "Association distance based on Empirical CDF"
