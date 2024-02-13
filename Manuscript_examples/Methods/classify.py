@@ -677,7 +677,6 @@ def plotClass_separated(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neigh
     Kmeans and UMAP are already parameterized for reproducibility (random_state = 0 for both).
     However, slight changes could still happen due to the optimization procedure and versions of these packages.
     """
-    
     X_vars = np.array(X_vars)
     Y_vars = np.array(Y_vars)
     """Coordinate system for regular projection on principal axes"""
@@ -1033,11 +1032,11 @@ def plotClass_separated_ver0(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_
         DMat = Id_Class["DMat"]
         if method == "umap":
             sys.exit("umap is not designed to deal with metric = precomputed choose MDS, t-SNE, or Isomap ")
-        Coords_manifold = low_dim_coords(DMat, dim = 2, method = low_meth, scale = scale)
+        Coords_manifold = low_dim_coords(DMat, dim = 2, method = low_meth, scale = scale, metric = metric)
     else:
         Coords = Id_Class["Coords"]
         Coords_manifold = low_dim_coords(Coords, dim=2, method  = low_meth, n_neighbors = n_neighbors, min_dist = min_dist, scale = scale)
-    
+
     """
     Kmeans and UMAP are already parameterized for reproducibility (random_state = 0 for both).
     However, slight changes could still happen due to the optimization procedure and versions of these packages.
