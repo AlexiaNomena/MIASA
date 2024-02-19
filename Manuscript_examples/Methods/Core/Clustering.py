@@ -98,8 +98,12 @@ def get_clusters(Coords, num_clust, palette, method = "Kmeans", init = "k-means+
             type_lr = method[1]
             if type_lr == "1/sqrt(vareps)":
                 labels = SOM(m=num_clust, n=1, sigma=1, lr=1/np.sqrt(vareps_miasa), dim = Coords.shape[1], random_state = rand, max_iter = epochs*Coords.shape[0]).fit_predict(Coords, epochs = epochs)
+            
             elif type_lr == "sqrt(vareps)":
                 labels = SOM(m=num_clust, n=1, sigma=1, lr=np.sqrt(vareps_miasa), dim = Coords.shape[1], random_state = rand, max_iter = epochs*Coords.shape[0]).fit_predict(Coords, epochs = epochs)
+            
+            elif type_lr == "1/vareps":
+                labels = SOM(m=num_clust, n=1, sigma=1, lr=np.sqrt(vareps_miasa), dim = Coords.shape[1], random_state = rand, max_iter = epochs*Coords.shape[0]).fit_predict(Coords, epochs = epochs)            
             else:
                 try:
                     labels = SOM(m=num_clust, n=1, sigma=1, lr= type_lr * np.sqrt(vareps_miasa), dim = Coords.shape[1], random_state = rand, max_iter = epochs*Coords.shape[0]).fit_predict(Coords, epochs = epochs)
@@ -141,7 +145,7 @@ def get_clusters(Coords, num_clust, palette, method = "Kmeans", init = "k-means+
             try:
                 labels = SOM_MIASA(initial_centroids = centroids_0, vareps_miasa = 1, lambda_miasa = 1, m=num_clust, n=1, sigma=1, lr=method[1], dim = Coords.shape[1], random_state = rand, max_iter = epochs*Coords.shape[0]).fit_predict(Coords, epochs=epochs)
             except:
-                sys.exit("clust_method[1] only options for SOM_MIAS Non_MD case MIASA is exactly equal to lr: float(lr)")
+                sys.exit("clust_method[1] only options for SOM_MIASA Non_MD case MIASA is exactly equal to lr: float(lr)")
         
     col_labels = get_col_labs(labels, palette)
     return labels, col_labels
