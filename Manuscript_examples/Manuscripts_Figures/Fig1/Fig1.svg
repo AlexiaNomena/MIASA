@@ -8,7 +8,7 @@
    version="1.1"
    id="svg5"
    inkscape:version="1.2 (dc2aeda, 2022-05-15)"
-   sodipodi:docname="concetp.svg"
+   sodipodi:docname="Fig1.svg"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
@@ -25,7 +25,7 @@
      inkscape:document-units="mm"
      showgrid="false"
      inkscape:zoom="0.90028971"
-     inkscape:cx="82.75114"
+     inkscape:cx="-42.764012"
      inkscape:cy="569.81658"
      inkscape:window-width="2120"
      inkscape:window-height="1334"
@@ -632,7 +632,7 @@
        inkscape:label="sim"><tspan
          x="379.40723"
          y="576.17442"
-         id="tspan33203">SIMILARITY</tspan></text>
+         id="tspan732260">SIMILARITY</tspan></text>
     <text
        xml:space="preserve"
        transform="matrix(0.2772184,0,0,0.2772184,1.9480553,-15.69077)"
@@ -641,7 +641,7 @@
        inkscape:label="sim"><tspan
          x="379.40723"
          y="576.17442"
-         id="tspan33205">SIMILARITY</tspan></text>
+         id="tspan732262">SIMILARITY</tspan></text>
     <text
        xml:space="preserve"
        transform="matrix(0.2772184,0,0,0.2772184,0.77777571,-49.712021)"
@@ -650,7 +650,7 @@
        inkscape:label="sim"><tspan
          x="373.3291"
          y="576.17442"
-         id="tspan33207">ASSOCIATION</tspan></text>
+         id="tspan732264">ASSOCIATION</tspan></text>
     <g
        inkscape:groupmode="layer"
        id="g29119"
@@ -663,7 +663,7 @@
          style="font-style:normal;font-variant:normal;font-weight:900;font-stretch:normal;font-size:20px;font-family:'Snell Roundhand';-inkscape-font-specification:'Snell Roundhand, Heavy';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;white-space:pre;shape-inside:url(#rect29121);display:inline;fill:#000000;fill-opacity:1;stroke:none;stroke-width:3.77953;stroke-dasharray:none;stroke-opacity:1"><tspan
            x="372.83962"
            y="637.85634"
-           id="tspan33209">X</tspan></text>
+           id="tspan732266">X</tspan></text>
       <text
          xml:space="preserve"
          style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8.56744px;font-family:'Times New Roman';-inkscape-font-specification:'Times New Roman, Italic';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;text-anchor:middle;opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.97142;stroke-dasharray:none;stroke-opacity:1"
@@ -688,7 +688,7 @@
          style="font-style:normal;font-variant:normal;font-weight:900;font-stretch:normal;font-size:20px;font-family:'Snell Roundhand';-inkscape-font-specification:'Snell Roundhand, Heavy';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;white-space:pre;shape-inside:url(#rect29679);display:inline;fill:#000000;fill-opacity:1;stroke:none;stroke-width:3.77953;stroke-dasharray:none;stroke-opacity:1"><tspan
            x="364.31963"
            y="637.85634"
-           id="tspan33211">XY</tspan></text>
+           id="tspan732268">XY</tspan></text>
       <text
          xml:space="preserve"
          style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8.56744px;font-family:'Times New Roman';-inkscape-font-specification:'Times New Roman, Italic';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;text-anchor:middle;opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.97142;stroke-dasharray:none;stroke-opacity:1"
@@ -713,7 +713,7 @@
          style="font-style:normal;font-variant:normal;font-weight:900;font-stretch:normal;font-size:20px;font-family:'Snell Roundhand';-inkscape-font-specification:'Snell Roundhand, Heavy';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;white-space:pre;shape-inside:url(#rect30060);display:inline;fill:#000000;fill-opacity:1;stroke:none;stroke-width:3.77953;stroke-dasharray:none;stroke-opacity:1"><tspan
            x="364.31963"
            y="637.85634"
-           id="tspan33213">XY</tspan></text>
+           id="tspan732270">XY</tspan></text>
       <text
          xml:space="preserve"
          style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8.56744px;font-family:'Times New Roman';-inkscape-font-specification:'Times New Roman, Italic';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;text-anchor:middle;opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.97142;stroke-dasharray:none;stroke-opacity:1"
@@ -749,7 +749,7 @@
          style="font-style:normal;font-variant:normal;font-weight:900;font-stretch:normal;font-size:20px;font-family:'Snell Roundhand';-inkscape-font-specification:'Snell Roundhand, Heavy';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;white-space:pre;shape-inside:url(#rect29311);display:inline;fill:#000000;fill-opacity:1;stroke:none;stroke-width:3.77953;stroke-dasharray:none;stroke-opacity:1"><tspan
            x="373.57962"
            y="637.85634"
-           id="tspan33215">Y</tspan></text>
+           id="tspan732272">Y</tspan></text>
       <text
          xml:space="preserve"
          style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8.56744px;font-family:'Times New Roman';-inkscape-font-specification:'Times New Roman, Italic';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;text-anchor:middle;opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.97142;stroke-dasharray:none;stroke-opacity:1"
@@ -807,7 +807,7 @@
        style="font-style:normal;font-variant:normal;font-weight:900;font-stretch:normal;font-size:26.6667px;font-family:'Snell Roundhand';-inkscape-font-specification:'Snell Roundhand, Heavy';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;white-space:pre;shape-inside:url(#rect6623);display:inline;opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:3.77953;stroke-dasharray:none;stroke-opacity:1"><tspan
          x="369.75294"
          y="643.87489"
-         id="tspan33217">X</tspan></text>
+         id="tspan732274">X</tspan></text>
     <ellipse
        style="display:inline;opacity:0.6;fill:none;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-opacity:1"
        id="path739"
@@ -872,11 +872,11 @@
        inkscape:label="unknown.."><tspan
          x="385.9502"
          y="595.0918"
-         id="tspan33219">Unknown
+         id="tspan732276">Unknown
 </tspan><tspan
          x="385.96973"
          y="620.0918"
-         id="tspan33221">partitions</tspan></text>
+         id="tspan732278">partitions</tspan></text>
     <g
        inkscape:groupmode="layer"
        id="layer3"
@@ -889,7 +889,7 @@
          style="font-style:normal;font-variant:normal;font-weight:900;font-stretch:normal;font-size:24px;font-family:'Snell Roundhand';-inkscape-font-specification:'Snell Roundhand, Heavy';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;white-space:pre;shape-inside:url(#rect6623-9);display:inline;fill:#000000;fill-opacity:1;stroke:none;stroke-width:3.77953;stroke-dasharray:none;stroke-opacity:1"><tspan
            x="370.98763"
            y="641.46745"
-           id="tspan33223">X</tspan></text>
+           id="tspan732280">X</tspan></text>
       <text
          xml:space="preserve"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:6.35px;font-family:'Times New Roman';-inkscape-font-specification:'Times New Roman, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;text-anchor:middle;opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1;stroke-dasharray:none;stroke-opacity:1"
@@ -913,7 +913,7 @@
          style="font-style:normal;font-variant:normal;font-weight:900;font-stretch:normal;font-size:24px;font-family:'Snell Roundhand';-inkscape-font-specification:'Snell Roundhand, Heavy';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;white-space:pre;shape-inside:url(#rect9733);display:inline;fill:#000000;fill-opacity:1;stroke:none;stroke-width:3.77953;stroke-dasharray:none;stroke-opacity:1"><tspan
            x="370.98763"
            y="641.46745"
-           id="tspan33225">X</tspan></text>
+           id="tspan732282">X</tspan></text>
       <text
          xml:space="preserve"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:6.35px;font-family:'Times New Roman';-inkscape-font-specification:'Times New Roman, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;text-anchor:middle;opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1;stroke-dasharray:none;stroke-opacity:1"
@@ -937,7 +937,7 @@
          style="font-style:normal;font-variant:normal;font-weight:900;font-stretch:normal;font-size:24px;font-family:'Snell Roundhand';-inkscape-font-specification:'Snell Roundhand, Heavy';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;white-space:pre;shape-inside:url(#rect9764);display:inline;fill:#000000;fill-opacity:1;stroke:none;stroke-width:3.77953;stroke-dasharray:none;stroke-opacity:1"><tspan
            x="370.98763"
            y="641.46745"
-           id="tspan33227">X</tspan></text>
+           id="tspan732284">X</tspan></text>
       <text
          xml:space="preserve"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:6.35px;font-family:'Times New Roman';-inkscape-font-specification:'Times New Roman, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;text-anchor:middle;opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1;stroke-dasharray:none;stroke-opacity:1"
@@ -961,7 +961,7 @@
          style="font-style:normal;font-variant:normal;font-weight:900;font-stretch:normal;font-size:24px;font-family:'Snell Roundhand';-inkscape-font-specification:'Snell Roundhand, Heavy';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;white-space:pre;shape-inside:url(#rect9721);display:inline;fill:#000000;fill-opacity:1;stroke:none;stroke-width:3.77953;stroke-dasharray:none;stroke-opacity:1"><tspan
            x="370.98763"
            y="641.46745"
-           id="tspan33229">X</tspan></text>
+           id="tspan732286">X</tspan></text>
       <text
          xml:space="preserve"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:6.35px;font-family:'Times New Roman';-inkscape-font-specification:'Times New Roman, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;text-anchor:middle;opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1;stroke-dasharray:none;stroke-opacity:1"
@@ -984,7 +984,7 @@
          style="font-style:normal;font-variant:normal;font-weight:900;font-stretch:normal;font-size:24px;font-family:'Snell Roundhand';-inkscape-font-specification:'Snell Roundhand, Heavy';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;white-space:pre;shape-inside:url(#rect9709);display:inline;fill:#000000;fill-opacity:1;stroke:none;stroke-width:3.77953;stroke-dasharray:none;stroke-opacity:1"><tspan
            x="370.98763"
            y="641.46745"
-           id="tspan33231">X</tspan></text>
+           id="tspan732288">X</tspan></text>
       <text
          xml:space="preserve"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:6.35px;font-family:'Times New Roman';-inkscape-font-specification:'Times New Roman, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;text-anchor:middle;opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1;stroke-dasharray:none;stroke-opacity:1"
@@ -1010,7 +1010,7 @@
        style="font-style:normal;font-variant:normal;font-weight:900;font-stretch:normal;font-size:26.6667px;font-family:'Snell Roundhand';-inkscape-font-specification:'Snell Roundhand, Heavy';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;white-space:pre;shape-inside:url(#rect6629);display:inline;opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:3.77953;stroke-dasharray:none;stroke-opacity:1"><tspan
          x="561.23375"
          y="742.73231"
-         id="tspan33233">Y</tspan></text>
+         id="tspan732290">Y</tspan></text>
     <ellipse
        style="opacity:0.6;fill:none;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-opacity:1"
        id="path739-1"
@@ -1026,11 +1026,11 @@
        style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:20px;font-family:Times;-inkscape-font-specification:'Times, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;white-space:pre;shape-inside:url(#rect8720-0);display:inline;fill:#000000;fill-opacity:1;stroke:none;stroke-width:3.77953;stroke-dasharray:none;stroke-opacity:1"><tspan
          x="385.9502"
          y="595.0918"
-         id="tspan33235">Unknown
+         id="tspan732292">Unknown
 </tspan><tspan
          x="385.96973"
          y="620.0918"
-         id="tspan33237">partitions</tspan></text>
+         id="tspan732294">partitions</tspan></text>
     <path
        sodipodi:type="star"
        style="opacity:0.6;fill:#fffb7d;fill-opacity:1;stroke:#000000;stroke-width:0.321339;stroke-dasharray:none;stroke-opacity:1"
@@ -1151,7 +1151,7 @@
          style="font-style:normal;font-variant:normal;font-weight:900;font-stretch:normal;font-size:24px;font-family:'Snell Roundhand';-inkscape-font-specification:'Snell Roundhand, Heavy';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;white-space:pre;shape-inside:url(#rect9709-8);display:inline;fill:#000000;fill-opacity:1;stroke:none;stroke-width:3.77953;stroke-dasharray:none;stroke-opacity:1"><tspan
            x="371.87562"
            y="641.46745"
-           id="tspan33239">Y</tspan></text>
+           id="tspan732296">Y</tspan></text>
       <text
          xml:space="preserve"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:6.35px;font-family:'Times New Roman';-inkscape-font-specification:'Times New Roman, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;text-anchor:middle;opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1;stroke-dasharray:none;stroke-opacity:1"
@@ -1176,7 +1176,7 @@
          style="font-style:normal;font-variant:normal;font-weight:900;font-stretch:normal;font-size:24px;font-family:'Snell Roundhand';-inkscape-font-specification:'Snell Roundhand, Heavy';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;white-space:pre;shape-inside:url(#rect10690);display:inline;fill:#000000;fill-opacity:1;stroke:none;stroke-width:3.77953;stroke-dasharray:none;stroke-opacity:1"><tspan
            x="371.87562"
            y="641.46745"
-           id="tspan33241">Y</tspan></text>
+           id="tspan732298">Y</tspan></text>
       <text
          xml:space="preserve"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:6.35px;font-family:'Times New Roman';-inkscape-font-specification:'Times New Roman, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;text-anchor:middle;opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1;stroke-dasharray:none;stroke-opacity:1"
@@ -1200,7 +1200,7 @@
          style="font-style:normal;font-variant:normal;font-weight:900;font-stretch:normal;font-size:24px;font-family:'Snell Roundhand';-inkscape-font-specification:'Snell Roundhand, Heavy';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;white-space:pre;shape-inside:url(#rect10841);display:inline;fill:#000000;fill-opacity:1;stroke:none;stroke-width:3.77953;stroke-dasharray:none;stroke-opacity:1"><tspan
            x="371.87562"
            y="641.46745"
-           id="tspan33243">Y</tspan></text>
+           id="tspan732300">Y</tspan></text>
       <text
          xml:space="preserve"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:6.35px;font-family:'Times New Roman';-inkscape-font-specification:'Times New Roman, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;text-anchor:middle;opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1;stroke-dasharray:none;stroke-opacity:1"
@@ -1224,7 +1224,7 @@
          style="font-style:normal;font-variant:normal;font-weight:900;font-stretch:normal;font-size:24px;font-family:'Snell Roundhand';-inkscape-font-specification:'Snell Roundhand, Heavy';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;white-space:pre;shape-inside:url(#rect9709-9);display:inline;fill:#000000;fill-opacity:1;stroke:none;stroke-width:3.77953;stroke-dasharray:none;stroke-opacity:1"><tspan
            x="371.87562"
            y="641.46745"
-           id="tspan33245">Y</tspan></text>
+           id="tspan732302">Y</tspan></text>
       <text
          xml:space="preserve"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:6.35px;font-family:'Times New Roman';-inkscape-font-specification:'Times New Roman, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;text-anchor:middle;opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1;stroke-dasharray:none;stroke-opacity:1"
@@ -1248,7 +1248,7 @@
          style="font-style:normal;font-variant:normal;font-weight:900;font-stretch:normal;font-size:24px;font-family:'Snell Roundhand';-inkscape-font-specification:'Snell Roundhand, Heavy';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;white-space:pre;shape-inside:url(#rect9709-9-1);display:inline;fill:#000000;fill-opacity:1;stroke:none;stroke-width:3.77953;stroke-dasharray:none;stroke-opacity:1"><tspan
            x="371.87562"
            y="641.46745"
-           id="tspan33247">Y</tspan></text>
+           id="tspan732304">Y</tspan></text>
       <text
          xml:space="preserve"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:6.35px;font-family:'Times New Roman';-inkscape-font-specification:'Times New Roman, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;text-anchor:middle;opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1;stroke-dasharray:none;stroke-opacity:1"
@@ -1269,9 +1269,7 @@
      inkscape:label="input_data"><tspan
        x="366.14022"
        y="585.59672"
-       id="tspan33251"><tspan
-         style="fill:#0000ff"
-         id="tspan33249">Input Data</tspan></tspan></text>
+       id="tspan732306">Input Data</tspan></text>
   <text
      xml:space="preserve"
      transform="matrix(0.26458333,0,0,0.26458333,-6.0191934,-62.076061)"
@@ -1280,9 +1278,7 @@
      inkscape:label="Assembled_dist"><tspan
        x="227.68301"
        y="585.59672"
-       id="tspan33255"><tspan
-         style="fill:#0000ff"
-         id="tspan33253">Assembled Distance Matrix (ADM)</tspan></tspan></text>
+       id="tspan732308">Assembled Distance Matrix (ADM)</tspan></text>
   <text
      xml:space="preserve"
      transform="matrix(0.26458333,0,0,0.26458333,-7.6695575,19.148981)"
@@ -1291,27 +1287,25 @@
      inkscape:label="Clustering"><tspan
        x="278.01511"
        y="585.59672"
-       id="tspan33259"><tspan
-         style="fill:#0000ff"
-         id="tspan33257">Distance-Based Clustering</tspan></tspan></text>
+       id="tspan732310">Distance-Based Clustering</tspan></text>
   <text
      xml:space="preserve"
      transform="matrix(0.26458333,0,0,0.26458333,-62.11125,33.487734)"
      id="text6480-8-1-8-9"
-     style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:24px;font-family:'Times New Roman';-inkscape-font-specification:'Times New Roman, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;white-space:pre;shape-inside:url(#rect6482-2-1-9-7);display:inline;fill:#0000ff;fill-opacity:1;stroke:none;stroke-width:3.77953;stroke-dasharray:none;stroke-opacity:1"
+     style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:24px;font-family:'Times New Roman';-inkscape-font-specification:'Times New Roman, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;white-space:pre;shape-inside:url(#rect6482-2-1-9-7);display:inline;fill:#000000;fill-opacity:1;stroke:none;stroke-width:3.77953;stroke-dasharray:none;stroke-opacity:1"
      inkscape:label="ADM_Euclidean"><tspan
        x="334.74316"
        y="583.24112"
-       id="tspan33261">ADM is Euclidean </tspan></text>
+       id="tspan732312">ADM is Euclidean </tspan></text>
   <text
      xml:space="preserve"
      transform="matrix(0.26458333,0,0,0.26458333,48.313094,33.487734)"
      id="text6480-8-1-8-9-7"
-     style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:24px;font-family:'Times New Roman';-inkscape-font-specification:'Times New Roman, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;white-space:pre;shape-inside:url(#rect6482-2-1-9-7-4);display:inline;fill:#0000ff;fill-opacity:1;stroke:none;stroke-width:3.77953;stroke-dasharray:none;stroke-opacity:1"
+     style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:24px;font-family:'Times New Roman';-inkscape-font-specification:'Times New Roman, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;white-space:pre;shape-inside:url(#rect6482-2-1-9-7-4);display:inline;fill:#000000;fill-opacity:1;stroke:none;stroke-width:3.77953;stroke-dasharray:none;stroke-opacity:1"
      inkscape:label="ADM_not_Euclidean"><tspan
        x="315.07324"
        y="583.24112"
-       id="tspan33263">ADM is not Euclidean </tspan></text>
+       id="tspan732314">ADM is not Euclidean </tspan></text>
   <rect
      style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1.08518;stroke-dasharray:none;stroke-opacity:1"
      id="rect36845-8-4"
@@ -1329,11 +1323,11 @@
      inkscape:label="qEE_transition"><tspan
        x="406.06934"
        y="583.24112"
-       id="tspan33265">qEE
+       id="tspan732316">qEE
 </tspan><tspan
        x="375.62988"
        y="613.24112"
-       id="tspan33267">Transition</tspan></text>
+       id="tspan732318">Transition</tspan></text>
   <text
      xml:space="preserve"
      transform="matrix(0.26458333,0,0,0.26458333,40.829399,70.464198)"
@@ -1348,11 +1342,11 @@
      inkscape:label="Direct"><tspan
        x="396.99316"
        y="583.24112"
-       id="tspan33269">Direct
+       id="tspan732320">Direct
 </tspan><tspan
        x="384.08496"
        y="613.24112"
-       id="tspan33271">Methods</tspan></text>
+       id="tspan732322">Methods</tspan></text>
   <g
      inkscape:groupmode="layer"
      id="layer9"
@@ -1365,15 +1359,15 @@
        inkscape:label="Ward"><tspan
          x="428.75098"
          y="579.79343"
-         id="tspan33273">
+         id="tspan732324">
 </tspan><tspan
          x="337.11523"
          y="604.79343"
-         id="tspan33275">Hierarichal Clustering 
+         id="tspan732326">Hierarichal Clustering 
 </tspan><tspan
          x="318.375"
          y="629.79343"
-         id="tspan33277">with Ward Linkage Method </tspan></text>
+         id="tspan732328">with Ward Linkage Method </tspan></text>
     <text
        xml:space="preserve"
        transform="matrix(0.26458333,0,0,0.26458333,-61.268111,80.045555)"
@@ -1382,11 +1376,11 @@
        inkscape:label="SOM"><tspan
          x="428.75098"
          y="579.79343"
-         id="tspan33279">
+         id="tspan732330">
 </tspan><tspan
          x="309.78125"
          y="604.79343"
-         id="tspan33281">Self Organizing Maps (SOM)</tspan></text>
+         id="tspan732332">Self Organizing Maps (SOM)</tspan></text>
     <text
        xml:space="preserve"
        transform="matrix(0.26458333,0,0,0.26458333,-60.670823,104.98329)"
@@ -1395,11 +1389,11 @@
        inkscape:label="SVM"><tspan
          x="428.75098"
          y="579.79343"
-         id="tspan33283">
+         id="tspan732334">
 </tspan><tspan
          x="301.45117"
          y="604.79343"
-         id="tspan33285">Suport Vector Machines (SVM)</tspan></text>
+         id="tspan732336">Suport Vector Machines (SVM)</tspan></text>
     <text
        xml:space="preserve"
        transform="matrix(0.26458333,0,0,0.26458333,-60.714781,118.80114)"
@@ -1408,11 +1402,11 @@
        inkscape:label="NN"><tspan
          x="428.75098"
          y="579.79343"
-         id="tspan33287">
+         id="tspan732338">
 </tspan><tspan
          x="340.4502"
          y="604.79343"
-         id="tspan33289">Neural Network (NN)</tspan></text>
+         id="tspan732340">Neural Network (NN)</tspan></text>
     <text
        xml:space="preserve"
        transform="matrix(0.26458333,0,0,0.26458333,-60.621731,40.075233)"
@@ -1421,13 +1415,13 @@
        inkscape:label="Minimizing Cluster variances"><tspan
          x="428.75098"
          y="579.79343"
-         id="tspan33291">
+         id="tspan732342">
 </tspan><tspan
          x="342.36914"
          y="604.79343"
-         id="tspan33295"><tspan
+         id="tspan732346"><tspan
            style="font-weight:bold;-inkscape-font-specification:'Times New Roman, Bold'"
-           id="tspan33293">Minimized Variance </tspan></tspan></text>
+           id="tspan732344">Minimized Variance </tspan></tspan></text>
     <text
        xml:space="preserve"
        transform="matrix(0.26458333,0,0,0.26458333,-62.091165,69.758662)"
@@ -1436,15 +1430,15 @@
        inkscape:label="supervised"><tspan
          x="428.75098"
          y="579.70777"
-         id="tspan33297">
+         id="tspan732348">
 </tspan><tspan
          x="349.84961"
          y="604.70777"
-         id="tspan33299">Unsupervised ML 
+         id="tspan732350">Unsupervised ML 
 </tspan><tspan
          x="428.75098"
          y="629.70777"
-         id="tspan33301"> </tspan></text>
+         id="tspan732352"> </tspan></text>
     <text
        xml:space="preserve"
        transform="matrix(0.26458333,0,0,0.26458333,-62.070494,94.701036)"
@@ -1453,15 +1447,15 @@
        inkscape:label="unsupervised"><tspan
          x="428.75098"
          y="579.70777"
-         id="tspan33303">
+         id="tspan732354">
 </tspan><tspan
          x="360.96289"
          y="604.70777"
-         id="tspan33305">Supervised ML 
+         id="tspan732356">Supervised ML 
 </tspan><tspan
          x="428.75098"
          y="629.70777"
-         id="tspan33307"> </tspan></text>
+         id="tspan732358"> </tspan></text>
   </g>
   <g
      inkscape:groupmode="layer"
@@ -1492,13 +1486,13 @@
        inkscape:label="Minimizing distance to medoids"><tspan
          x="428.75098"
          y="579.79343"
-         id="tspan33309">
+         id="tspan732360">
 </tspan><tspan
          x="295.14746"
          y="604.79343"
-         id="tspan33313"><tspan
+         id="tspan732364"><tspan
            style="font-weight:bold;-inkscape-font-specification:'Times New Roman, Bold'"
-           id="tspan33311">Minimized distance to Medoids </tspan></tspan></text>
+           id="tspan732362">Minimized distance to Medoids </tspan></tspan></text>
     <rect
        style="opacity:0.1;fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:0.918422;stroke-dasharray:none;stroke-opacity:1"
        id="rect36845-8-8-4"
@@ -1515,11 +1509,11 @@
        inkscape:label="K-medoids"><tspan
          x="428.75098"
          y="579.79343"
-         id="tspan33315">
+         id="tspan732366">
 </tspan><tspan
          x="384.3125"
          y="604.79343"
-         id="tspan33317">K-medoids</tspan></text>
+         id="tspan732368">K-medoids</tspan></text>
     <text
        xml:space="preserve"
        transform="matrix(0.26458333,0,0,0.26458333,48.069842,120.91486)"
@@ -1528,11 +1522,11 @@
        inkscape:label="K-medoids"><tspan
          x="428.75098"
          y="579.79343"
-         id="tspan33319">
+         id="tspan732370">
 </tspan><tspan
          x="351.82227"
          y="604.79343"
-         id="tspan33321">Spectral Clustering</tspan></text>
+         id="tspan732372">Spectral Clustering</tspan></text>
     <text
        xml:space="preserve"
        transform="matrix(0.26458333,0,0,0.26458333,48.101545,95.487657)"
@@ -1541,13 +1535,13 @@
        inkscape:label="Based on Ultra-Metrics"><tspan
          x="428.75098"
          y="579.79343"
-         id="tspan33323">
+         id="tspan732374">
 </tspan><tspan
          x="300.99707"
          y="604.79343"
-         id="tspan33327"><tspan
+         id="tspan732378"><tspan
            style="font-weight:bold;-inkscape-font-specification:'Times New Roman, Bold'"
-           id="tspan33325">Ultrametric Linkage Methods</tspan></tspan></text>
+           id="tspan732376">Ultrametric Linkage Methods</tspan></tspan></text>
     <text
        xml:space="preserve"
        transform="matrix(0.26458333,0,0,0.26458333,48.497769,113.39914)"
@@ -1556,13 +1550,13 @@
        inkscape:label="Based on Graph Lapacian"><tspan
          x="428.75098"
          y="579.79343"
-         id="tspan33329">
+         id="tspan732380">
 </tspan><tspan
          x="296.52441"
          y="604.79343"
-         id="tspan33333"><tspan
+         id="tspan732384"><tspan
            style="font-weight:bold;-inkscape-font-specification:'Times New Roman, Bold'"
-           id="tspan33331">Based on the Laplacian Matrix</tspan></tspan></text>
+           id="tspan732382">Based on the Laplacian Matrix</tspan></tspan></text>
     <text
        xml:space="preserve"
        transform="matrix(0.26458333,0,0,0.26458333,46.804644,102.36975)"
@@ -1571,11 +1565,11 @@
        inkscape:label="K-medoids"><tspan
          x="428.75098"
          y="579.79343"
-         id="tspan33335">
+         id="tspan732386">
 </tspan><tspan
          x="315.0791"
          y="604.79343"
-         id="tspan33337">Complete - Average - Single </tspan></text>
+         id="tspan732388">Complete - Average - Single </tspan></text>
   </g>
   <g
      inkscape:groupmode="layer"
