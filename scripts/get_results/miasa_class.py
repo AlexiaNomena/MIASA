@@ -391,7 +391,7 @@ def CosLM(DX, DY, UX = None, UY = None, fXY = None, c = None, similarity_method 
     
     D = np.zeros((F0.shape[0]+1, F0.shape[0]+1))
     D[0, 1] = np.sqrt(c1*zeta_f)
-    D[0, 2:] =  np.sqrt(F0[0, 1:]**2 + c2*zeta_f)
+    D[0, 2:] =  np.sqrt(F0[a, 1:]**2 + c2*zeta_f)
     D[1:, 0] = D[0, 1:]  
     
     # compute f^vareps

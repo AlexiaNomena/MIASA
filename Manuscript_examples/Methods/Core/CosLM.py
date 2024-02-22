@@ -7,7 +7,7 @@ import scipy as sp
 import sys
 import pdb
 
-def CosLM(DX, DY, UX = None, UY = None, fXY = None, c = None, similarity_method = ("Euclidean", "Euclidean")):
+def CosLM(DX, DY, UX = None, UY = None, fXY = None, c = None, similarity_method = ("Euclidean", "Euclidean"), use_w0 = False):
     """
     @brief Compute the cosine law matrix
     Parameters
@@ -72,7 +72,19 @@ def CosLM(DX, DY, UX = None, UY = None, fXY = None, c = None, similarity_method 
     
     D = np.zeros((F0.shape[0]+1, F0.shape[0]+1))
     D[0, 1] = np.sqrt(c1*zeta_f)
-    D[0, 2:] =  np.sqrt(F0[0, 1:]**2 + c2*zeta_f)
+    if not use_w0:
+        """
+        This formula is still case 2 of E. 3.2 in qEE paper (version 2) but it does not change the result because it pushes the center of the 
+        Gershgorin disc futher ways from zero (in next version of the qEE paper we will add arbitrary positive number 
+        inside of the sqrt of case 2 and it will be OK, it is exactly this formula if the arbitrary number = d(w_a, o))
+        """
+        D[0, 2:] =  np.sqrt(F0[a, 1:]**2 + c2*zeta_f)
+    else:
+        """
+        This option is not part of the Theorem in qEE paper but seems to work for "particular case", the default is to not use it
+        """
+        D[0, 2:] =  np.sqrt(F0[0, 1:]**2 + c2*zeta_f)
+        
     D[1:, 0] = D[0, 1:]  
     
     # compute f^vareps
