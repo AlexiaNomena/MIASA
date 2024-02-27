@@ -141,7 +141,7 @@ snakemake --snakefile MIASA --configfile path/to/config.yaml -j -d path/to/workd
 
 ```
 ```
-**CAUTION**:  Please delete the all the files folder generated in the folder `plots/` 
+**CAUTION**:  Please delete the all the files generated in the folder `plots/` 
 and re-run the above code line to make sure that the plots corresponds to the results
 ```
 With parameter `--configfile` you can give the configuration file, described above. The `-j` parameter determines the number of available CPU cores to use in the pipeline. Optionally you can provide the number of cores, e.g. `-j 4`. With parameter `-d` you can set the work directory, i.e. where the results of the pipeline are written to.
@@ -179,7 +179,7 @@ snakemake --snakefile MIASA --configfile demo/demo_config.yaml -j -d demo
 
 ```
 ```
-**CAUTION**:  Please delete the all the files folder generated in the folder `plots/` 
+**CAUTION**:  Please delete the all the files generated in the folder `plots/` 
 and re-run the above code line to make sure that the plots corresponds to the results
 ```
 
