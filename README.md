@@ -122,10 +122,10 @@ All input datasets must be pre-processed to follow the following requirements
 "GMM", # sklearn.mixture.GaussianMixture
 BayesianGMM", # sklearn.mixture.BayesianGaussianMixture
 "DBSCAN", # sklearn.cluster.DBSCAN
-"MLPClassifer", < percentage of objects numbers for training > # sklearn.neural_network.MLPClassifer using the parameters of manuscript results
-"MLPRegressor", < percentage of objects numbers for training >  # sklearn.neural_network.MLPRegressor using the parameters of manuscript results
-"SOM", < give a positive number  (that will be multiplied with 1/c3zeta to give the learning rate parameter) > # sklearn.som default initialization 
-"SOM_MIASA", 
+"MLPClassifer/<true label files with a column true label aligned with original dataset>/<percentage train>" # "/" separated, sklearn.neural_network.MLPClassifer using the parameters of manuscript results
+"MLPRegressor/<true label aligned with original dataset>/<percentage train randomly chosen within the true labels>" # sklearn.neural_network.MLPRegressor using the parameters of manuscript results
+"SVM_SVC/<true label aligned with original dataset>/<percentage train randomly chosen within the true labels>" # sklearn.svm.SVC using the parameters of manuscript results
+"SOM/< give a positive number  (that will be multiplied with 1/c3zeta to give the learning rate parameter)>" # sklearn.som default initialization 
 ```
 ## Execution
 

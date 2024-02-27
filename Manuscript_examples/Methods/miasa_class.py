@@ -210,7 +210,7 @@ def get_class(X, Y, Feature_X, Feature_Y, func, ftype, metric_method, c_dic, DMa
             clust_labels, color_clustered = get_clusters(Coords_0, num_clust, palette, method = clust_method, vareps_miasa = vareps)
     
         else:
-            sys.exit("An Euclidean-distance-based clustering method is better for MIASA")
+            sys.exit("An Euclidean-distance-based clustering method is needed for MIASA")
         
         
         if dist_origin[0] or dist_origin[1]:
