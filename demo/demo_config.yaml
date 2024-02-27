@@ -23,7 +23,7 @@ d_Y: "similarity_Y.xlsx"
 norm_X: "TRUE"
 norm_Y: "TRUE"
 # 7a. Clustering parameters (Option: See README.md
-clustering_method: "Agglomerative_ward" 
+clustering_method: "SVM_SVC/true_labels_file.xlsx/80"#Agglomerative_ward" 
 num_clust: 4
 # 7b. OPTIONAL: Get Silhouette, Elbow, and Distortion to help choose the number of cluster
 eval_clust: TRUE ### must be FALSE when there are too few points in X u Y
