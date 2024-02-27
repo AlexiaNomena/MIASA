@@ -17,6 +17,7 @@ import sys
 import numpy as np
 import pandas as pd
 import pdb
+import os
 
 def Miasa_Class(X, Y, num_clust, DMat = None, c_dic = None, dist_origin = (True, True), metric_method = ("eCDF", "KS-stat"), clust_method = "Kmeans", 
                 palette = "tab20", Feature_dic = None, in_threads = True, clust_orig = False, similarity_method = ("Euclidean", "Euclidean"),
@@ -242,15 +243,33 @@ def get_class(X, Y, c_dic, DMat, dist_origin = (True, True), num_clust=None, clu
          
         elif clust_method == "DBSCAN":
             clust_labels = get_clusters(Coords_0, num_clust, method = clust_method)
+        
+        elif clust_method[0] == "MLPClassifier":
+            clust_labels = get_clusters(Coords_0, num_clust, method = clust_method)
+        
+        elif clust_method[0] == "MLPRegressor":
+            clust_labels = get_clusters(Coords_0, num_clust, method = clust_method)
+        
+        elif clust_method[0] == "SVM_SVC":
+            clust_labels = get_clusters(Coords_0, num_clust, method = clust_method)
+            
+        elif clust_method[0] == "SOM":
+            clust_labels = get_clusters(Coords_0, num_clust, method = clust_method, vareps_miasa = vareps)
+        
+        elif clust_method[0] == "SOM_MIASA":
+            clust_labels = get_clusters(Coords_0, num_clust, method = clust_method, vareps_miasa = vareps)
             
         else:
-            sys.exit("A metric-distance based clustering method is better for MIASA \n Available here is Kmeans")
+            sys.exit("An Euclidean-distance-based clustering method is better for MIASA")
         
         if get_score:
             lab_lists = []
             list_num = np.arange(num_clust_range[0], num_clust_range[1]).astype(int)
             for i in range(len(list_num)):
-                lab_lists.append(get_clusters(Coords_0, num_clust = list_num[i], method = clust_method))
+                if clust_method[0] not in ("SOM", "SOM_MIASA"):
+                    lab_lists.append(get_clusters(Coords_0, num_clust = list_num[i], method = clust_method))
+                else:
+                    lab_lists.append(get_clusters(Coords_0, num_clust = list_num[i], method = clust_method, vareps_miasa = vareps))
             
             silhouette, elbow, distortion = compute_scores(Coords_0, list_num, lab_lists, M, N)
         else:
@@ -265,9 +284,10 @@ def get_class(X, Y, c_dic, DMat, dist_origin = (True, True), num_clust=None, clu
             was_orig = False
        
         DMat = Prox_Mat(DX, DY, UX = Orows, UY = Ocols, fXY = D_assoc)
+        
         Result = {"Coords": Coords, "shape":(M, N), "was_orig":was_orig, "vareps":vareps, "Class_pred":Class_pred, "clust_labels":clust_labels, 
                   "DMat":DMat, "X":X, "Y":Y, "num_iterations":num_it, "silhouette":silhouette, "elbow":elbow, "distortion":distortion, "list_num":list_num}
-    
+        
     else:
         
         Result = None   
@@ -275,7 +295,7 @@ def get_class(X, Y, c_dic, DMat, dist_origin = (True, True), num_clust=None, clu
     return Result
 
 rand = 0
-def get_clusters(Coords, num_clust, method = "Kmeans", init = "k-means++", metric = "Euclidean"):
+def get_clusters(Coords, num_clust, method = "Kmeans", init = "k-means++", metric = "Euclidean", vareps_miasa=None):
     if method == "Kmeans":
         clusters = sklc.KMeans(n_clusters = num_clust, init = init, random_state = rand).fit(Coords)
         labels = clusters.labels_
@@ -322,9 +342,149 @@ def get_clusters(Coords, num_clust, method = "Kmeans", init = "k-means++", metri
         cluster = sklc.DBSCAN(metric = metric).fit(Coords)
         labels = cluster.labels_
     
+    elif method[0] == "MLPClassifier": ### uses a log loss function = cross-entropy
+        epochs = 3
+        labels = Neural_Net(Coords, params = method[1], random_state=rand, max_iter = epochs*Coords.shape[0])
+    
+    elif method[0] == "MLPRegressor": ### uses a Square Error Loss (SEL) function (more related to the Euclidean distance)
+        epochs = 3
+        labels = Neural_Net_Regressor(Coords, params = method[1], random_state=rand, max_iter = epochs*Coords.shape[0])
+    
+    elif method[0] == "SVM_SVC":
+        epochs = 3
+        labels = SVM_SVC(Coords, params = method[1], random_state=rand, max_iter = epochs*Coords.shape[0])
+        
+    elif method[0] == "SOM":
+        epochs = 3
+        
+        if (vareps_miasa != "Non_MD_Case") and (vareps_miasa != 0):
+            type_lr = method[1]
+            if type_lr == "1/sqrt(vareps)":
+                labels = SOM(m=num_clust, n=1, sigma=1, lr=1/np.sqrt(vareps_miasa), dim = Coords.shape[1], random_state = rand, max_iter = epochs*Coords.shape[0]).fit_predict(Coords, epochs = epochs)
+            
+            elif type_lr == "sqrt(vareps)":
+                labels = SOM(m=num_clust, n=1, sigma=1, lr=np.sqrt(vareps_miasa), dim = Coords.shape[1], random_state = rand, max_iter = epochs*Coords.shape[0]).fit_predict(Coords, epochs = epochs)
+            
+            elif type_lr == "1/vareps":
+                labels = SOM(m=num_clust, n=1, sigma=1, lr=np.sqrt(vareps_miasa), dim = Coords.shape[1], random_state = rand, max_iter = epochs*Coords.shape[0]).fit_predict(Coords, epochs = epochs)            
+            else:
+                try:
+                    labels = SOM(m=num_clust, n=1, sigma=1, lr= type_lr * 1/np.sqrt(vareps_miasa), dim = Coords.shape[1], random_state = rand, max_iter = epochs*Coords.shape[0]).fit_predict(Coords, epochs = epochs)
+                except:
+                    sys.exit("clust_method[1] only options for SOM in qEE-MIASA are: str(1/sqrt(vareps)) to give lr params, str(sqrt(vareps)) to give lr params, or float(prop) to make lr = float(prop)*(1/sqrt(vareps))")
+        else:
+            try:
+                labels = SOM(m=num_clust, n=1, sigma=1, lr=method[1], dim = Coords.shape[1], random_state = rand, max_iter = epochs*Coords.shape[0]).fit_predict(Coords, epochs = epochs)
+            except:
+                sys.exit("clust_method[1] only options for SOM Non_MD case MIASA is exactly equal to lr: float(lr)")
+       
+
+    elif method[0] == "SOM_MIASA":
+        clusters = sklc.AgglomerativeClustering(n_clusters = num_clust, linkage = "ward", distance_threshold = None).fit(Coords)
+        labels_0 = clusters.labels_
+        centroids_0 = np.array([np.mean(Coords[labels_0 == labs, :], axis = 0) for labs in np.unique(labels_0)])
+        epochs = 3 ### des
+        
+        """
+        Learing rate is taylored for MIASA lr_miasa = lr*(sqrt(vareps_miasa)/lambda_miasa) 
+        --- because in the qEE spac, for every points z in space, there exists at most one sample point z* such that
+        dist(z*, z) => R, where R=sqrt(vareps_miasa)/lambda_miasa (less than or equal to)
+        which is actually true for all cloud of points if we take R = min(of all interpoint distances),
+        however, in the qEE space, vareps_miasa is quite large, therefore we use it to have a better control our step sized in the learning process 
+        """
+        if (vareps_miasa != "Non_MD_Case") and (vareps_miasa != 0):
+            type_lr = method[1]
+            if type_lr == "1/sqrt(vareps)":
+                lambda_miasa = vareps_miasa
+            elif type_lr == "sqrt(vareps)":
+                lambda_miasa = 1
+            else:
+                lambda_miasa = (1/type_lr)*np.sqrt(vareps_miasa)
+            try:
+                labels = SOM_MIASA(initial_centroids = centroids_0, vareps_miasa = vareps_miasa, lambda_miasa = lambda_miasa, m=num_clust, n=1, sigma=1, lr=1, dim = Coords.shape[1], random_state = rand, max_iter = epochs*Coords.shape[0]).fit_predict(Coords, epochs=epochs)
+            except:
+                sys.exit("clust_method[1] only options for SOM_MIASA in qEE-MIASA are: str(1/sqrt(vareps)) to give lr params, str(sqrt(vareps)) to give lr params, or float(prop) to make lr = float(prop)*sqrt(vareps)")
+        else:
+            try:
+                labels = SOM_MIASA(initial_centroids = centroids_0, vareps_miasa = 1, lambda_miasa = 1, m=num_clust, n=1, sigma=1, lr=method[1], dim = Coords.shape[1], random_state = rand, max_iter = epochs*Coords.shape[0]).fit_predict(Coords, epochs=epochs)
+            except:
+                sys.exit("clust_method[1] only options for SOM_MIASA Non_MD case MIASA is exactly equal to lr: float(lr)")
+                
     return labels
 
 
+from sklearn.neural_network import MLPClassifier, MLPRegressor
+from sklearn_som.som import SOM
+from sklearn import svm
+
+def Neural_Net(Coords, params, metric = None, random_state=None, max_iter = 500):
+    """Remember that Class_True does not contain the origin"""
+    M, N, Class_True, perc_train = params
+    
+    """In the non-Euclidean case it is the distance matrix could be used, but we are not sure how legit that is"""
+
+    #Coords = StandardScaler().fit_transform(Coords) ## scale
+    Coords_data = np.row_stack((Coords[:M, :], Coords[-N:, :]))
+    K = int((perc_train/100)*len(Class_True))
+    
+    Inds = np.arange(0, Coords_data.shape[0], 1, dtype = int)
+    if random_state is not None:
+        np.random.seed(random_state) # in case one needs a reproducible result
+    
+    np.random.shuffle(Inds)
+    Coords_train = Coords_data[Inds[:K], :]
+    Class_train = Class_True[Inds[:K]]
+    clf = MLPClassifier(random_state=rand, max_iter = max_iter).fit(Coords_train, Class_train)
+    
+    labels_pred = clf.predict(Coords)
+    
+    return labels_pred
+
+def Neural_Net_Regressor(Coords, params, metric = None, random_state=None, max_iter = 500):
+    """Remember that Class_True does not contain the origin"""
+    M, N, Class_True, perc_train = params
+    
+    """In the non-Euclidean case it is the distance matrix could be used, but we are not sure how legit that is"""
+
+    #Coords = StandardScaler().fit_transform(Coords) ## scale
+    Coords_data = np.row_stack((Coords[:M, :], Coords[-N:, :]))
+    K = int((perc_train/100)*len(Class_True))
+    
+    Inds = np.arange(0, Coords_data.shape[0], 1, dtype = int)
+    if random_state is not None:
+        np.random.seed(random_state) # in case one needs a reproducible result
+    
+    np.random.shuffle(Inds)
+    Coords_train = Coords_data[Inds[:K], :]
+    Class_train = Class_True[Inds[:K]]
+    clf = MLPRegressor(random_state=rand, max_iter = max_iter).fit(Coords_train, Class_train)
+    
+    labels_pred = clf.predict(Coords)
+    
+    return labels_pred
+
+def SVM_SVC(Coords, params, metric = None, random_state=None, max_iter = 500, vareps_miasa=0):
+    """Remember that Class_True does not contain the origin"""
+    M, N, Class_True, perc_train = params
+    
+    """In the non-Euclidean case it is the distance matrix could be used, but we are not sure how legit that is"""
+
+    #Coords = StandardScaler().fit_transform(Coords) ## scale
+    Coords_data = np.row_stack((Coords[:M, :], Coords[-N:, :]))
+    K = int((perc_train/100)*len(Class_True))
+    
+    Inds = np.arange(0, Coords_data.shape[0], 1, dtype = int)
+    if random_state is not None:
+        np.random.seed(random_state) # in case one needs a reproducible result
+    
+    np.random.shuffle(Inds)
+    Coords_train = Coords_data[Inds[:K], :]
+    Class_train = Class_True[Inds[:K]]
+    clf = svm.SVC(random_state=rand, max_iter = max_iter).fit(Coords_train, Class_train)
+    #clf = svm.SVC(random_state=rand, max_iter = max_iter, gamma = 1, degree=1, coef0 = np.sqrt(vareps_miasa), kernel = "poly").fit(Coords_train, Class_train)
+    labels_pred = clf.predict(Coords)
+    
+    return labels_pred
 
 def CosLM(DX, DY, UX = None, UY = None, fXY = None, c = None, similarity_method = ("Euclidean", "Euclidean")):
     """
@@ -567,6 +727,24 @@ file = open(file_res, "wb")
 pickle.dump(Results, file)
 file.close()
 
+"""Saving qEE-Transition data"""
+Coords = Results["Coords"]
+qEE_dic = {"qEE dimensions": ["dim_%d"%i for i in range(Coords.shape[1])]}
+for i in range(len(X_vars)):
+    qEE_dic[X_vars[i]] = np.round(Coords[i, :], decimals=10)
+
+for j in range(len(Y_vars)):
+    qEE_dic[Y_vars[j]] = np.round(Coords[-len(Y_vars):, :][j, :], decimals=10)   
+
+qEE_DF = pd.DataFrame(qEE_dic)
+
+if not os.path.exists("results/"):
+    os.mkdir("results")
+    
+qEE_DF.to_excel("results/qEE_Transformed_Dataset.xlsx")
+qEE_DF.to_csv("results/qEE_Transformed_Dataset.csv")
+
+
 import matplotlib.pyplot as plt
 if get_score:
     list_num = Results["list_num"]
@@ -606,3 +784,304 @@ if get_score:
     pdf.savefig(fig, bbox_inches = "tight")
     pdf.close()
     plt.savefig(str(sys.argv[14])+"/Cluster_scores.svg", bbox_inches='tight')
+
+
+class SOM_MIASA():
+    """
+    The 2-D, rectangular grid self-organizing map class using Numpy.
+    """
+    def __init__(self, initial_centroids = None, m=3, n=3, dim=3, lr=1, sigma=1, max_iter=3000,
+                    random_state=None, vareps_miasa = 0, lambda_miasa = 2):
+        """
+        Parameters
+        ----------
+        m : int, default=3
+            The shape along dimension 0 (vertical) of the SOM.
+        n : int, default=3
+            The shape along dimesnion 1 (horizontal) of the SOM.
+        dim : int, default=3
+            The dimensionality (number of features) of the input space.
+        lr : float, default=1
+            The initial step size for updating the SOM weights.
+        sigma : float, optional
+            Optional parameter for magnitude of change to each weight. Does not
+            update over training (as does learning rate). Higher values mean
+            more aggressive updates to weights.
+        max_iter : int, optional
+            Optional parameter to stop training if you reach this many
+            interation 
+        random_state : int, optional
+            Optional integer seed to the random number generator for weight
+            initialization. This will be used to create a new instance of Numpy's
+            default random number generator (it will not call np.random.seed()).
+            Specify an integer for deterministic results.
+        """
+        # Initialize descriptive features of SOM
+        self.m = m
+        self.n = n
+        self.dim = dim
+        self.shape = (m, n)
+        self.initial_lr = lr
+        self.lr = lr
+        self.sigma = sigma
+        self.max_iter = max_iter
+        
+        self.vareps_miasa = vareps_miasa
+        self.lambda_miasa = lambda_miasa
+
+        # Initialize weights
+        self.random_state = random_state
+        rng = np.random.default_rng(random_state)
+        # centroid initialization
+        if initial_centroids is not None:
+            self.weights = initial_centroids
+        else:
+            self.weights = rng.normal(size=(m * n, dim))
+            
+        self._locations = self._get_locations(m, n)
+
+        # Set after fitting
+        self._inertia = None
+        self._n_iter_ = None
+        self._trained = False
+
+    def _get_locations(self, m, n):
+        """
+        Return the indices of an m by n array.
+        """
+        return np.argwhere(np.ones(shape=(m, n))).astype(np.int64)
+
+    def _find_bmu(self, x):
+        """
+        Find the index of the best matching unit for the input vector x.
+        """
+        # Stack x to have one row per weight
+        x_stack = np.stack([x]*(self.m*self.n), axis=0)
+        # Calculate distance between x and each weight
+        ### Recovering the initial distances, however tmight not work because of 
+        ### some numerical rounding errors making the computed distances the same
+        #distance = np.maximum(np.zeros(x_stack.shape[0]), np.linalg.norm(x_stack - self.weights, axis=1)**2 - self.vareps_miasa) 
+        distance = np.linalg.norm(x_stack - self.weights, axis=1)
+        # Find index of best matching unit 
+        return np.argmin(distance)
+        
+    def step(self, x):
+        """
+        Do one step of training on the given input vector.
+        """
+        # Stack x to have one row per weight
+        x_stack = np.stack([x]*(self.m*self.n), axis=0)
+        
+        # Get index of best matching unit
+        bmu_index = self._find_bmu(x)
+            
+        # Find location of best matching unit
+        bmu_location = self._locations[bmu_index,:]
+
+        # Find square distance from each weight to the BMU
+        stacked_bmu = np.stack([bmu_location]*(self.m*self.n), axis=0)
+        bmu_distance = np.sum(np.power(self._locations.astype(np.float64) - stacked_bmu.astype(np.float64), 2), axis=1)
+
+        # Compute update neighborhood
+        neighborhood = np.exp((bmu_distance / (self.sigma ** 2)) * -1)
+        local_step = self.lr * (np.sqrt(self.vareps_miasa)/self.lambda_miasa) * neighborhood
+
+        # Stack local step to be proper shape for update
+        local_multiplier = np.stack([local_step]*(self.dim), axis=1)
+
+        # Multiply by difference between input and weights
+        delta = local_multiplier * (x_stack - self.weights)
+
+        # Update weights
+        self.weights += delta
+
+    def _compute_point_intertia(self, x):
+        """
+        Compute the inertia of a single point. Inertia defined as squared distance
+        from point to closest cluster center (BMU)
+        """
+        # Find BMU
+        bmu_index = self._find_bmu(x)
+        bmu = self.weights[bmu_index]
+        # Compute sum of squared distance (just euclidean distance) from x to bmu
+        return np.sum(np.square(x - bmu))
+
+    def fit(self, X, epochs=1, shuffle=True):
+        """
+        Take data (a tensor of type float64) as input and fit the SOM to that
+        data for the specified number of epochs.
+
+        Parameters
+        ----------
+        X : ndarray
+            Training data. Must have shape (n, self.dim) where n is the number
+            of training samples.
+        epochs : int, default=1
+            The number of times to loop through the training data when fitting.
+        shuffle : bool, default True
+            Whether or not to randomize the order of train data when fitting.
+            Can be seeded with np.random.seed() prior to calling fit.
+
+        Returns
+        -------
+        None
+            Fits the SOM to the given data but does not return anything.
+        """
+        # Count total number of iterations
+        global_iter_counter = 0
+        n_samples = X.shape[0]
+        total_iterations = np.minimum(epochs * n_samples, self.max_iter)
+
+        for epoch in range(epochs):
+            # Break if past max number of iterations, we want the number interations per samples to be equal
+            if global_iter_counter > (self.max_iter):
+                break
+
+            if shuffle:
+                rng = np.random.default_rng(self.random_state)
+                indices = rng.permutation(n_samples)
+            else:
+                indices = np.arange(n_samples)
+            
+            # Train
+            for i in range(len(indices)):
+                idx = indices[i]
+                # Break if past max number of iterations
+                if global_iter_counter > (self.max_iter):
+                    break
+                input_0 = X[idx]
+                # Do one step of training
+                self.step(input_0)
+                # Update learning rate
+                global_iter_counter += 1
+                self.lr = (1 - (global_iter_counter / total_iterations)) * self.initial_lr
+
+        # Compute inertia
+        inertia = np.sum(np.array([float(self._compute_point_intertia(x)) for x in X]))
+        self._inertia_ = inertia
+
+        # Set n_iter_ attribute
+        self._n_iter_ = global_iter_counter
+
+        # Set trained flag
+        self._trained = True
+
+        return
+
+    def predict(self, X):
+        """
+        Predict cluster for each element in X.
+
+        Parameters
+        ----------
+        X : ndarray
+            An ndarray of shape (n, self.dim) where n is the number of samples.
+            The data to predict clusters for.
+
+        Returns
+        -------
+        labels : ndarray
+            An ndarray of shape (n,). The predicted cluster index for each item
+            in X.
+        """
+        # Check to make sure SOM has been fit
+        if not self._trained:
+            raise NotImplementedError('SOM object has no predict() method until after calling fit().')
+
+        # Make sure X has proper shape
+        assert len(X.shape) == 2, f'X should have two dimensions, not {len(X.shape)}'
+        assert X.shape[1] == self.dim, f'This SOM has dimesnion {self.dim}. Received input with dimension {X.shape[1]}'
+        
+        labels = np.array([self._find_bmu(x) for x in X])
+        
+        return labels
+
+    def transform(self, X):
+        """
+        Transform the data X into cluster distance space.
+
+        Parameters
+        ----------
+        X : ndarray
+            Data of shape (n, self.dim) where n is the number of samples. The
+            data to transform.
+
+        Returns
+        -------
+        transformed : ndarray
+            Transformed data of shape (n, self.n*self.m). The Euclidean distance
+            from each item in X to each cluster center.
+        """
+        # Stack data and cluster centers
+        X_stack = np.stack([X]*(self.m*self.n), axis=1)
+        cluster_stack = np.stack([self.weights]*X.shape[0], axis=0)
+
+        # Compute difference
+        diff = X_stack - cluster_stack
+
+        # Take and return norm
+        return np.linalg.norm(diff, axis=2)
+
+    def fit_predict(self, X, **kwargs):
+        """
+        Convenience method for calling fit(X) followed by predict(X).
+
+        Parameters
+        ----------
+        X : ndarray
+            Data of shape (n, self.dim). The data to fit and then predict.
+        **kwargs
+            Optional keyword arguments for the .fit() method.
+
+        Returns
+        -------
+        labels : ndarray
+            ndarray of shape (n,). The index of the predicted cluster for each
+            item in X (after fitting the SOM to the data in X).
+        """
+        # Fit to data
+        self.fit(X, **kwargs)
+
+        # Return predictions
+        return self.predict(X)
+
+    def fit_transform(self, X, **kwargs):
+        """
+        Convenience method for calling fit(X) followed by transform(X). Unlike
+        in sklearn, this is not implemented more efficiently (the efficiency is
+        the same as calling fit(X) directly followed by transform(X)).
+
+        Parameters
+        ----------
+        X : ndarray
+            Data of shape (n, self.dim) where n is the number of samples.
+        **kwargs
+            Optional keyword arguments for the .fit() method.
+
+        Returns
+        -------
+        transformed : ndarray
+            ndarray of shape (n, self.m*self.n). The Euclidean distance
+            from each item in X to each cluster center.
+        """
+        # Fit to data
+        self.fit(X, **kwargs)
+
+        # Return points in cluster distance space
+        return self.transform(X)
+
+    @property
+    def cluster_centers_(self):
+        return self.weights.reshape(self.m, self.n, self.dim)
+
+    @property
+    def inertia_(self):
+        if self._inertia_ is None:
+            raise AttributeError('SOM does not have inertia until after calling fit()')
+        return self._inertia_
+
+    @property
+    def n_iter_(self):
+        if self._n_iter_ is None:
+            raise AttributeError('SOM does not have n_iter_ attribute until after calling fit()')
+        return self._n_iter_

@@ -640,7 +640,7 @@ def plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neighbors = 2, 
                         show_labels = False, show_orig = True, metric = "euclidean", legend = True, place_holder = (0, 0), 
                         wrap_true = False, wrap_predicted = False, wrap_pred_params = (None, 1), oultiers_markers = ("o", "^", 5),  wrap_type = "convexhull",
                         def_pred_outliers = (2, 0.95),show_pred_outliers = False, group_annot_size = 15, dataname = None, hull_pred = False, points_hull = 5, group_color = None, alpha = 0.25,
-                        shorten_annots = False, cut = (2, 2), connect_pred = False):        
+                        shorten_annots = False, cut = (2, 2), connect_pred = False, true_labels_file = None):        
     """@brief Plot and Save class figures"""
     
     """Lower Dimensional visualization of clusters"""
@@ -696,6 +696,28 @@ def plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neighbors = 2, 
         cols_to_Annot = None
     
     color_clustered = get_col_labs(Id_Class["Class_pred"], palette)
+    if true_labels_file == None:
+        true_colors = color_clustered
+    else:
+        try:
+            true_labels = []
+            if true_labels_file[-3:] == "csv":
+                lab_file = pd.read_csv(true_labels_file)
+            elif true_labels_file[-4:] == "xlsx":
+                lab_file = pd.read_excel(true_labels_file, engine='openpyxl')
+            else:
+                lab_file = "None"
+                
+            varsXY = lab_file["variable"]
+            vars_lab = lab_file["true labels"]
+            for i1 in range(M):
+                true_labels.append(int(vars_lab[list(varsXY).index(X_vars[i1])]))
+            for i1 in range(M):
+                true_labels.append(int(vars_lab[list(varsXY).index(Y_vars[i1])]))
+                    
+            true_colors = get_col_labs(np.array(true_labels), palette)
+        except:
+            sys.exit("Please give the true label as a .csv or xlsx file with the categories of variable in one column (named: variable)  their true labels as integers in another column (named: true labels)")
     
     fig = plt.figure(figsize=(36+18,20+10))
     ax = fig.add_subplot(2,1,1)
@@ -724,12 +746,12 @@ def plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neighbors = 2, 
     RowName = None
     #pdb.set_trace()
     
-    if cluster_colors:
+    if true_labels_file == None:
         col_rows = {rows_labels[X_vars[i]]:color_clustered[i] for i in range(M)}
-        col_cols = {columns_labels[Y_vars[i]]:color_clustered[-N+i] for i in range(N)}
+        col_cols = {columns_labels[Y_vars[i]]:color_clustered[-N:][i] for i in range(N)}
     else:
-        col_rows = {rows_labels[X_vars[i]]:true_colors[X_vars[i]] for i in range(M)}
-        col_cols = {columns_labels[Y_vars[i]]:true_colors[Y_vars[i]] for i in range(N)}
+        col_rows = {rows_labels[X_vars[i]]:true_colors[i] for i in range(M)}
+        col_cols = {columns_labels[Y_vars[i]]:true_colors[-N:][i] for i in range(N)}
     
     col_to_use = (col_rows, col_cols)
     marker_to_use = markers #[("o",20),("o",20)]
@@ -759,29 +781,19 @@ def plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neighbors = 2, 
                                                      give_ax = True) # crop fig
         
     
-    """  
-    if legend & (not cluster_colors) & (not wrap_true) & (not wrap_predicted) :
+    
+    if legend & (true_labels_file != None) :
          col_done = []
          for i in range(len(X_vars)):
-             if true_colors[X_vars[i]] not in col_done:
-                 ax.scatter(np.zeros(1), np.zeros(1), marker = marker_to_use[0][0], s =  marker_to_use[0][1], color = true_colors[X_vars[i]], label = rows_labels[X_vars[i]][:cut[0]])
-                 col_done.append(true_colors[X_vars[i]])
+             if str(true_colors[i]) not in col_done:
+                 ax.scatter(np.zeros(1), np.zeros(1), marker = marker_to_use[0][0], s =  marker_to_use[0][1], color = true_colors[i], label = true_labels[i])
+                 col_done.append(str(true_colors[i]))
          
          for i in range(len(X_vars)):
-            if true_colors[Y_vars[i]] not in col_done:
-                ax.scatter(np.zeros(1), np.zeros(1), marker = marker_to_use[0][1], s =  marker_to_use[0][1], color = true_colors[Y_vars[i]], label = columns_labels[Y_vars[i]][:cut[1]])
-                col_done.append(true_colors[Y_vars[i]])
-         
-         ax.annotate("place_holder", xy=(0,0), 
-                  xytext= (5, 5), textcoords='offset points', ha='center', va='bottom',
-                  bbox=dict(boxstyle='circle', fc = "white"),
-                  arrowprops=dict(arrowstyle='->', color = "black"),  #connectionstyle='arc3,rad=0.5'),
-                  color= "black",
-                  fontsize = 6
-                   )
-         
-         plt.legend()
-    """
+            if str(true_colors[i]) not in col_done:
+                ax.scatter(np.zeros(1), np.zeros(1), marker = marker_to_use[0][1], s =  marker_to_use[0][1], color = true_colors[i], label = true_labels[i])
+                col_done.append(str(true_colors[i]))
+    
         
     if Connect_assoc in ("True", "TRUE", True):
         if not Assoc_file:
@@ -1066,8 +1078,8 @@ def plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neighbors = 2, 
                         plt.plot(outliers[:, 0], outliers[:, 1], marker = oultiers_markers[1], markersize =  oultiers_markers[2], color = col_class, fillstyle = "full", linestyle = "")
         
     
-    if legend & (not cluster_colors):
-        plt.legend(loc = (1.1, 0) , ncol = 3)
+    if legend:
+        plt.legend(loc = (0, 1.1), ncol = 2*num_clust % 10)     
                 
     """
     ylim = ax.get_ylim()
@@ -1115,7 +1127,7 @@ def plotClass_separated(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neigh
                         show_labels = False, show_orig = True, metric = "euclidean", legend = True, place_holder = (0, 0), 
                         wrap_true = False, wrap_predicted = False, wrap_pred_params = (None, 1), oultiers_markers = ("o", "^", 5),  wrap_type = "convexhull",
                         def_pred_outliers = (2, 0.95),show_pred_outliers = False, group_annot_size = 15, dataname = None,
-                        num_row_col = None, show_separation = False, hull_pred = False, points_hull = 5, group_color = None, alpha = 0.25, shorten_annots = False, cut = (2, 2)):        
+                        num_row_col = None, show_separation = False, hull_pred = False, points_hull = 5, group_color = None, alpha = 0.25, shorten_annots = False, cut = (2, 2), true_labels_file = None):        
     """@brief Plot and Save class figures"""
     
     """Lower Dimensional visualization of clusters"""
@@ -1171,17 +1183,40 @@ def plotClass_separated(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neigh
         cols_to_Annot = None
     
     color_clustered = get_col_labs(Id_Class["Class_pred"], palette)
+    if true_labels_file == None:
+        true_colors = color_clustered
+    else:
+        try:
+            true_labels = []
+            if true_labels_file[-3:] == "csv":
+                lab_file = pd.read_csv(true_labels_file)
+            elif true_labels_file[-4:] == "xlsx":
+                lab_file = pd.read_excel(true_labels_file, engine='openpyxl')
+            else:
+                lab_file = "None"
+            
+            varsXY = lab_file["variable"]
+            vars_lab = lab_file["true labels"]
+            for i1 in range(M):
+                true_labels.append(int(vars_lab[list(varsXY).index(X_vars[i1])]))
+            for i1 in range(M):
+                true_labels.append(int(vars_lab[list(varsXY).index(Y_vars[i1])]))
+                    
+            true_colors = get_col_labs(np.array(true_labels), palette)
+        except:
+            sys.exit("Please give the true label as a .csv or xlsx file with the categories of variable in one column (named: variable)  their true labels as integers in another column (named: true labels)")
+    
 
     ColName = None
     RowName = None
     #pdb.set_trace()
     
-    if cluster_colors:
+    if true_labels_file == None:
         col_rows = {rows_labels[X_vars[i]]:color_clustered[i] for i in range(M)}
-        col_cols = {columns_labels[Y_vars[i]]:color_clustered[-N+i] for i in range(N)}
+        col_cols = {columns_labels[Y_vars[i]]:color_clustered[-N:][i] for i in range(N)}
     else:
-        col_rows = {rows_labels[X_vars[i]]:true_colors[X_vars[i]] for i in range(M)}
-        col_cols = {columns_labels[Y_vars[i]]:true_colors[Y_vars[i]] for i in range(N)}
+        col_rows = {rows_labels[X_vars[i]]:true_colors[i] for i in range(M)}
+        col_cols = {columns_labels[Y_vars[i]]:true_colors[-N:][i] for i in range(N)}
         
     if markers_color is None:
         col_to_use = (col_rows, col_cols)
@@ -1253,29 +1288,17 @@ def plotClass_separated(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neigh
                                                      lims = False) # crop fig
         
         
-        if legend & (not cluster_colors) & (not wrap_true) & (not wrap_predicted) :
+        if legend & (true_labels_file != None) :
              col_done = []
-             for i in range(len(X_vars_sub)):
-                 if true_colors[X_vars_sub[i]] not in col_done:
-                     ax.scatter(np.zeros(1), np.zeros(1), marker = marker_to_use[0][0], s =  marker_to_use[0][1], color = true_colors[X_vars_sub[i]], label = rows_labels[X_vars_sub[i]][:cut[0]])
-                     col_done.append(true_colors[X_vars_sub[i]])
+             for i in range(len(X_vars)):
+                 if str(true_colors[i]) not in col_done:
+                     ax.scatter(np.zeros(1), np.zeros(1), marker = marker_to_use[0][0], s =  marker_to_use[0][1], color = true_colors[i], label = true_labels[i])
+                     col_done.append(str(true_colors[i]))
              
              for i in range(len(X_vars)):
-                if true_colors[Y_vars[i]] not in col_done:
-                    ax.scatter(np.zeros(1), np.zeros(1), marker = marker_to_use[0][1], s =  marker_to_use[0][1], color = true_colors[Y_vars[i]], label = columns_labels[Y_vars[i]][:cut[1]])
-                    col_done.append(true_colors[Y_vars[i]])
-                    
-             ax.annotate("place_holder", xy=(0,0), 
-                      xytext= (5, 5), textcoords='offset points', ha='center', va='bottom',
-                      bbox=dict(boxstyle='circle', fc = "white"),
-                      arrowprops=dict(arrowstyle='->', color = "black"),  #connectionstyle='arc3,rad=0.5'),
-                      color= "black",
-                      fontsize = 6
-                       )
-             
-             plt.legend()
-        
-    
+                if str(true_colors[i]) not in col_done:
+                    ax.scatter(np.zeros(1), np.zeros(1), marker = marker_to_use[0][1], s =  marker_to_use[0][1], color = true_colors[i], label = true_labels[i])
+                    col_done.append(str(true_colors[i]))
          
         if wrap_true:
             Id_class_pred_sub = Id_Class["Class_pred"][np.concatenate((class_row_sub, class_col_sub))]
@@ -1518,8 +1541,8 @@ def plotClass_separated(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neigh
                         else:
                             plt.plot(outliers[:, 0], outliers[:, 1], marker = oultiers_markers[1], markersize =  oultiers_markers[2], color = col_class, fillstyle = "full", linestyle = "")
                     
-        if legend & (not cluster_colors):
-            plt.legend(loc = (1.1, 0) , ncol = 3)
+        if legend:
+            plt.legend(loc = (0, 1.1), ncol = 2*num_clust % 10)     
     
         
         if show_separation:
@@ -1540,7 +1563,7 @@ def plotClass_separated(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neigh
 
 def plotClass_separated_ver0(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neighbors = 2, min_dist = 0.99, method = "umap", 
                         scale = None, metric = "euclidean", sub_fig_size = 7, num_row_col = None, palette="tab20", cluster_colors = False, true_colors = None, markers = [("o",10),("o",10)], 
-                        show_labels = False, show_orig = False, show_separation = False, legend = True, shorten_annots = False, dataname = None, cut = (2, 2)):   
+                        show_labels = False, show_orig = False, show_separation = False, legend = True, shorten_annots = False, dataname = None, cut = (2, 2), true_labels_file = None):   
     """@brief Plot and Save class figures"""
     
     Coords = Id_Class["Coords"]
@@ -1597,15 +1620,38 @@ def plotClass_separated_ver0(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_
         cols_to_Annot = None
        
     color_clustered = get_col_labs(Id_Class["Class_pred"], palette)
+    if true_labels_file == None:
+        true_colors = color_clustered
+    else:
+        try:
+            true_labels = []
+            if true_labels_file[-3:] == "csv":
+                lab_file = pd.read_csv(true_labels_file)
+            elif true_labels_file[-4:] == "xlsx":
+                lab_file = pd.read_excel(true_labels_file, engine='openpyxl')
+            else:
+                lab_file = "None"
+            
+            varsXY = lab_file["variable"]
+            vars_lab = lab_file["true labels"]
+            for i1 in range(M):
+                true_labels.append(int(vars_lab[list(varsXY).index(X_vars[i1])]))
+            for i1 in range(M):
+                true_labels.append(int(vars_lab[list(varsXY).index(Y_vars[i1])]))
+                    
+            true_colors = get_col_labs(np.array(true_labels), palette)
+        except:
+            sys.exit("Please give the true label as a .csv or xlsx file with the categories of variable in one column (named: variable)  their true labels as integers in another column (named: true labels)")
+    
     ColName = None
     RowName = None
     #pdb.set_trace()
-    if cluster_colors:
+    if true_labels_file == None:
         col_rows = {rows_labels[X_vars[i]]:color_clustered[i] for i in range(M)}
-        col_cols = {columns_labels[Y_vars[i]]:color_clustered[-N+i] for i in range(N)}
+        col_cols = {columns_labels[Y_vars[i]]:color_clustered[-N:][i] for i in range(N)}
     else:
-        col_rows = {rows_labels[X_vars[i]]:true_colors[X_vars[i]] for i in range(M)}
-        col_cols = {columns_labels[Y_vars[i]]:true_colors[Y_vars[i]] for i in range(N)}
+        col_rows = {rows_labels[X_vars[i]]:true_colors[i] for i in range(M)}
+        col_cols = {columns_labels[Y_vars[i]]:true_colors[-N:][i] for i in range(N)}
     
     col_to_use = (col_rows, col_cols)
     marker_to_use = markers
@@ -1668,6 +1714,19 @@ def plotClass_separated_ver0(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_
                                                      lims = False) # crop fig
         
         
+        if legend & (true_labels_file != None) :
+             col_done = []
+             for i in range(len(X_vars)):
+                 if str(true_colors[i]) not in col_done:
+                     ax.scatter(np.zeros(1), np.zeros(1), marker = marker_to_use[0][0], s =  marker_to_use[0][1], color = true_colors[i], label = true_labels[i])
+                     col_done.append(str(true_colors[i]))
+             
+             for i in range(len(X_vars)):
+                if str(true_colors[i]) not in col_done:
+                    ax.scatter(np.zeros(1), np.zeros(1), marker = marker_to_use[0][1], s =  marker_to_use[0][1], color = true_colors[i], label = true_labels[i])
+                    col_done.append(str(true_colors[i]))
+                    
+             plt.legend(loc = (0, 1.1), ncol = 2*num_clust % 10)           
         if show_separation:
             ax.axis("on")
             ax.margins(0.1, 0.1)
@@ -1675,7 +1734,6 @@ def plotClass_separated_ver0(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_
         else:
             ax.axis("off")
         
-        #plt.legend(loc = (1.1, 0) , ncol = 3)
         
     return fig, ax
 
@@ -1716,6 +1774,11 @@ if str(sys.argv[8]) == "TRUE" or str(sys.argv[8]) == "True":
     hull_pred = True
 else:
     hull_pred = False
+
+import os
+true_labels_file = str(sys.argv[-1])
+if not os.path.exists(true_labels_file):
+    true_labels_file = None
     
 markers = [(str(sys.argv[11]), int(sys.argv[9])), (str(sys.argv[12]), int(sys.argv[10]))] 
 num_col=int(sys.argv[13])    
@@ -1740,8 +1803,8 @@ fig, ax = plotClass(Id_Class, X_vars, Y_vars, pdf, dtp,
           def_pred_outliers = (3, 0.95), # (a, b), greater than a*std of pairwise dist for more than b*100% of the points in the predicted class
           oultiers_markers = ("P", "^", 5), # (true, predicted, size)
           wrap_type = "convexhull", # convexhull or ellipse (ellipse does not look accurate)
-          dataname = "Dist") # true cluster markers for this simulation
-
+          dataname = "Dist", # true cluster markers for this simulation
+          true_labels_file = true_labels_file) ### true cluster labels file if given
 
 
 pdf.savefig(fig, bbox_inches = "tight")
@@ -1765,7 +1828,7 @@ if not Connect_assoc:
               markers = markers, # optional markers list and their size for X and Y
               show_labels = show_labels, # optional show the labels of X and Y
               show_orig = False, #optional show the the axis lines going through embedded origin 
-              legend = False, # add legend only if true cluster are required
+              legend = True, # add legend only if true cluster are required
               wrap_true = False, # wrapp the members of a true cluster , in each indentified clusters
               hull_pred = hull_pred,
               group_annot_size = 35, ### size of the annotations in the center of polygones‚
@@ -1780,7 +1843,8 @@ if not Connect_assoc:
               dataname = "Dist",# true cluster markers for this simulation
               show_separation = True, ### show axis to clearly separate all predicted clusters
               num_row_col = (int(np.ceil(num_clust/num_col)), num_col),
-              alpha = 0.25) 
+              alpha = 0.25,
+              true_labels_file = true_labels_file) ### true cluster labels file if given
     
     pdf2.savefig(fig2, bbox_inches = "tight")
     plt.savefig(str(sys.argv[6])+"/"+ fig_method + "_Separate_Panels_p1.svg", bbox_inches='tight')
@@ -1795,6 +1859,7 @@ if not Connect_assoc:
               scale = False, # scale = "pca", "standard", anything esle is taken as no scaling 
               cluster_colors = True, # chosed_color: if False, true_colors bellow must be given 
               true_colors = None, # give a true class colors as dictionary with X_vars and Y_vars as key
+              legend = True,
               markers = markers, # optional markers list and their size for X and Y
               sub_fig_size = 10, # optional sub figure size (as a square)
               show_labels = show_labels, # optional show the labels of X and Y
@@ -1802,7 +1867,7 @@ if not Connect_assoc:
               show_separation = True, # optional separate all subfigs
               num_row_col = (int(np.ceil(num_clust/num_col)), num_col),  # number of subfigs in row and col
               dataname = "Dist",# true cluster markers for this simulation
-              ) 
+              true_labels_file = true_labels_file) ### true cluster labels file if given
     
     pdf2.savefig(fig, bbox_inches = "tight")    
     pdf2.close()

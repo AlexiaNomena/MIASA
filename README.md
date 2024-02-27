@@ -22,7 +22,7 @@ matplotlib (3.5.2),
 openpyxl,
 xlrd,
 statsmodels (0.13.2)
-
+sklearn.som
 #### Install Conda/Miniconda
 Conda will manage the dependencies of our pipeline. Instructions can be found here:
 [https://docs.conda.io/projects/conda/en/latest/user-guide/install](https://docs.conda.io/projects/conda/en/latest/user-guide/install)
@@ -43,6 +43,7 @@ Install  other packages with pip
 ```
 pip install scikit-learn-extra
 pip install xlrd
+pip install sklearn.som
 ```
 
 ```
@@ -70,7 +71,9 @@ Add environment to jupyter notebook
 
 **NB**: the folder dataset `2mRNA_100000` for two-Gene regulatory models must be dowloaded from [(here)](https://drive.google.com/drive/folders/1n_NhI-72qFdEA_d4jrpUyMqhbd6gGkdJ?usp=sharing) and placed in the folder `Manuscript_examples/Data/` (without changing the folder names)
 
-`miasa_NonEucl_Dist.ipynb`, `miasa_NonEucl_Corr.ipynb`, `miasa_NonEucl_GRN.ipynb`: python code for using MIASA for the three dataset problems highlighted in the paper (similarity distances are non-Euclidean).
+`miasa_NonEucl_Dist.ipynb`, `miasa_NonEucl_Corr.ipynb`, `miasa_NonEucl_GRN.ipynb`:  using MIASA for the three dataset problems highlighted in the paper (similarity distances are non-Euclidean).
+
+`miasa_Dist_SOM.ipynb`, `miasa_Dist_SOM_MIASA.ipynb`, `miasa_Dist_NN.ipynb`, `miasa_Dist_SVM.ipynb`:  machine learning experiments using MIASA for the distribution dataset as highlighted in the paper (similarity distances are non-Euclidean).
 
 `class_experiment.py`: python code for classification experiments when the true clusters are known and included in the data generating function which must return data in a specific format (e.g. function `generate_data_dist` in module `Methods/simulate_class_data.py`)
 
@@ -119,6 +122,10 @@ All input datasets must be pre-processed to follow the following requirements
 "GMM", # sklearn.mixture.GaussianMixture
 BayesianGMM", # sklearn.mixture.BayesianGaussianMixture
 "DBSCAN", # sklearn.cluster.DBSCAN
+"MLPClassifer", < percentage of objects numbers for training > # sklearn.neural_network.MLPClassifer using the parameters of manuscript results
+"MLPRegressor", < percentage of objects numbers for training >  # sklearn.neural_network.MLPRegressor using the parameters of manuscript results
+"SOM", < give a positive number  (that will be multiplied with 1/c3zeta to give the learning rate parameter) > # sklearn.som default initialization 
+"SOM_MIASA", 
 ```
 ## Execution
 
@@ -139,7 +146,9 @@ The main pipeline (`config.yaml`) creates a folder *results*, containing all (in
 
 ```
 |-- results
- 	|-- miasa_results.pck	# pickled python dictionary containing the results
+	|-- miasa_qEE.xlsx/csv # standard machine readable formats of the transformed dataset via qEE-Transition (with 10 decimals numerical precision)
+ 	|-- miasa_results.pck	# pickled python dictionary containing the results  with essential keys: "Coords" (embedded coordinates on the rows: for X dataset starting from row 1 and ordered as in the original dataset with or without an origin, at row index M+1 and the rest is the Y dataset ordered as in the original dataset) and "Class_pred" (the predicted cluster indexes for the rows of "Coords")                                
+	|-- scored_miasa_results.pck	# pickled python dictionary containing the results including cluster score vectors  in the keys "silhouette", "elbow", "distortion", corresponding to the array of number of clusters saved as key "list_num".
 |-- plots	
 	|-- UMAP_One_Panel.pdf/.svg # UMAP projection of the results
 	|-- UMAP_Separate_Panels.pdf/.svg # UMAP projection separate predicted panels

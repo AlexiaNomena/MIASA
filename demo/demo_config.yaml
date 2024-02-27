@@ -3,6 +3,7 @@
 Data_X: "Data_X.csv"
 # second dataset (processed features or not depending on how you compute the similarity distances)
 Data_Y: "Data_Y.xlsx"
+true_labels_file: "true_labels_file.xlsx" # Optional
 # 2. What distance to compute as similarity (default metric parameter from scipy.spatial.distance.pdist or "precomputed")
 # for first dataset --- use "precomputed" if you provide it as not Euclidean, "precomputed_Euclidean" if you provide it as Euclidean 
 sim_X: "Euclidean"
@@ -23,7 +24,7 @@ norm_X: "TRUE"
 norm_Y: "TRUE"
 # 7a. Clustering parameters (Option: See README.md
 clustering_method: "Agglomerative_ward" 
-num_clust: 3
+num_clust: 4
 # 7b. OPTIONAL: Get Silhouette, Elbow, and Distortion to help choose the number of cluster
 eval_clust: TRUE ### must be FALSE when there are too few points in X u Y
 # choose range of evaluation

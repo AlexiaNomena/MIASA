@@ -1,8 +1,9 @@
 # 1. Full path to the first dataset (.xlsx or .csv) variable on the rows (see demo examples)
 # first dataset (processed features or not depending on how you compute the similarity distances)
-Data_X: "path/to/Data_X.xlsx"
+Data_X: "path/to/Data_X.xlsx_or_.csv"
 # second dataset (processed features or not depending on how you compute the similarity distances)
-Data_Y: "path/to/Data_Y.xlsx"
+Data_Y: "path/to/Data_Y.xlsx_or_.csv"
+true_labels_file: "path/to/true_labels_file.xlsx_or_.csv" # Optional
 # 2. What distance to compute as similarity (default metric parameter from scipy.spatial.distance.pdist or "precomputed")
 # for first dataset --- use "precomputed" if you provide it as not Euclidean, "precomputed_Euclidean" if you provide it as Euclidean 
 sim_X: "Euclidean"
@@ -44,4 +45,9 @@ size_Y: 250 # size of markers for points in Y
 marker_X: "o" # matplotlib marker for points in X
 marker_Y: "^" # matplotlib marker for points in Y
 num_col: 2 # number of panels on figure columns
+# OPTIONAL: Strong associations, i.e. distance bellow some threshold
+fig_miasa_connect: FALSE
+connect_threshold: "none" ### give a number stictly bellow which association distance defines a connection
+connection_file: "path/to/connection_file_of_same_type_as_d_XY" ### if connection_threshold is none, give a table of 0 (absence of connection) or 1 (presence of connection) between each X and Y variables (same structure as association_XY)
+connect_center: "Y" # choose the centre of the connection lines, either variable "X" or variable "Y"
 

@@ -15,8 +15,17 @@ if config["fig_miasa"]:
 if config["eval_clust"]:
     rule_all_common.append("scores/Cluster_scores.pdf")
 
-if config["fig_miasa_connect"]:
-    rule_all_common.append("plots_connected/" + config["fig_method"] + "_One_Panel_Connected.pdf"),
+try:
+    test = config["fig_miasa_connect"]
+    fig_connect = True
+except:
+    fig_connect = False
+
+if fig_connect:
+    rule_all_common.append(
+        "plots_connected/" + config["fig_method"] + "_One_Panel_Connected.pdf"
+    ),
+
 
 rule all:
     input:
@@ -46,57 +55,125 @@ rule get_miasa:
         "python {workflow.basedir}/scripts/get_results/miasa_class.py {input.Data_X} {input.Data_Y} {params.sim_meth_X} {params.sim_meth_Y} {input.D_X} {input.D_Y} {input.d_XY} {params.eucl_X} {params.eucl_Y} {params.norm_X} {params.norm_Y} {params.clust_meth} {params.num_clust} {output.dir}"
 
 
-if config["fig_miasa"]:
+try:
+    true_labels_file = config["true_labels_file"]
+except:
+    true_labels_file = "None"
 
-    rule get_fig:
-        input:
-            miasa_res="results/miasa_results.pck",
-        params:
-            fig_method=config["fig_method"],
-            n_neighbors=config["n_neighbors"],
-            palette=config["palette"],
-            min_dist=config["min_dist"],
-            show_labels=config["show_labels"],
-            convex_hull=config["convex_hull"],
-            size_X=config["size_X"],
-            size_Y=config["size_Y"],
-            marker_X=config["marker_X"],
-            marker_Y=config["marker_Y"],
-	    num_col=config["num_col"]
-        output:
-            dir=directory("plots"),
-            res1="plots/" + config["fig_method"] + "_One_Panel.pdf",
-            res2="plots/" + config["fig_method"] + "_Separate_Panels.pdf",
-        shell:
-            "python {workflow.basedir}/scripts/get_plots/Plot_class.py {input.miasa_res} {params.fig_method} {params.n_neighbors} {params.palette} {params.min_dist} {output.dir} {params.show_labels} {params.convex_hull} {params.size_X} {params.size_Y} {params.marker_X} {params.marker_Y} {params.num_col}"
+if true_labels_file == "None":
+    if config["fig_miasa"]:
 
-if config["fig_miasa_connect"]:
+        rule get_fig:
+            input:
+                miasa_res="results/miasa_results.pck",
+            params:
+                fig_method=config["fig_method"],
+                n_neighbors=config["n_neighbors"],
+                palette=config["palette"],
+                min_dist=config["min_dist"],
+                show_labels=config["show_labels"],
+                convex_hull=config["convex_hull"],
+                size_X=config["size_X"],
+                size_Y=config["size_Y"],
+                marker_X=config["marker_X"],
+                marker_Y=config["marker_Y"],
+                num_col=config["num_col"],
+                true_labs=true_labels_file,
+            output:
+                dir=directory("plots"),
+                res1="plots/" + config["fig_method"] + "_One_Panel.pdf",
+                res2="plots/" + config["fig_method"] + "_Separate_Panels.pdf",
+            shell:
+                "python {workflow.basedir}/scripts/get_plots/Plot_class.py {input.miasa_res} {params.fig_method} {params.n_neighbors} {params.palette} {params.min_dist} {output.dir} {params.show_labels} {params.convex_hull} {params.size_X} {params.size_Y} {params.marker_X} {params.marker_Y} {params.num_col} {params.true_labs}"
 
-    rule get_fig_connected:
-        input:
-            miasa_res="results/miasa_results.pck",
-            connection_file=config["connection_file"],
-        params:
-            fig_method=config["fig_method"],
-            n_neighbors=config["n_neighbors"],
-            palette=config["palette"],
-            min_dist=config["min_dist"],
-            show_labels=config["show_labels"],
-            convex_hull=config["convex_hull"],
-            size_X=config["size_X"],
-            size_Y=config["size_Y"],
-            marker_X=config["marker_X"],
-            marker_Y=config["marker_Y"],
-	    num_col=config["num_col"],
-            connect_assoc=config["fig_miasa_connect"],
-            thres=config["connect_threshold"],
-            center=config["connect_center"],
-            connection_file=config["connection_file"],
-        output:
-            dir=directory("plots_connected"),
-            res1="plots_connected/" + config["fig_method"] + "_One_Panel_Connected.pdf",
-        shell:
-            "python {workflow.basedir}/scripts/get_plots/Plot_class.py {input.miasa_res} {params.fig_method} {params.n_neighbors} {params.palette} {params.min_dist} {output.dir} {params.show_labels} {params.convex_hull} {params.size_X} {params.size_Y} {params.marker_X} {params.marker_Y} {params.num_col} {params.connect_assoc} {params.thres} {params.center} {input.connection_file}"
+    if fig_connect:
+
+        rule get_fig_connected:
+            input:
+                miasa_res="results/miasa_results.pck",
+                connection_file=config["connection_file"],
+            params:
+                fig_method=config["fig_method"],
+                n_neighbors=config["n_neighbors"],
+                palette=config["palette"],
+                min_dist=config["min_dist"],
+                show_labels=config["show_labels"],
+                convex_hull=config["convex_hull"],
+                size_X=config["size_X"],
+                size_Y=config["size_Y"],
+                marker_X=config["marker_X"],
+                marker_Y=config["marker_Y"],
+                num_col=config["num_col"],
+                true_labs=true_labels_file,
+                connect_assoc=config["fig_miasa_connect"],
+                thres=config["connect_threshold"],
+                center=config["connect_center"],
+                connection_file=config["connection_file"],
+            output:
+                dir=directory("plots_connected"),
+                res1="plots_connected/"
+                + config["fig_method"]
+                + "_One_Panel_Connected.pdf",
+            shell:
+                "python {workflow.basedir}/scripts/get_plots/Plot_class.py {input.miasa_res} {params.fig_method} {params.n_neighbors} {params.palette} {params.min_dist} {output.dir} {params.show_labels} {params.convex_hull} {params.size_X} {params.size_Y} {params.marker_X} {params.marker_Y} {params.num_col} {params.connect_assoc} {params.thres} {params.center} {input.connection_file} {params.true_labs}"
+
+else:
+    if config["fig_miasa"]:
+
+        rule get_fig:
+            input:
+                miasa_res="results/miasa_results.pck",
+                true_labs=true_labels_file,
+            params:
+                fig_method=config["fig_method"],
+                n_neighbors=config["n_neighbors"],
+                palette=config["palette"],
+                min_dist=config["min_dist"],
+                show_labels=config["show_labels"],
+                convex_hull=config["convex_hull"],
+                size_X=config["size_X"],
+                size_Y=config["size_Y"],
+                marker_X=config["marker_X"],
+                marker_Y=config["marker_Y"],
+                num_col=config["num_col"],
+            output:
+                dir=directory("plots"),
+                res1="plots/" + config["fig_method"] + "_One_Panel.pdf",
+                res2="plots/" + config["fig_method"] + "_Separate_Panels.pdf",
+            shell:
+                "python {workflow.basedir}/scripts/get_plots/Plot_class.py {input.miasa_res} {params.fig_method} {params.n_neighbors} {params.palette} {params.min_dist} {output.dir} {params.show_labels} {params.convex_hull} {params.size_X} {params.size_Y} {params.marker_X} {params.marker_Y} {params.num_col} {input.true_labs}"
+
+    if fig_connect:
+
+        rule get_fig_connected:
+            input:
+                miasa_res="results/miasa_results.pck",
+                connection_file=config["connection_file"],
+                true_labs=true_labels_file,
+            params:
+                fig_method=config["fig_method"],
+                n_neighbors=config["n_neighbors"],
+                palette=config["palette"],
+                min_dist=config["min_dist"],
+                show_labels=config["show_labels"],
+                convex_hull=config["convex_hull"],
+                size_X=config["size_X"],
+                size_Y=config["size_Y"],
+                marker_X=config["marker_X"],
+                marker_Y=config["marker_Y"],
+                num_col=config["num_col"],
+                connect_assoc=config["fig_miasa_connect"],
+                thres=config["connect_threshold"],
+                center=config["connect_center"],
+                connection_file=config["connection_file"],
+            output:
+                dir=directory("plots_connected"),
+                res1="plots_connected/"
+                + config["fig_method"]
+                + "_One_Panel_Connected.pdf",
+            shell:
+                "python {workflow.basedir}/scripts/get_plots/Plot_class.py {input.miasa_res} {params.fig_method} {params.n_neighbors} {params.palette} {params.min_dist} {output.dir} {params.show_labels} {params.convex_hull} {params.size_X} {params.size_Y} {params.marker_X} {params.marker_Y} {params.num_col} {params.connect_assoc} {params.thres} {params.center} {input.connection_file} {input.true_labs}"
+
 
 if config["eval_clust"]:
 

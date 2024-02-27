@@ -23,7 +23,7 @@ from .som_miasa import SOM_MIASA
 
 rand  = 0 ## reproducibility of clustering for each method
 
-def get_clusters(Coords, num_clust, palette, method = "Kmeans", init = "k-means++", metric = None, vareps_miasa=None):
+def get_clusters(Coords, num_clust, palette, method = "Kmeans", init = "k-means++", metric = "Euclidean", vareps_miasa=None):
     if method == "Kmeans":
         clusters = sklc.KMeans(n_clusters = num_clust, init = init, random_state = rand).fit(Coords)
         labels = clusters.labels_
