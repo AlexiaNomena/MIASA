@@ -140,8 +140,9 @@ Go to the pipeline directory (where the Snakefile named [`VASIL`](https://github
 snakemake --snakefile MIASA --configfile path/to/config.yaml -j -d path/to/workdir
 
 ```
-**CAUTION: Please delete the files folder generated `plots/` and re-run the above line make sure that the plots corresponds to the results**
-
+```
+**CAUTION: Please delete the files folder generated `plots/` and re-run the above line make to sure that the plots corresponds to the results**
+```
 With parameter `--configfile` you can give the configuration file, described above. The `-j` parameter determines the number of available CPU cores to use in the pipeline. Optionally you can provide the number of cores, e.g. `-j 4`. With parameter `-d` you can set the work directory, i.e. where the results of the pipeline are written to.
 
 ## Output
@@ -176,7 +177,9 @@ To run the pipeline go into the repository where the snakefile [`MIASA`](https:/
 snakemake --snakefile MIASA --configfile demo/demo_config.yaml -j -d demo
 
 ```
-**CAUTION: Please delete the files folder generated `plots/` and re-run the above line make sure that the plots corresponds to the results**
+```
+**CAUTION: Please delete the files folder generated `plots/` and re-run the above line to make sure that the plots corresponds to the results**
+```
 
 ### Expected Runtime for demo
 Less than 5 min
