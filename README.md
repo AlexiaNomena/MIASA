@@ -184,12 +184,12 @@ conda deactivate
 
 The result folder is created in the [`demo`](./demo) folder where you find the output files, as described above. 
 
-The projection of all predicted cluster on the same pannel indicating predicted clusters and labels of true cluster members if true labels are given as a parameter in config file
+The projection of all predicted cluster on the same pannel indicating convex hull of predicted clusters (some outliers removed) and labels of true cluster members (if true labels are given as a parameter in config file)
 <img src="https://github.com/AlexiaNomena/MIASA/blob/main/demo/plots/UMAP_One_Panel.svg" width="500" height="500">
 
 The projection of all predicted cluster separated pannels:
 
-- With convex hull of prediction 
+- With convex hull of prediction (some outliers removed)
 <img src="https://github.com/AlexiaNomena/MIASA/blob/main/demo/plots/UMAP_Separate_Panels_p1.svg" width="500" height="500">
 
 - Without convex hull of prediction
