@@ -146,16 +146,15 @@ The main pipeline (`config.yaml`) creates a folder *results*, containing all (in
 
 ```
 |-- results
-	|-- miasa_qEE.xlsx/csv # standard machine readable formats of the transformed dataset via qEE-Transition (with 10 decimals numerical precision)
+	|-- qEE_Transformed_Dataset.xlsx/csv # standard machine readable formats of the transformed dataset via qEE-Transition (with 10 decimals numerical precision)
  	|-- miasa_results.pck	# pickled python dictionary containing the results  with essential keys: "Coords" (embedded coordinates on the rows: for X dataset starting from row 1 and ordered as in the original dataset with or without an origin, at row index M+1 and the rest is the Y dataset ordered as in the original dataset) and "Class_pred" (the predicted cluster indexes for the rows of "Coords")                                
-	|-- scored_miasa_results.pck	# pickled python dictionary containing the results including cluster score vectors  in the keys "silhouette", "elbow", "distortion", corresponding to the array of number of clusters saved as key "list_num".
 |-- plots	
 	|-- UMAP_One_Panel.pdf/.svg # UMAP projection of the results
 	|-- UMAP_Separate_Panels.pdf/.svg # UMAP projection separate predicted panels
 	|-- tSNE_One_Panel.pdf/.svg # t-SNE projection of the results 
 	|-- tSNE_Separate_Panels.pdf/.svg # t-SNE projection of the results, separate predicted panels
 |-- scores
-	|-- scored_miasa_results.pck # pickled results containing cluster evaluation scores
+	|-- scored_miasa_results.pck # pickled python dictionary containing the results   including cluster score vectors  in the keys "silhouette", "elbow", "distortion", corresponding to the array of number of clusters saved as key "list_num".
 	|-- Cluster_scores.pdf/.svg # cluster score plots (Elbow, Distortion, Silhouette)	
 ```
 
@@ -185,12 +184,12 @@ conda deactivate
 
 The result folder is created in the [`demo`](./demo) folder where you find the output files, as described above. 
 
-The projection of all predicted cluster on the same pannel looks like
+The projection of all predicted cluster on the same pannel indicating predicted clusters and labels of true cluster members if true labels are given as a parameter in config file
 <img src="https://github.com/AlexiaNomena/MIASA/blob/main/demo/plots/UMAP_One_Panel.svg" width="500" height="500">
 
 The projection of all predicted cluster separated pannels:
 
-- With convex hull of prediction
+- With convex hull of prediction 
 <img src="https://github.com/AlexiaNomena/MIASA/blob/main/demo/plots/UMAP_Separate_Panels_p1.svg" width="500" height="500">
 
 - Without convex hull of prediction

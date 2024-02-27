@@ -786,13 +786,13 @@ def plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neighbors = 2, 
          col_done = []
          for i in range(len(X_vars)):
              if str(true_colors[i]) not in col_done:
-                 ax.scatter(np.zeros(1), np.zeros(1), marker = marker_to_use[0][0], s =  marker_to_use[0][1], color = true_colors[i], label = true_labels[i])
+                 ax.scatter(Rows_manifold[i, 0], Rows_manifold[i, 1], marker = marker_to_use[0][0], s =  marker_to_use[0][1], color = true_colors[i], label = "True "+ str(true_labels[i]))
                  col_done.append(str(true_colors[i]))
          
-         for i in range(len(X_vars)):
-            if str(true_colors[i]) not in col_done:
-                ax.scatter(np.zeros(1), np.zeros(1), marker = marker_to_use[0][1], s =  marker_to_use[0][1], color = true_colors[i], label = true_labels[i])
-                col_done.append(str(true_colors[i]))
+         for i in range(len(Y_vars)):
+            if str(true_colors[-N:][i]) not in col_done:
+                ax.scatter(Cols_manifold[i, 0], Cols_manifold[i, 1], marker = marker_to_use[0][1], s =  marker_to_use[0][1], color = true_colors[-N:][i], label = "True " + str(true_labels[-N:][i]))
+                col_done.append(str(true_colors[-N:][i]))
     
         
     if Connect_assoc in ("True", "TRUE", True):
@@ -1292,13 +1292,13 @@ def plotClass_separated(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neigh
              col_done = []
              for i in range(len(X_vars)):
                  if str(true_colors[i]) not in col_done:
-                     ax.scatter(np.zeros(1), np.zeros(1), marker = marker_to_use[0][0], s =  marker_to_use[0][1], color = true_colors[i], label = true_labels[i])
+                     ax.scatter(Rows_manifold[i, 0], Rows_manifold[i, 1], marker = marker_to_use[0][0], s =  marker_to_use[0][1], color = true_colors[i], label = "True "+ str(true_labels[i]))
                      col_done.append(str(true_colors[i]))
              
-             for i in range(len(X_vars)):
-                if str(true_colors[i]) not in col_done:
-                    ax.scatter(np.zeros(1), np.zeros(1), marker = marker_to_use[0][1], s =  marker_to_use[0][1], color = true_colors[i], label = true_labels[i])
-                    col_done.append(str(true_colors[i]))
+             for i in range(len(Y_vars)):
+                if str(true_colors[-N:][i]) not in col_done:
+                    ax.scatter(Cols_manifold[i, 0], Cols_manifold[i, 1], marker = marker_to_use[0][1], s =  marker_to_use[0][1], color = true_colors[-N:][i], label = "True " + str(true_labels[-N:][i]))
+                    col_done.append(str(true_colors[-N:][i]))
          
         if wrap_true:
             Id_class_pred_sub = Id_Class["Class_pred"][np.concatenate((class_row_sub, class_col_sub))]
@@ -1718,13 +1718,13 @@ def plotClass_separated_ver0(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_
              col_done = []
              for i in range(len(X_vars)):
                  if str(true_colors[i]) not in col_done:
-                     ax.scatter(np.zeros(1), np.zeros(1), marker = marker_to_use[0][0], s =  marker_to_use[0][1], color = true_colors[i], label = true_labels[i])
+                     ax.scatter(Rows_manifold[i, 0], Rows_manifold[i, 1], marker = marker_to_use[0][0], s =  marker_to_use[0][1], color = true_colors[i], label = "True "+ str(true_labels[i]))
                      col_done.append(str(true_colors[i]))
              
-             for i in range(len(X_vars)):
-                if str(true_colors[i]) not in col_done:
-                    ax.scatter(np.zeros(1), np.zeros(1), marker = marker_to_use[0][1], s =  marker_to_use[0][1], color = true_colors[i], label = true_labels[i])
-                    col_done.append(str(true_colors[i]))
+             for i in range(len(Y_vars)):
+                if str(true_colors[-N:][i]) not in col_done:
+                    ax.scatter(Cols_manifold[i, 0], Cols_manifold[i, 1], marker = marker_to_use[0][1], s =  marker_to_use[0][1], color = true_colors[-N:][i], label = "True " + str(true_labels[-N:][i]))
+                    col_done.append(str(true_colors[-N:][i]))
                     
              plt.legend(loc = (0, 1.1), ncol = 2*num_clust % 10)           
         if show_separation:
