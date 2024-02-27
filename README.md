@@ -122,9 +122,9 @@ All input datasets must be pre-processed to follow the following requirements
 "GMM", # sklearn.mixture.GaussianMixture
 BayesianGMM", # sklearn.mixture.BayesianGaussianMixture
 "DBSCAN", # sklearn.cluster.DBSCAN
-"MLPClassifer/<true labels file (.xlsx or .csv) with a column true label aligned with original dataset Xs first and then Ys (see demo/true_labels_files.xlsx)>/<percentage train>" # "/" separated, sklearn.neural_network.MLPClassifer using the parameters of manuscript results
-"MLPRegressor/<true labels file  (.xlsx or .csv) aligned with original dataset Xs first and then Ys>/<percentage train randomly chosen within the true labels (see demo/true_labels_files.xlsx)>" # sklearn.neural_network.MLPRegressor using the parameters of manuscript results
-"SVM_SVC/<true labels file  (.xlsx or .csv) aligned with original dataset Xs first and then Ys>/<percentage train randomly chosen within the true labels (see demo/true_labels_files.xlsx)>/<percentage train randomly chosen within the true labels>" # sklearn.svm.SVC using the parameters of manuscript results
+"MLPClassifer/<true labels file (.xlsx or .csv) with a column true label aligned with original dataset Xs first and then the Ys (see demo/true_labels_files.xlsx)>/<percentage train>" # "/" separated, sklearn.neural_network.MLPClassifer using the parameters of manuscript results
+"MLPRegressor/<true labels file (.xlsx or .csv) with a column true label aligned with original dataset Xs first and then then Ys (see demo/true_labels_files.xlsx)>/<percentage train randomly chosen within the true labels>" # sklearn.neural_network.MLPRegressor using the parameters of manuscript results
+"SVM_SVC/<true labels file (.xlsx or .csv) with a column true label aligned with original dataset Xs first and then the Ys (see demo/true_labels_files.xlsx)>/<percentage train randomly chosen within the true labels>/<percentage train randomly chosen within the true labels>" # sklearn.svm.SVC using the parameters of manuscript results
 "SOM/< give a positive number  (that will be multiplied with 1/c3zeta to give the learning rate parameter)>" # sklearn.som default initialization 
 ```
 ## Execution
