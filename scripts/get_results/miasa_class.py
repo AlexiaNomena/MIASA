@@ -720,7 +720,7 @@ file.close()
 
 """Saving qEE-Transition data"""
 Coords = Results["Coords"]
-qEE_dic = {"qEE dimensions": ["dim_%d"%i for i in range(Coords.shape[1])]}
+qEE_dic = {"qEE dimensions": ["dim_%d"%(i+1) for i in range(Coords.shape[1])]}
 for i in range(len(X_vars)):
     qEE_dic[X_vars[i]] = np.round(Coords[i, :], decimals=10)
 
