@@ -124,8 +124,8 @@ BayesianGMM", # sklearn.mixture.BayesianGaussianMixture
 "DBSCAN", # sklearn.cluster.DBSCAN
 "MLPClassifer/<true labels file (.xlsx or .csv) with a column true label aligned with original dataset Xs first and then the Ys (see demo/true_labels_files.xlsx)>/<percentage train randomly chosen within the true labels>" # "/" separated, sklearn.neural_network.MLPClassifer using the parameters of manuscript results
 "MLPRegressor/<true labels file (.xlsx or .csv) with a column true label aligned with original dataset Xs first and then then Ys (see demo/true_labels_files.xlsx)>/<percentage train randomly chosen within the true labels>" # sklearn.neural_network.MLPRegressor using the parameters of manuscript results
-"SVM_SVC/<true labels file (.xlsx or .csv) with a column true label aligned with original dataset Xs first and then the Ys (see demo/true_labels_files.xlsx)>/<percentage train randomly chosen within the true labels>/<percentage train randomly chosen within the true labels>" # sklearn.svm.SVC using the parameters of manuscript results
-"SOM/< give a positive number  (that will be multiplied with 1/c3zeta to give the learning rate parameter)>" # sklearn.som default initialization 
+"SVM_SVC/<true labels file (.xlsx or .csv) with a column true label aligned with original dataset Xs first and then the Ys (see demo/true_labels_files.xlsx)>/<percentage train randomly chosen within the true labels>" # sklearn.svm.SVC using the parameters of manuscript results
+"SOM/<a positive number  (that will be multiplied with 1/c3zeta to give the learning rate parameter)>" # sklearn.som default initialization 
 ```
 ## Execution
 
