@@ -81,7 +81,7 @@ def CosLM(DX, DY, UX = None, UY = None, fXY = None, c = None, similarity_method 
         D[0, 2:] =  np.sqrt(F0[a, 1:]**2 + c2*zeta_f)
     else:
         """
-        This option is not part of the Theorem in qEE paper but seems to work for "particular case", the default is to not use it
+        This option is not part of the Theorem in qEE paper but seems to work for some "particular case", the default is to not use it
         """
         D[0, 2:] =  np.sqrt(F0[0, 1:]**2 + c2*zeta_f)
         
