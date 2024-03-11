@@ -546,7 +546,7 @@ def CosLM(DX, DY, UX = None, UY = None, fXY = None, c = None, similarity_method 
     
     # compute f^vareps
     vareps =  c3*zeta_f
-    F_vareps = np.sqrt(F0**2 + vareps) - np.diag(np.sqrt(vareps*np.ones(F0.shape[0]))) ### remove diagonal elements because there is should always be 0
+    F_vareps = np.sqrt(F0**2 + vareps) - np.diag(np.sqrt(vareps*np.ones(F0.shape[0]))) ### remove extra added non-zero diagonal elements because a distance matrix is always hollow
     #pdb.set_trace()
     D[1:, 1:] = F_vareps
 
