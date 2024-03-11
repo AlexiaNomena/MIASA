@@ -77,6 +77,7 @@ def CosLM(DX, DY, UX = None, UY = None, fXY = None, c = None, similarity_method 
         This formula is still missing case 2 of E. 3.2 in qEE paper (version 2) but it does not change the result because it pushes the center of the 
         Gershgorin disc futher away from zero (in next version of the qEE paper we will add arbitrary positive number 
         inside of the sqrt of case 2 and it will be OK, it is exactly this formula if the arbitrary number = d(w_a, o)**2)
+        or we simply remove case 2 of Eq. 3.2 from the qEE paper, but it does not seem to be such a big deal
         """
         D[0, 2:] =  np.sqrt(F0[a, 1:]**2 + c2*zeta_f)
     else:
