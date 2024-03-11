@@ -11,6 +11,7 @@ import sklearn.cluster as sklc
 import sklearn.mixture as sklMixt
 import sklearn_extra.cluster as sklEc
 import scipy as sp
+import scipy.linalg as splinalg
 import scipy.spatial as spsp
 from sklearn.preprocessing import StandardScaler
 import sys
@@ -61,7 +62,11 @@ def Euclidean_Embedding(DX, DY, UX, UY, fXY, c_dic=None, in_threads = False, num
         
    
     COS_MAT, c1, c2, c3, zeta_f = CosLM(DX, DY, UX, UY, fXY, c_dic, similarity_method = similarity_method) 
-    sigma, U = sp.linalg.eigh(COS_MAT)
+    try:
+        sigma, U = sp.linalg.eigh(COS_MAT)
+    except:
+        sigma, U = splinalg.eigh(COS_MAT)
+        
     sigma = np.real(sigma) # COS_MAT is symmetric, thus imaginary numbers are supposed to be zero or numerical zeros
     sigma[np.isclose(sigma, np.zeros(len(sigma)))] = 0
     
@@ -76,7 +81,10 @@ def Euclidean_Embedding(DX, DY, UX, UY, fXY, c_dic=None, in_threads = False, num
         c3 = 2 + c2 + c1
         c_dic = {"c1":c1, "c2":c2, "c3":c3}
         COS_MAT, c1, c2, c3, zeta_f = CosLM(DX, DY, UX, UY, fXY, c_dic, similarity_method = similarity_method)
-        sigma, U = sp.linalg.eigh(COS_MAT)
+        try:
+            sigma, U = sp.linalg.eigh(COS_MAT)
+        except:
+            sigma, U = splinalg.eigh(COS_MAT)
         sigma = np.real(sigma) # COS_MAT is symmetric, thus imaginary numbers are supposed to be zero or numerical zeros
         sigma[np.isclose(sigma, np.zeros(len(sigma)))] = 0
         test = np.sum(sigma<0)
