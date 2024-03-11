@@ -55,7 +55,7 @@ def Euclidean_Embedding(DX, DY, UX, UY, fXY, c_dic=None, in_threads = False, num
         c1, c2 = 1/2, 2
         a = 1. - 1./(M+N)
         b = 2.*c2/(M+N)
-        c3 =  min(((2.*c1 + c2) - b)/a, 2*c2+2)
+        c3 = ((2.*c1 + c2) - b)/a
         #c1, c2, c3 = np.random.uniform(0, 5, size = 3)
         c_dic = {"c1":c1, "c2":c2, "c3":c3}
         
@@ -197,7 +197,7 @@ def get_class(X, Y, c_dic, DMat, dist_origin = (True, True), num_clust=None, clu
         c1, c2 = 1/2, 2
         a = 1. - 1./(M+N)
         b = 2.*c2/(M+N)
-        c3 =  min(((2.*c1 + c2) - b)/a, 2*c2+2)
+        c3 = ((2.*c1 + c2) - b)/a
         #c1, c2, c3 = np.random.uniform(0, 5, size = 3)
         c_dic = {"c1":c1, "c2":c2, "c3":c3}
     else:
@@ -528,14 +528,13 @@ def CosLM(DX, DY, UX = None, UY = None, fXY = None, c = None, similarity_method 
     Ri = np.sum(np.abs(CC), axis = 1)
     zeta_f = np.max(Ri)
     if zeta_f == 0:
-        sys.exit("Distance/Proximity cannot be zero everywhere")
+        sys.exit("Association Distance/Proximity cannot be zero everywhere or card{set X}>=2 and card{set X U set Y}>=3")
     # insert the proximity values for the theoretical point z and w_1 = x_1
     c1, c2, c3 = c["c1"], c["c2"], c["c3"]
     if c2 == "default":
         c2 = c1
     if c3 == "default":
         c3 = min(2*c2 + 2, c1 + c2 + 2)
-    
     if c3<0:
         sys.exit("c3 is negative but c1, c2, c3 must be positive")
     

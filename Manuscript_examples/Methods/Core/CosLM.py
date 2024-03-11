@@ -58,7 +58,7 @@ def CosLM(DX, DY, UX = None, UY = None, fXY = None, c = None, similarity_method 
     Ri = np.sum(np.abs(CC), axis = 1)
     zeta_f = np.max(Ri)
     if zeta_f == 0:
-        sys.exit("Distance/Proximity cannot be zero everywhere")
+        sys.exit("Association Distance/Proximity cannot be zero everywhere or card{set X}>=2 and card{set X U set Y}>=3")
     # insert the proximity values for the theoretical point z and w_1 = x_1
     c1, c2, c3 = c["c1"], c["c2"], c["c3"]
     if c2 == "default":

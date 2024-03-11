@@ -34,7 +34,7 @@ def Euclidean_Embedding(DX, DY, UX, UY, fXY, c_dic=None, in_threads = False, num
         c1, c2 = 1/2, 2
         a = 1. - 1./(M+N)
         b = 2.*c2/(M+N)
-        c3 =  min(((2.*c1 + c2) - b)/a, 2*c2+2)
+        c3 =  ((2.*c1 + c2) - b)/a
         #c1, c2, c3 = np.random.uniform(0, 5, size = 3)
         c_dic = {"c1":c1, "c2":c2, "c3":c3}
         
