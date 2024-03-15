@@ -7,7 +7,7 @@ import scipy as sp
 import sys
 import pdb
 
-def CosLM(DX, DY, UX = None, UY = None, fXY = None, c = None, similarity_method = ("Euclidean", "Euclidean"), use_w0 = False):
+def CosLM(DX, DY, UX = None, UY = None, fXY = None, c = None, similarity_method = ("Euclidean", "Euclidean"), use_w0 = False, fXY0 = None):
     """
     @brief Compute the cosine law matrix
     Parameters
@@ -25,7 +25,7 @@ def CosLM(DX, DY, UX = None, UY = None, fXY = None, c = None, similarity_method 
             Corresponding Cosine Law Matrix with reference at index 0
     """
     # compute f^0
-    F0 = Prox_Mat(DX, DY, UX, UY, fXY)
+    F0 = Prox_Mat(DX, DY, UX, UY, fXY, fXY0)
     M = DX.shape[0]
 
     # compute cos Mat for W associated with f^0
@@ -57,8 +57,12 @@ def CosLM(DX, DY, UX = None, UY = None, fXY = None, c = None, similarity_method 
     #pdb.set_trace()
     Ri = np.sum(np.abs(CC), axis = 1)
     zeta_f = np.max(Ri)
-    if zeta_f == 0:
+    if (zeta_f == 0) and (fXY0 not in ("allow_0",)):
         sys.exit("Association Distance/Proximity cannot be zero everywhere or card{set X}>=2 and card{set X U set Y}>=3")
+    elif (zeta_f == 0) and (fXY0 in ("allow_0",)):
+        zeta_f = 1
+    
+    
     # insert the proximity values for the theoretical point z and w_1 = x_1
     c1, c2, c3 = c["c1"], c["c2"], c["c3"]
     if c2 == "default":
@@ -100,10 +104,10 @@ def CosLM(DX, DY, UX = None, UY = None, fXY = None, c = None, similarity_method 
     return CL_Mat, c1, c2, c3, zeta_f
 
 
-def Prox_Mat(DX, DY, UX = None, UY = None, fXY = None):
+def Prox_Mat(DX, DY, UX = None, UY = None, fXY = None, fXY0 = None):
     M = DX.shape[0]
     N = DY.shape[0]
-    if (fXY is None) or (np.all(np.isclose(fXY, np.zeros((M, N))))) or (np.any(fXY < 0)):
+    if (fXY0 not in ("allow_0",)) and ((fXY is None) or (np.all(np.isclose(fXY, np.zeros((M, N))))) or (np.any(fXY < 0))):
         sys.exit("fXY non-negative and not zero everywhere is needed \n fXY : Proximity set matrix between the points of X and Y compatible with the positions of the points in DX and DY")
 
     else:
