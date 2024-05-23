@@ -702,7 +702,7 @@ if norm_Y == "TRUE" or str(norm_Y) == "True":
     Ocols = np.linalg.norm(Y, axis = 1)
     Oy = True
 else:
-    Oclos = None
+    Ocols = None
     Oy = False
     
 clust_method = str(sys.argv[12])
