@@ -2,7 +2,7 @@
 [![GPLv3 License](https://img.shields.io/badge/License-GPL%20v3-yellow.svg)](https://opensource.org/licenses/)
 [![DOI](https://zenodo.org/badge/681107366.svg)](https://doi.org/10.5281/zenodo.10124274)
 ### Web App available for small datasets
-For manageable dataset:**less than 1000 objects/items** in total to analyze, you can use
+For manageable dataset: **less than 1000 objects/items** in total to analyze, you can use
 [pythonanywhere platform: MIASA app](https://projects-raharinirina.pythonanywhere.com/miasa/miasa_input/)
 
 Unfortunately, the above app is not feasible for larger datasets due to computational power limitations.
