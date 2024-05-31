@@ -27,7 +27,7 @@ sklearn.som
 Conda will manage the dependencies of our pipeline. Instructions can be found here:
 [https://docs.conda.io/projects/conda/en/latest/user-guide/install](https://docs.conda.io/projects/conda/en/latest/user-guide/install)
 
-Create a new environment from the given environment config in [env.yml](https://github.com/KleistLab/VASIL/blob/main/env/env.yml)
+Create a new environment from the given environment config in [env.yml](https://github.com/AlexiaNomena/MIASA/blob/main/env/env.yml)
 
 ```
 conda env create -f env/env.yml
@@ -104,8 +104,7 @@ Detailed Snakemake installation instruction using mamba can be found here:
 [https://snakemake.readthedocs.io/en/stable/getting_started/installation.html](https://snakemake.readthedocs.io/en/stable/getting_started/installation.html)
 
 ## Input
-As an input, the pipeline requires the paths to the consonar data, Escape data, and GInPipe case ascertainment data.
-These variables are stored in [`config.yaml`](https://github.com/KleistLab/VASIL/blob/main/config.yaml).
+These variables are stored in [`config.yaml`](https://github.com/AlexiaNomena/MIASA/blob/main/config.yaml).
 For more information about the YAML markup format refer to documentation: [https://yaml.org](https://yaml.org)
 ### Dataset Requirement
 All input datasets must be pre-processed to follow the following requirements
@@ -134,7 +133,7 @@ If your environment is not yet activated, type
 ```
 conda activate MIASA
 ```
-Go to the pipeline directory (where the Snakefile named [`VASIL`](https://github.com/AlexiaNomena/MIASA/blob/main/MIASA) is located) and enter the following command to execute the pipeline
+Go to the pipeline directory (where the Snakefile named [`MIASA`](https://github.com/AlexiaNomena/MIASA/blob/main/MIASA) is located) and enter the following command to execute the pipeline
 
 ```
 snakemake --snakefile MIASA --configfile path/to/config.yaml -j -d path/to/workdir
@@ -164,7 +163,7 @@ The main pipeline (`config.yaml`) creates a folder *results*, containing all (in
 ```
 
 ## Demo
-Demo datasets are provided in the repository folder [`demo`](https://github.com/KleistLab/VASIL/tree/main/demo)
+Demo datasets are provided in the repository folder [`demo`](https://github.com/AlexiaNomena/MIASA/tree/main/demo)
 
 If your environment is not yet activated, type
 
@@ -216,14 +215,14 @@ Some package-related issues might still arise during code excecution, however, m
 ### Issue 1
 Error message about parameter issues in snakemake file. This might be a snakefile formating issue, which can be solved by
 
-First install [snakefmt](https://github.com/snakemake/snakefmt) into the `VASIL` enviroment
+First install [snakefmt](https://github.com/snakemake/snakefmt) into the `MIASA` enviroment
 ```
 pip install snakefmt
 ```
 Then, when needed, reformat snakefile
 
 ```
-snakefmt VASIL
+snakefmt MIASA
 ```
 In case you had to interrupt snakemake run code (e.g. by Ctr + Z), you need to remove the folder `workdir/.snakemake/locks/`
 
