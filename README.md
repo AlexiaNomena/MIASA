@@ -1,13 +1,13 @@
 ## **M**ulti-**I**nput data **AS**sembly for joint **A**nalysis
 [![GPLv3 License](https://img.shields.io/badge/License-GPL%20v3-yellow.svg)](https://opensource.org/licenses/)
 [![DOI](https://zenodo.org/badge/681107366.svg)](https://doi.org/10.5281/zenodo.10124274)
-### For small datasets
+### Web App available for small datasets
 For manageable datasets, e.g. less than 1200 objects/items in total to analyze, you can use
 [pythonanywhere platform: MIASA app](https://projects-raharinirina.pythonanywhere.com/miasa/miasa_input/)
 
 Unfortunately, the above app is not feasible for larger datasets due to computational power limitations.
-### Operating System
-This workflow was tested on macOS Monterey Version 12.5
+### Workflow installation Operating Systems
+This workflow was tested on macOS Monterey Version 12.5 and CentOS Linux 7 (Core)
 
 ### Prerequisites
 #### Python
