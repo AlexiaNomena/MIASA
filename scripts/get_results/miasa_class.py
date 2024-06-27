@@ -624,6 +624,7 @@ def Dist_Emb(D):
     return Dtilde
 
 def read_data(file, give_vars=False):
+    print(file)
     try:
         rawData = pd.read_excel(file, engine='openpyxl')
     except:
@@ -633,6 +634,7 @@ def read_data(file, give_vars=False):
         rawData.drop(columns = "Unnamed: 0", inplace = True)
     except:
         pass
+    
     Data = rawData.drop(columns = "variable", inplace = False)
     if not give_vars:
         return Data.to_numpy().astype(float)
@@ -652,7 +654,7 @@ else:
     DX = read_data(sys.argv[5])
     DX = DX
     
-if sim_meth_Y not in ("precomputed", "precomputed_Euclidean") or (sim_meth_X == "Euclidean"):
+if sim_meth_Y not in ("precomputed", "precomputed_Euclidean") or (sim_meth_Y == "Euclidean"):
     DY = spsp.distance.pdist(Y, metric = sim_meth_Y)
     DY = spsp.distance.squareform(DY)
 else:

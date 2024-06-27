@@ -17,7 +17,10 @@ if config["eval_clust"]:
 
 try:
     test = config["fig_miasa_connect"]
-    fig_connect = True
+    if test in ("TRUE", "True"):
+        fig_connect = True
+    else:
+        fig_connect = False
 except:
     fig_connect = False
 
@@ -32,27 +35,101 @@ rule all:
         rule_all_common,
 
 
-rule get_miasa:
-    input:
-        Data_X=config["Data_X"],
-        Data_Y=config["Data_Y"],
-        D_X=config["d_X"],
-        D_Y=config["d_Y"],
-        d_XY=config["d_XY"],
-    params:
-        sim_meth_X=config["sim_X"],
-        sim_meth_Y=config["sim_Y"],
-        norm_X=config["norm_X"],
-        norm_Y=config["norm_Y"],
-        eucl_X=config["Eucl_X"],
-        eucl_Y=config["Eucl_Y"],
-        clust_meth=config["clustering_method"],
-        num_clust=config["num_clust"],
-    output:
-        dir=directory("results"),
-        res="results/miasa_results.pck",
-    shell:
-        "python {workflow.basedir}/scripts/get_results/miasa_class.py {input.Data_X} {input.Data_Y} {params.sim_meth_X} {params.sim_meth_Y} {input.D_X} {input.D_Y} {input.d_XY} {params.eucl_X} {params.eucl_Y} {params.norm_X} {params.norm_Y} {params.clust_meth} {params.num_clust} {output.dir}"
+if (config["sim_X"] != "precomputed") and (config["sim_Y"] != "precomputed"):
+
+    rule get_miasa:
+        input:
+            Data_X=config["Data_X"],
+            Data_Y=config["Data_Y"],
+            D_X=config["d_X"],
+            D_Y=config["d_Y"],
+            d_XY=config["d_XY"],
+        params:
+            sim_meth_X=config["sim_X"],
+            sim_meth_Y=config["sim_Y"],
+            norm_X=config["norm_X"],
+            norm_Y=config["norm_Y"],
+            eucl_X=config["Eucl_X"],
+            eucl_Y=config["Eucl_Y"],
+            clust_meth=config["clustering_method"],
+            num_clust=config["num_clust"],
+        output:
+            dir=directory("results"),
+            res="results/miasa_results.pck",
+        shell:
+            "python {workflow.basedir}/scripts/get_results/miasa_class.py {input.Data_X} {input.Data_Y} {params.sim_meth_X} {params.sim_meth_Y} {input.D_X} {input.D_Y} {input.d_XY} {params.eucl_X} {params.eucl_Y} {params.norm_X} {params.norm_Y} {params.clust_meth} {params.num_clust} {output.dir}"
+
+elif config["sim_X"] != "precomputed":
+
+    rule get_miasa:
+        input:
+            Data_X=config["Data_X"],
+            Data_Y=config["Data_Y"],
+            D_Y=config["d_Y"],
+            d_XY=config["d_XY"],
+        params:
+            D_X="Not_used",
+            sim_meth_X=config["sim_X"],
+            sim_meth_Y=config["sim_Y"],
+            norm_X=config["norm_X"],
+            norm_Y=config["norm_Y"],
+            eucl_X=config["Eucl_X"],
+            eucl_Y=config["Eucl_Y"],
+            clust_meth=config["clustering_method"],
+            num_clust=config["num_clust"],
+        output:
+            dir=directory("results"),
+            res="results/miasa_results.pck",
+        shell:
+            "python {workflow.basedir}/scripts/get_results/miasa_class.py {input.Data_X} {input.Data_Y} {params.sim_meth_X} {params.sim_meth_Y} {params.D_X} {input.D_Y} {input.d_XY} {params.eucl_X} {params.eucl_Y} {params.norm_X} {params.norm_Y} {params.clust_meth} {params.num_clust} {output.dir}"
+
+elif config["sim_Y"] != "precomputed":
+
+    rule get_miasa:
+        input:
+            Data_X=config["Data_X"],
+            Data_Y=config["Data_Y"],
+            D_X=config["d_X"],
+            d_XY=config["d_XY"],
+        params:
+            D_Y="Not_used",
+            sim_meth_X=config["sim_X"],
+            sim_meth_Y=config["sim_Y"],
+            norm_X=config["norm_X"],
+            norm_Y=config["norm_Y"],
+            eucl_X=config["Eucl_X"],
+            eucl_Y=config["Eucl_Y"],
+            clust_meth=config["clustering_method"],
+            num_clust=config["num_clust"],
+        output:
+            dir=directory("results"),
+            res="results/miasa_results.pck",
+        shell:
+            "python {workflow.basedir}/scripts/get_results/miasa_class.py {input.Data_X} {input.Data_Y} {params.sim_meth_X} {params.sim_meth_Y} {input.D_X} {params.D_Y} {input.d_XY} {params.eucl_X} {params.eucl_Y} {params.norm_X} {params.norm_Y} {params.clust_meth} {params.num_clust} {output.dir}"
+
+else:
+
+    rule get_miasa:
+        input:
+            Data_X=config["Data_X"],
+            Data_Y=config["Data_Y"],
+            d_XY=config["d_XY"],
+        params:
+            D_X="Not_used",
+            D_Y="Not_used",
+            sim_meth_X=config["sim_X"],
+            sim_meth_Y=config["sim_Y"],
+            norm_X=config["norm_X"],
+            norm_Y=config["norm_Y"],
+            eucl_X=config["Eucl_X"],
+            eucl_Y=config["Eucl_Y"],
+            clust_meth=config["clustering_method"],
+            num_clust=config["num_clust"],
+        output:
+            dir=directory("results"),
+            res="results/miasa_results.pck",
+        shell:
+            "python {workflow.basedir}/scripts/get_results/miasa_class.py {input.Data_X} {input.Data_Y} {params.sim_meth_X} {params.sim_meth_Y} {params.D_X} {params.D_Y} {input.d_XY} {params.eucl_X} {params.eucl_Y} {params.norm_X} {params.norm_Y} {params.clust_meth} {params.num_clust} {output.dir}"
 
 
 try:
@@ -176,27 +253,106 @@ else:
 
 
 if config["eval_clust"]:
+    if (config["sim_X"] != "precomputed") and (config["sim_Y"] != "precomputed"):
 
-    rule get_scores:
-        input:
-            Data_X=config["Data_X"],
-            Data_Y=config["Data_Y"],
-            D_X=config["d_X"],
-            D_Y=config["d_Y"],
-            d_XY=config["d_XY"],
-        params:
-            sim_meth_X=config["sim_X"],
-            sim_meth_Y=config["sim_Y"],
-            norm_X=config["norm_X"],
-            norm_Y=config["norm_Y"],
-            eucl_X=config["Eucl_X"],
-            eucl_Y=config["Eucl_Y"],
-            clust_meth=config["clustering_method"],
-            num_clust="Score",
-            min_num=config["min_num"],
-            max_num=config["max_num"],
-        output:
-            dir=directory("scores"),
-            res="scores/Cluster_scores.pdf",
-        shell:
-            "python {workflow.basedir}/scripts/get_results/miasa_class.py {input.Data_X} {input.Data_Y} {params.sim_meth_X} {params.sim_meth_Y} {input.D_X} {input.D_Y} {input.d_XY} {params.eucl_X} {params.eucl_Y} {params.norm_X} {params.norm_Y} {params.clust_meth} {params.num_clust} {output.dir} {params.min_num} {params.max_num}"
+        rule get_scores:
+            input:
+                Data_X=config["Data_X"],
+                Data_Y=config["Data_Y"],
+                D_X=config["d_X"],
+                D_Y=config["d_Y"],
+                d_XY=config["d_XY"],
+            params:
+                sim_meth_X=config["sim_X"],
+                sim_meth_Y=config["sim_Y"],
+                norm_X=config["norm_X"],
+                norm_Y=config["norm_Y"],
+                eucl_X=config["Eucl_X"],
+                eucl_Y=config["Eucl_Y"],
+                clust_meth=config["clustering_method"],
+                num_clust="Score",
+                min_num=config["min_num"],
+                max_num=config["max_num"],
+            output:
+                dir=directory("scores"),
+                res="scores/Cluster_scores.pdf",
+            shell:
+                "python {workflow.basedir}/scripts/get_results/miasa_class.py {input.Data_X} {input.Data_Y} {params.sim_meth_X} {params.sim_meth_Y} {input.D_X} {input.D_Y} {input.d_XY} {params.eucl_X} {params.eucl_Y} {params.norm_X} {params.norm_Y} {params.clust_meth} {params.num_clust} {output.dir} {params.min_num} {params.max_num}"
+
+    elif config["sim_X"] != "precomputed":
+
+        rule get_scores:
+            input:
+                Data_X=config["Data_X"],
+                Data_Y=config["Data_Y"],
+                D_Y=config["d_Y"],
+                d_XY=config["d_XY"],
+            params:
+                D_X="Not_used",
+                sim_meth_X=config["sim_X"],
+                sim_meth_Y=config["sim_Y"],
+                norm_X=config["norm_X"],
+                norm_Y=config["norm_Y"],
+                eucl_X=config["Eucl_X"],
+                eucl_Y=config["Eucl_Y"],
+                clust_meth=config["clustering_method"],
+                num_clust="Score",
+                min_num=config["min_num"],
+                max_num=config["max_num"],
+            output:
+                dir=directory("scores"),
+                res="scores/Cluster_scores.pdf",
+            shell:
+                "python {workflow.basedir}/scripts/get_results/miasa_class.py {input.Data_X} {input.Data_Y} {params.sim_meth_X} {params.sim_meth_Y} {params.D_X} {input.D_Y} {input.d_XY} {params.eucl_X} {params.eucl_Y} {params.norm_X} {params.norm_Y} {params.clust_meth} {params.num_clust} {output.dir} {params.min_num} {params.max_num}"
+
+    elif config["sim_Y"] != "precomputed":
+
+        rule get_scores:
+            input:
+                Data_X=config["Data_X"],
+                Data_Y=config["Data_Y"],
+                D_X=config["d_X"],
+                d_XY=config["d_XY"],
+            params:
+                D_Y="Not_used",
+                sim_meth_X=config["sim_X"],
+                sim_meth_Y=config["sim_Y"],
+                norm_X=config["norm_X"],
+                norm_Y=config["norm_Y"],
+                eucl_X=config["Eucl_X"],
+                eucl_Y=config["Eucl_Y"],
+                clust_meth=config["clustering_method"],
+                num_clust="Score",
+                min_num=config["min_num"],
+                max_num=config["max_num"],
+            output:
+                dir=directory("scores"),
+                res="scores/Cluster_scores.pdf",
+            shell:
+                "python {workflow.basedir}/scripts/get_results/miasa_class.py {input.Data_X} {input.Data_Y} {params.sim_meth_X} {params.sim_meth_Y} {input.D_X} {params.D_Y} {input.d_XY} {params.eucl_X} {params.eucl_Y} {params.norm_X} {params.norm_Y} {params.clust_meth} {params.num_clust} {output.dir} {params.min_num} {params.max_num}"
+
+    else:
+
+        rule get_scores:
+            input:
+                Data_X=config["Data_X"],
+                Data_Y=config["Data_Y"],
+                d_XY=config["d_XY"],
+            params:
+                D_X="Not_used",
+                D_Y="Not_used",
+                sim_meth_X=config["sim_X"],
+                sim_meth_Y=config["sim_Y"],
+                norm_X=config["norm_X"],
+                norm_Y=config["norm_Y"],
+                eucl_X=config["Eucl_X"],
+                eucl_Y=config["Eucl_Y"],
+                clust_meth=config["clustering_method"],
+                num_clust="Score",
+                min_num=config["min_num"],
+                max_num=config["max_num"],
+            output:
+                dir=directory("scores"),
+                res="scores/Cluster_scores.pdf",
+            shell:
+                "python {workflow.basedir}/scripts/get_results/miasa_class.py {input.Data_X} {input.Data_Y} {params.sim_meth_X} {params.sim_meth_Y} {params.D_X} {params.D_Y} {input.d_XY} {params.eucl_X} {params.eucl_Y} {params.norm_X} {params.norm_Y} {params.clust_meth} {params.num_clust} {output.dir} {params.min_num} {params.max_num}"
