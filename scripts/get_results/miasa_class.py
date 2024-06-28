@@ -624,7 +624,6 @@ def Dist_Emb(D):
     return Dtilde
 
 def read_data(file, give_vars=False):
-    print(file)
     try:
         rawData = pd.read_excel(file, engine='openpyxl')
     except:

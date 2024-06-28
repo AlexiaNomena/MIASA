@@ -150,7 +150,7 @@ def plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neighbors = 2, 
          
          for i in range(len(X_vars)):
             if true_colors[Y_vars[i]] not in col_done:
-                ax.scatter(np.zeros(1), np.zeros(1), marker = marker_to_use[0][1], s =  marker_to_use[0][1], color = true_colors[Y_vars[i]], label = columns_labels[Y_vars[i]][:cut[1]])
+                ax.scatter(np.zeros(1), np.zeros(1), marker = marker_to_use[1][0], s =  marker_to_use[1][1], color = true_colors[Y_vars[i]], label = columns_labels[Y_vars[i]][:cut[1]])
                 col_done.append(true_colors[Y_vars[i]])
          
          ax.annotate("place_holder", xy=(0,0), 
@@ -602,7 +602,7 @@ def plotClass_separated(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neigh
              
              for i in range(len(X_vars)):
                 if true_colors[Y_vars[i]] not in col_done:
-                    ax.scatter(np.zeros(1), np.zeros(1), marker = marker_to_use[0][1], s =  marker_to_use[0][1], color = true_colors[Y_vars[i]], label = columns_labels[Y_vars[i]][:cut[1]])
+                    ax.scatter(np.zeros(1), np.zeros(1), marker = marker_to_use[1][0], s =  marker_to_use[1][1], color = true_colors[Y_vars[i]], label = columns_labels[Y_vars[i]][:cut[1]])
                     col_done.append(true_colors[Y_vars[i]])
                     
              ax.annotate("place_holder", xy=(0,0), 
