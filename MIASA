@@ -35,7 +35,7 @@ rule all:
         rule_all_common,
 
 
-if (config["sim_X"] != "precomputed") and (config["sim_Y"] != "precomputed"):
+if (config["sim_X"] == "precomputed") and (config["sim_Y"] == "precomputed"):
 
     rule get_miasa:
         input:
@@ -253,7 +253,7 @@ else:
 
 
 if config["eval_clust"]:
-    if (config["sim_X"] != "precomputed") and (config["sim_Y"] != "precomputed"):
+    if (config["sim_X"] == "precomputed") and (config["sim_Y"] == "precomputed"):
 
         rule get_scores:
             input:

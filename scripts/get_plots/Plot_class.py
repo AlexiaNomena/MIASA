@@ -264,7 +264,7 @@ def Display(Coords_rows, Coords_cols, Inertia, Data, rows_to_Annot, cols_to_Anno
             try:
                 # for coloring by cluster membership
                 for j in range(xy_rows.shape[0]):
-                    ax.scatter([xy_rows[j, 0]], [xy_rows[j, 1]], marker = markers[0][0], color = col[0][Rows_Labels[j]], s = markers[1][1])
+                    ax.scatter([xy_rows[j, 0]], [xy_rows[j, 1]], marker = markers[0][0], color = col[0][Rows_Labels[j]], s = markers[0][1])
             except:
                 try:
                     col_cols = col[0]
@@ -713,9 +713,11 @@ def plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neighbors = 2, 
             varsXY = lab_file["variable"]
             vars_lab = lab_file["true labels"]
             for i1 in range(M):
-                true_labels.append(int(vars_lab[list(varsXY).index(X_vars[i1])]))
+                #true_labels.append(int(vars_lab[list(varsXY).index(X_vars[i1])]))
+                true_labels.append(str(vars_lab[list(varsXY).index(X_vars[i1])]))
             for i1 in range(N):
-                true_labels.append(int(vars_lab[list(varsXY).index(Y_vars[i1])]))
+                #true_labels.append(int(vars_lab[list(varsXY).index(Y_vars[i1])]))
+                true_labels.append(str(vars_lab[list(varsXY).index(Y_vars[i1])]))
                     
             true_colors = get_col_labs(np.array(true_labels), palette)
         except:
@@ -757,7 +759,6 @@ def plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neighbors = 2, 
     
     col_to_use = (col_rows, col_cols)
     marker_to_use = markers #[("o",20),("o",20)]
-    
     fig, ax, xy_rows, xy_cols, gs, center = Display(Rows_manifold, 
                                                      Cols_manifold, 
                                                      Inertia, 
@@ -788,12 +789,12 @@ def plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neighbors = 2, 
          col_done = []
          for i in range(len(X_vars)):
              if str(true_colors[i]) not in col_done:
-                 ax.scatter(Rows_manifold[i, 0], Rows_manifold[i, 1], marker = marker_to_use[0][0], s =  marker_to_use[0][1], color = true_colors[i], label = "True "+ str(true_labels[i]))
+                 ax.scatter(Rows_manifold[i, 0], Rows_manifold[i, 1], marker = marker_to_use[0][0], s =  marker_to_use[0][1], color = true_colors[i], label = ""+ str(true_labels[i]))
                  col_done.append(str(true_colors[i]))
          
          for i in range(len(Y_vars)):
             if str(true_colors[-N:][i]) not in col_done:
-                ax.scatter(Cols_manifold[i, 0], Cols_manifold[i, 1], marker = marker_to_use[1][0], s =  marker_to_use[1][1], color = true_colors[-N:][i], label = "True " + str(true_labels[-N:][i]))
+                ax.scatter(Cols_manifold[i, 0], Cols_manifold[i, 1], marker = marker_to_use[1][0], s =  marker_to_use[1][1], color = true_colors[-N:][i], label = "" + str(true_labels[-N:][i]))
                 col_done.append(str(true_colors[-N:][i]))
     
         
@@ -1200,9 +1201,11 @@ def plotClass_separated(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neigh
             varsXY = lab_file["variable"]
             vars_lab = lab_file["true labels"]
             for i1 in range(M):
-                true_labels.append(int(vars_lab[list(varsXY).index(X_vars[i1])]))
+                #true_labels.append(int(vars_lab[list(varsXY).index(X_vars[i1])]))
+                true_labels.append(str(vars_lab[list(varsXY).index(X_vars[i1])]))
             for i1 in range(N):
-                true_labels.append(int(vars_lab[list(varsXY).index(Y_vars[i1])]))
+                #true_labels.append(int(vars_lab[list(varsXY).index(Y_vars[i1])]))
+                true_labels.append(str(vars_lab[list(varsXY).index(Y_vars[i1])]))
                     
             true_colors = get_col_labs(np.array(true_labels), palette)
         except:
@@ -1211,7 +1214,6 @@ def plotClass_separated(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neigh
 
     ColName = None
     RowName = None
-    #pdb.set_trace()
     
     if true_labels_file == None:
         col_rows = {rows_labels[X_vars[i]]:color_clustered[i] for i in range(M)}
@@ -1265,7 +1267,6 @@ def plotClass_separated(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neigh
         Data = DataFrame.copy()
         Data.drop(list(Data.columns[~class_col_sub]), axis = 1, inplace = True)
         Data.drop(list(Data.index[~class_row_sub]), axis = 0, inplace = True)
-        #pdb.set_trace()
         fig, xy_rows, xy_cols, gs, center = Display(coords_row_sub, 
                                                      coords_col_sub, 
                                                      Inertia, 
@@ -1294,12 +1295,12 @@ def plotClass_separated(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neigh
              col_done = []
              for i in range(len(X_vars)):
                  if str(true_colors[i]) not in col_done:
-                     ax.scatter(Rows_manifold[i, 0], Rows_manifold[i, 1], marker = marker_to_use[0][0], s =  marker_to_use[0][1], color = true_colors[i], label = "True "+ str(true_labels[i]))
+                     ax.scatter(Rows_manifold[i, 0], Rows_manifold[i, 1], marker = marker_to_use[0][0], s =  marker_to_use[0][1], color = true_colors[i], label = ""+ str(true_labels[i]))
                      col_done.append(str(true_colors[i]))
              
              for i in range(len(Y_vars)):
                 if str(true_colors[-N:][i]) not in col_done:
-                    ax.scatter(Cols_manifold[i, 0], Cols_manifold[i, 1], marker = marker_to_use[1][0], s =  marker_to_use[1][1], color = true_colors[-N:][i], label = "True " + str(true_labels[-N:][i]))
+                    ax.scatter(Cols_manifold[i, 0], Cols_manifold[i, 1], marker = marker_to_use[1][0], s =  marker_to_use[1][1], color = true_colors[-N:][i], label = "" + str(true_labels[-N:][i]))
                     col_done.append(str(true_colors[-N:][i]))
          
         if wrap_true:
@@ -1637,9 +1638,11 @@ def plotClass_separated_ver0(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_
             varsXY = lab_file["variable"]
             vars_lab = lab_file["true labels"]
             for i1 in range(M):
-                true_labels.append(int(vars_lab[list(varsXY).index(X_vars[i1])]))
+                #true_labels.append(int(vars_lab[list(varsXY).index(X_vars[i1])]))
+                true_labels.append(str(vars_lab[list(varsXY).index(X_vars[i1])]))
             for i1 in range(N):
-                true_labels.append(int(vars_lab[list(varsXY).index(Y_vars[i1])]))
+                #true_labels.append(int(vars_lab[list(varsXY).index(Y_vars[i1])]))
+                true_labels.append(str(vars_lab[list(varsXY).index(Y_vars[i1])]))
                     
             true_colors = get_col_labs(np.array(true_labels), palette)
         except:
@@ -1721,12 +1724,12 @@ def plotClass_separated_ver0(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_
              col_done = []
              for i in range(len(X_vars)):
                  if str(true_colors[i]) not in col_done:
-                     ax.scatter(Rows_manifold[i, 0], Rows_manifold[i, 1], marker = marker_to_use[0][0], s =  marker_to_use[0][1], color = true_colors[i], label = "True "+ str(true_labels[i]))
+                     ax.scatter(Rows_manifold[i, 0], Rows_manifold[i, 1], marker = marker_to_use[0][0], s =  marker_to_use[0][1], color = true_colors[i], label = ""+ str(true_labels[i]))
                      col_done.append(str(true_colors[i]))
              
              for i in range(len(Y_vars)):
                 if str(true_colors[-N:][i]) not in col_done:
-                    ax.scatter(Cols_manifold[i, 0], Cols_manifold[i, 1], marker = marker_to_use[1][0], s =  marker_to_use[1][1], color = true_colors[-N:][i], label = "True " + str(true_labels[-N:][i]))
+                    ax.scatter(Cols_manifold[i, 0], Cols_manifold[i, 1], marker = marker_to_use[1][0], s =  marker_to_use[1][1], color = true_colors[-N:][i], label = "" + str(true_labels[-N:][i]))
                     col_done.append(str(true_colors[-N:][i]))
                     
              plt.legend(loc = (0, 1.1), ncol = 2*num_clust % 10)           
@@ -1783,7 +1786,7 @@ true_labels_file = str(sys.argv[-1])
 if not os.path.exists(true_labels_file):
     true_labels_file = None
     
-markers = [(str(sys.argv[11]), int(sys.argv[9])), (str(sys.argv[12]), int(sys.argv[10]))] 
+markers = [(str(sys.argv[11]), int(sys.argv[9])), (str(sys.argv[12]), int(sys.argv[10]))]
 num_col=int(sys.argv[13])    
 
 dtp = (str, str)
