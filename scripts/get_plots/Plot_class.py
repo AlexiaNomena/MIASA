@@ -529,8 +529,10 @@ def umap_reducer(Coords, dim, np, min_dist):
 
 
 def tSNE_reducer(Coords, dim, np, metric = "euclidean"):
-    reducer = sklm.TSNE(n_components = dim, perplexity = np, random_state=rand, metric = metric)
-    Emb_coords = reducer.fit_transform(Coords)
+    reducer = sklm.TSNE(n_components = dim, perplexity = np, random_state=rand, metric = "precomputed")
+    DM = sp.spatial.distance.pdist(Coords, metric = metric)
+    DM = sp.spatial.distance.squareform(DM)
+    Emb_coords = reducer.fit_transform(DM)
     return Emb_coords
 
 def dist_error(tXflat, D, dim):
