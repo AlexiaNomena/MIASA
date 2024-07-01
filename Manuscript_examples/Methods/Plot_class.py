@@ -139,32 +139,7 @@ def plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neighbors = 2, 
                                                      lims = False,
                                                      give_ax = True) # crop fig
         
-    
-    """  
-    if legend & (not cluster_colors) & (not wrap_true) & (not wrap_predicted) :
-         col_done = []
-         for i in range(len(X_vars)):
-             if true_colors[X_vars[i]] not in col_done:
-                 ax.scatter(np.zeros(1), np.zeros(1), marker = marker_to_use[0][0], s =  marker_to_use[0][1], color = true_colors[X_vars[i]], label = rows_labels[X_vars[i]][:cut[0]])
-                 col_done.append(true_colors[X_vars[i]])
-         
-         for i in range(len(X_vars)):
-            if true_colors[Y_vars[i]] not in col_done:
-                ax.scatter(np.zeros(1), np.zeros(1), marker = marker_to_use[1][0], s =  marker_to_use[1][1], color = true_colors[Y_vars[i]], label = columns_labels[Y_vars[i]][:cut[1]])
-                col_done.append(true_colors[Y_vars[i]])
-         
-         ax.annotate("place_holder", xy=(0,0), 
-                  xytext= (5, 5), textcoords='offset points', ha='center', va='bottom',
-                  bbox=dict(boxstyle='circle', fc = "white"),
-                  arrowprops=dict(arrowstyle='->', color = "black"),  #connectionstyle='arc3,rad=0.5'),
-                  color= "black",
-                  fontsize = 6
-                   )
-         
-         plt.legend()
-    """   
-    
-         
+        
     if wrap_true:
         pred_class = np.unique(Id_Class["Class_pred"])
         lab_point = False
@@ -596,14 +571,14 @@ def plotClass_separated(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neigh
         if legend & (not cluster_colors) & (not wrap_true) & (not wrap_predicted) :
              col_done = []
              for i in range(len(X_vars_sub)):
-                 if true_colors[X_vars_sub[i]] not in col_done:
-                     ax.scatter(np.zeros(1), np.zeros(1), marker = marker_to_use[0][0], s =  marker_to_use[0][1], color = true_colors[X_vars_sub[i]], label = rows_labels[X_vars_sub[i]][:cut[0]])
-                     col_done.append(true_colors[X_vars_sub[i]])
+                 if str(true_colors[i]) not in col_done:
+                     ax.scatter(coords_row_sub[i, 0], coords_row_sub[i, 1], marker = marker_to_use[0][0], s =  marker_to_use[0][1], color = true_colors[i], label = ""+ str(true_labels[i]))
+                     col_done.append(str(true_colors[i]))
              
-             for i in range(len(X_vars)):
-                if true_colors[Y_vars[i]] not in col_done:
-                    ax.scatter(np.zeros(1), np.zeros(1), marker = marker_to_use[1][0], s =  marker_to_use[1][1], color = true_colors[Y_vars[i]], label = columns_labels[Y_vars[i]][:cut[1]])
-                    col_done.append(true_colors[Y_vars[i]])
+             for i in range(len(Y_vars_sub)):
+                if str(true_colors[-N:][i]) not in col_done:
+                    ax.scatter(coords_col_sub[i, 0], coords_col_sub[i, 1], marker = marker_to_use[1][0], s =  marker_to_use[1][1], color = true_colors[-N:][i], label = "" + str(true_labels[-N:][i]))
+                    col_done.append(str(true_colors[-N:][i]))
                     
              ax.annotate("place_holder", xy=(0,0), 
                       xytext= (5, 5), textcoords='offset points', ha='center', va='bottom',

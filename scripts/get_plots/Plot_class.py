@@ -70,7 +70,7 @@ def get_col_labs(labels, palette):
 
 
 #### Visualisation ###  
-def PreFig(xsize = 12, ysize = 12):
+def PreFig(xsize = 4, ysize = 4):
     '''
     @brief: customize figure parameters
     '''
@@ -581,12 +581,14 @@ def low_dim_coords(Coords, dim=2, method  = "umap", n_neighbors = 15, min_dist =
         scaled_coords = Coords
     
     if method == "MDS":
-        embedding = sklm.MDS(n_components = dim, metric = True, dissimilarity = metric)
+        embedding = sklm.MDS(random_state = rand, n_components = dim, metric = True, dissimilarity = metric)
         Emb_coords = embedding.fit_transform(scaled_coords)
     
     elif method == "Isomap":
-        embedding = sklm.Isomap(n_components = dim, metric = metric) 
-        Emb_coords = embedding.fit_transform(scaled_coords)
+        DM = sp.spatial.distance.pdist(scaled_coords, metric = metric)
+        DM = sp.spatial.distance.squareform(DM)
+        embedding = sklm.Isomap(random_state = rand, n_components = dim, metric = "precomputed")#, metric = metric)
+        Emb_coords = embedding.fit_transform(DM)
     
     elif method == "t-SNE":
         Emb_coords = tSNE_reducer(scaled_coords, dim, n_neighbors, metric = metric) 
@@ -671,7 +673,7 @@ def plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neighbors = 2, 
         Origin_manifold = Coords_manifold[M, :] 
     else:
         Rows_manifold = Coords_manifold[:M, :]
-        Cols_manifold = Coords_manifold[M:, :]
+        Cols_manifold = Coords_manifold[-N:, :]
         Origin_manifold = np.zeros(Coords_manifold.shape[1])
     
     if not show_orig:
@@ -731,7 +733,7 @@ def plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neighbors = 2, 
 
         for i in range(len(pred_class)):
             class_row = Id_Class["Class_pred"][:M] == pred_class[i]
-            class_col =  Id_Class["Class_pred"][M:] == pred_class[i]
+            class_col =  Id_Class["Class_pred"][-N:] == pred_class[i]
     
             coords_row = Rows_manifold[class_row, :]
             coords_col = Cols_manifold[class_col, :]
@@ -791,7 +793,7 @@ def plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neighbors = 2, 
              if str(true_colors[i]) not in col_done:
                  ax.scatter(Rows_manifold[i, 0], Rows_manifold[i, 1], marker = marker_to_use[0][0], s =  marker_to_use[0][1], color = true_colors[i], label = ""+ str(true_labels[i]))
                  col_done.append(str(true_colors[i]))
-         
+         col_done = []
          for i in range(len(Y_vars)):
             if str(true_colors[-N:][i]) not in col_done:
                 ax.scatter(Cols_manifold[i, 0], Cols_manifold[i, 1], marker = marker_to_use[1][0], s =  marker_to_use[1][1], color = true_colors[-N:][i], label = "" + str(true_labels[-N:][i]))
@@ -803,7 +805,7 @@ def plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neighbors = 2, 
             if was_orig:
                 Association = Id_Class["DMat"][:M, M+1:]
             else:
-                Association = Id_Class["DMat"][:M, M:]
+                Association = Id_Class["DMat"][:M, -N:]
         else:
             Association = rawData.to_numpy()
 
@@ -838,7 +840,7 @@ def plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neighbors = 2, 
         for i in range(len(pred_class)):
             
             class_row = Id_Class["Class_pred"][:M] == pred_class[i]
-            class_col =  Id_Class["Class_pred"][M:] == pred_class[i]
+            class_col =  Id_Class["Class_pred"][-N:] == pred_class[i]
 
             coords_row = Rows_manifold[class_row, :]
             coords_col = Cols_manifold[class_col, :]
@@ -1005,7 +1007,7 @@ def plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neighbors = 2, 
 
         for i in range(len(pred_class)):
             class_row = Id_Class["Class_pred"][:M] == pred_class[i]
-            class_col =  Id_Class["Class_pred"][M:] == pred_class[i]
+            class_col =  Id_Class["Class_pred"][-N:] == pred_class[i]
     
             coords_row = Rows_manifold[class_row, :]
             coords_col = Cols_manifold[class_col, :]
@@ -1159,7 +1161,7 @@ def plotClass_separated(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neigh
         Origin_manifold = Coords_manifold[M, :] 
     else:
         Rows_manifold = Coords_manifold[:M, :]
-        Cols_manifold = Coords_manifold[M:, :]
+        Cols_manifold = Coords_manifold[-N:, :]
         Origin_manifold = np.zeros(Coords_manifold.shape[1])
     
     if not show_orig:
@@ -1248,7 +1250,7 @@ def plotClass_separated(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neigh
             ax = fig.add_subplot(num_row_col[0], num_row_col[1], i+1)
             
         class_row_sub = Id_Class["Class_pred"][:M] == unique_classe[i]
-        class_col_sub =  Id_Class["Class_pred"][M:] == unique_classe[i]
+        class_col_sub =  Id_Class["Class_pred"][-N:] == unique_classe[i]
         
         coords_row_sub = Rows_manifold[class_row_sub, :]
         coords_col_sub = Cols_manifold[class_col_sub, :]
@@ -1293,15 +1295,19 @@ def plotClass_separated(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neigh
         
         if legend & (true_labels_file != None) :
              col_done = []
-             for i in range(len(X_vars)):
-                 if str(true_colors[i]) not in col_done:
-                     ax.scatter(Rows_manifold[i, 0], Rows_manifold[i, 1], marker = marker_to_use[0][0], s =  marker_to_use[0][1], color = true_colors[i], label = ""+ str(true_labels[i]))
-                     col_done.append(str(true_colors[i]))
-             
-             for i in range(len(Y_vars)):
-                if str(true_colors[-N:][i]) not in col_done:
-                    ax.scatter(Cols_manifold[i, 0], Cols_manifold[i, 1], marker = marker_to_use[1][0], s =  marker_to_use[1][1], color = true_colors[-N:][i], label = "" + str(true_labels[-N:][i]))
-                    col_done.append(str(true_colors[-N:][i]))
+             true_colors_x = np.array(true_colors)[:M][class_row_sub]
+             true_labels_x = np.array(true_labels)[:M][class_row_sub]
+             true_colors_y = np.array(true_colors)[-N:][class_col_sub]
+             true_labels_y = np.array(true_labels)[-N:][class_col_sub]
+             for i in range(len(X_vars_sub)):
+                 if str(true_colors_x[i]) not in col_done:
+                     ax.scatter(coords_row_sub[i, 0], coords_row_sub[i, 1], marker = marker_to_use[0][0], s =  marker_to_use[0][1], color = true_colors_x[i], label = ""+ str(true_labels_x[i]))
+                     col_done.append(str(true_colors_x[i]))
+    		
+             for i in range(len(Y_vars_sub)):
+                if str(true_colors_y[i]) not in col_done:
+                    ax.scatter(coords_col_sub[i, 0], coords_col_sub[i, 1], marker = marker_to_use[1][0], s =  marker_to_use[1][1], color = true_colors_y[i], label = "" + str(true_labels_y[i]))
+                    col_done.append(str(true_colors_y[i]))
          
         if wrap_true:
             Id_class_pred_sub = Id_Class["Class_pred"][np.concatenate((class_row_sub, class_col_sub))]
@@ -1597,7 +1603,7 @@ def plotClass_separated_ver0(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_
         Origin_manifold = Coords_manifold[M, :] 
     else:
         Rows_manifold = Coords_manifold[:M, :]
-        Cols_manifold = Coords_manifold[M:, :]
+        Cols_manifold = Coords_manifold[-N:, :]
         
         Origin_manifold = np.zeros(Coords_manifold.shape[1])
     
@@ -1682,10 +1688,13 @@ def plotClass_separated_ver0(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_
             ax = fig.add_subplot(num_row_col[0], num_row_col[1], i+1)
             
         class_row = Id_Class["Class_pred"][:M] == unique_classe[i]
-        class_col =  Id_Class["Class_pred"][M:] == unique_classe[i]
+        class_col =  Id_Class["Class_pred"][-N:] == unique_classe[i]
         
         coords_row = Rows_manifold[class_row, :]
         coords_col = Cols_manifold[class_col, :]
+        
+        X_vars_sub = np.array(X_vars)[class_row]
+        Y_vars_sub = np.array(Y_vars)[class_col]
         
         plt.title("Pred Class %d"%(i+1))
         if show_labels:
@@ -1719,18 +1728,21 @@ def plotClass_separated_ver0(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_
                                                      RowName = RowName,
                                                      lims = False) # crop fig
         
-        
-        if legend & (true_labels_file != None) :
+        if legend & (true_labels_file != None):
              col_done = []
-             for i in range(len(X_vars)):
-                 if str(true_colors[i]) not in col_done:
-                     ax.scatter(Rows_manifold[i, 0], Rows_manifold[i, 1], marker = marker_to_use[0][0], s =  marker_to_use[0][1], color = true_colors[i], label = ""+ str(true_labels[i]))
-                     col_done.append(str(true_colors[i]))
-             
-             for i in range(len(Y_vars)):
-                if str(true_colors[-N:][i]) not in col_done:
-                    ax.scatter(Cols_manifold[i, 0], Cols_manifold[i, 1], marker = marker_to_use[1][0], s =  marker_to_use[1][1], color = true_colors[-N:][i], label = "" + str(true_labels[-N:][i]))
-                    col_done.append(str(true_colors[-N:][i]))
+             true_colors_x = np.array(true_colors)[:M][class_row]
+             true_labels_x = np.array(true_labels)[:M][class_row]
+             true_colors_y = np.array(true_colors)[-N:][class_col]
+             true_labels_y = np.array(true_labels)[-N:][class_col]
+             for i in range(len(X_vars_sub)):
+                 if str(true_colors_x[i]) not in col_done:
+                     ax.scatter(coords_row[i, 0], coords_row[i, 1], marker = marker_to_use[0][0], s =  marker_to_use[0][1], color = true_colors_x[i], label = ""+ str(true_labels_x[i]))
+                     col_done.append(str(true_colors_x[i]))
+    		
+             for i in range(len(Y_vars_sub)):
+                if str(true_colors_y[i]) not in col_done:
+                    ax.scatter(coords_col[i, 0], coords_col[i, 1], marker = marker_to_use[1][0], s =  marker_to_use[1][1], color = true_colors_y[i], label = "" + str(true_labels_y[i]))
+                    col_done.append(str(true_colors_y[i]))
                     
              plt.legend(loc = (0, 1.1), ncol = 2*num_clust % 10)           
         if show_separation:

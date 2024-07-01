@@ -235,7 +235,7 @@ def get_class(X, Y, c_dic, DMat, dist_origin = (True, True), num_clust=None, clu
             if num_clust == None:
                 sys.exit("Kmedoids requires number of clusters parameter: num_clust")
             else:
-                clust_labels, color_clustered = get_clusters(Coords_0, num_clust, method = clust_method)
+                clust_labels = get_clusters(Coords_0, num_clust, method = clust_method)
                 
         elif clust_method[:13] == "Agglomerative": 
             clust_labels = get_clusters(Coords_0, num_clust, method = clust_method, N=N, M=M)
