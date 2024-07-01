@@ -52,10 +52,13 @@ except:
         Assoc_file = False
         Connect_assoc = False
      
-def get_col_labs(labels, palette):               
+def get_col_labs(labels, palette):   
+	# make sure that colors are not cyclic:                 
     unique_labs = np.unique(labels)
     colors = sns.color_palette(palette,  len(unique_labs))
+    n = 0
     col_labs = np.zeros((len(labels), 3))
+    col_done = []
     for i in range(len(unique_labs)):
         """
         if np.all(np.array(colors[i])<=1):
@@ -63,8 +66,16 @@ def get_col_labs(labels, palette):
         else:
             col_i = np.array(colors[i], dtype = int)
         col_labs[labels == unique_labs[i], :] = '#%02x%02x%02x'%tuple(col_i)
-        """  
-        col_labs[labels == unique_labs[i], :] = colors[i]
+        """ 
+        # make sure that colors are not cyclic: 
+        colsub = colors[i]
+        while colsub in col_done:
+            np.random.seed(n)
+            colsub = tuple(np.random.uniform(0, 1, size =3))
+            n += 1
+            
+        col_labs[labels == unique_labs[i], :] = colsub
+        col_done.append(colsub)
     
     return col_labs
 
@@ -722,6 +733,7 @@ def plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neighbors = 2, 
                 true_labels.append(str(vars_lab[list(varsXY).index(Y_vars[i1])]))
                     
             true_colors = get_col_labs(np.array(true_labels), palette)
+            
         except:
             sys.exit("Please give the true label as a .csv or xlsx file with the categories of variable in one column (named: variable)  their true labels as integers in another column (named: true labels)")
     
@@ -785,8 +797,6 @@ def plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neighbors = 2, 
                                                      lims = False,
                                                      give_ax = True) # crop fig
         
-    
-    
     if legend & (true_labels_file != None) :
          col_done = []
          for i in range(len(X_vars)):
@@ -795,7 +805,7 @@ def plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neighbors = 2, 
                  col_done.append(str(true_colors[i]))
          col_done = []
          for i in range(len(Y_vars)):
-            if str(true_colors[-N:][i]) not in col_done:
+            if (str(true_colors[-N:][i]) not in col_done):
                 ax.scatter(Cols_manifold[i, 0], Cols_manifold[i, 1], marker = marker_to_use[1][0], s =  marker_to_use[1][1], color = true_colors[-N:][i], label = "" + str(true_labels[-N:][i]))
                 col_done.append(str(true_colors[-N:][i]))
     
