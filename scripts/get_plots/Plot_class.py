@@ -81,7 +81,7 @@ def get_col_labs(labels, palette):
 
 
 #### Visualisation ###  
-def PreFig(xsize = 4, ysize = 4):
+def PreFig(xsize = 12, ysize = 12):
     '''
     @brief: customize figure parameters
     '''
