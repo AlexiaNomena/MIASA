@@ -607,6 +607,8 @@ def low_dim_coords(Coords, dim=2, method  = "umap", n_neighbors = 15, min_dist =
     elif method == "umap":
         Emb_coords = umap_reducer(scaled_coords, dim, n_neighbors, min_dist)
     
+    elif method == "PCA":
+        Emb_coords = PCA(n_components = 5).fit_transform(Coords)
     else:
         Emb_coords = umap_reducer(scaled_coords, dim, n_neighbors, min_dist)
        
