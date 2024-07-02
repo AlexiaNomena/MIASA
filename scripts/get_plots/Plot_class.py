@@ -527,7 +527,7 @@ def Display(Coords_rows, Coords_cols, Inertia, Data, rows_to_Annot, cols_to_Anno
 from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
 import sklearn.manifold as sklm
-import umap
+import umap.umap_ as umap
 import scipy as sp
 rand = 0 # fixed initialization for reproducibility of UMAP and Kmeans
 def umap_reducer(Coords, dim, np, min_dist):

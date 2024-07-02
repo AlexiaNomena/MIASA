@@ -37,7 +37,7 @@ fig_method: "UMAP"
 # UMAP and t-SNE parameters, cannot be larger than the total number of points in X and Y
 n_neighbors: 15
 palette: "tab20" # seaborn palette parameter
-min_dist: 0.99 # only used in UMAP
+min_dist: 0.5 # only used in UMAP
 show_labels: FALSE # show the datapoints and labels or not (use short variable names, figure may become crowed)
 convex_hull: TRUE # fill convex_hull of predicted cluster
 size_X: 150 # size of markers for points in X

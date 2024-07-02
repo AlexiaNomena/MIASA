@@ -19,7 +19,7 @@ from scipy.cluster.hierarchy import linkage
 from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
 from functools import partial
-import umap
+import umap.umap_ as umap
 import seaborn as sns
 
 
