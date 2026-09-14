@@ -1099,7 +1099,10 @@ def plotClass(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neighbors = 2, 
         
     
     if legend:
-        plt.legend(loc = (0, 1.1), ncol = 2*num_clust % 10)     
+        num_col = 2*num_clust % 10
+        if num_col == 0:
+            num_col = 10
+        plt.legend(loc = (0, 1.1), ncol = num_col)     
                 
     """
     ylim = ax.get_ylim()
@@ -1566,7 +1569,10 @@ def plotClass_separated(Id_Class, X_vars, Y_vars, pdf, dtp, run_num = 0, n_neigh
                             plt.plot(outliers[:, 0], outliers[:, 1], marker = oultiers_markers[1], markersize =  oultiers_markers[2], color = col_class, fillstyle = "full", linestyle = "")
                     
         if legend:
-            plt.legend(loc = (0, 1.1), ncol = 2*num_clust % 10)     
+            num_col = 2*num_clust % 10
+            if num_col == 0:
+                num_col = 10
+            plt.legend(loc = (0, 1.1), ncol = num_col)     
     
         
         if show_separation:
