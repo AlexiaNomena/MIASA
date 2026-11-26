@@ -639,153 +639,154 @@ def read_data(file, give_vars=False):
         return Data.to_numpy().astype(float)
     else:
         return Data.to_numpy().astype(float), np.array(rawData["variable"]).astype(str)
+
+if __name__ == "__main__":    
+    X, X_vars = read_data(sys.argv[1], give_vars=True)
+    Y, Y_vars = read_data(sys.argv[2], give_vars=True)
     
-X, X_vars = read_data(sys.argv[1], give_vars=True)
-Y, Y_vars = read_data(sys.argv[2], give_vars=True)
-
-sim_meth_X = str(sys.argv[3])
-sim_meth_Y = str(sys.argv[4])
-
-if (sim_meth_X not in ("precomputed", "precomputed_Euclidean")) or (sim_meth_X == "Euclidean"):
-    DX = spsp.distance.pdist(X, metric = sim_meth_X)
-    DX = spsp.distance.squareform(DX)
-else:
-    DX = read_data(sys.argv[5])
-    DX = DX
+    sim_meth_X = str(sys.argv[3]).strip().lower()
+    sim_meth_Y = str(sys.argv[4]).strip().lower()
     
-if sim_meth_Y not in ("precomputed", "precomputed_Euclidean") or (sim_meth_Y == "Euclidean"):
-    DY = spsp.distance.pdist(Y, metric = sim_meth_Y)
-    DY = spsp.distance.squareform(DY)
-else:
-    DY = read_data(sys.argv[6])
-    DY = DY
+    if (sim_meth_X not in ("precomputed", "precomputed_euclidean")) or (sim_meth_X == "euclidean"):
+        DX = spsp.distance.pdist(X, metric = sim_meth_X)
+        DX = spsp.distance.squareform(DX)
+    else:
+        DX = read_data(sys.argv[5])
+        DX = DX
+        
+    if sim_meth_Y not in ("precomputed", "precomputed_euclidean") or (sim_meth_Y == "euclidean"):
+        DY = spsp.distance.pdist(Y, metric = sim_meth_Y)
+        DY = spsp.distance.squareform(DY)
+    else:
+        DY = read_data(sys.argv[6])
+        DY = DY
+        
+    D_assoc = read_data(sys.argv[7])
     
-D_assoc = read_data(sys.argv[7])
-
-eucl_X = str(sys.argv[8])
-eucl_Y = str(sys.argv[9])
-
-if (sim_meth_X not in ("Euclidean", "precomputed_Euclidean")) and str(eucl_X) in ("TRUE", "True"):
-   DX = Dist_Emb(DX)
-   meth_X = "Euclidean"
-elif (sim_meth_X in ("Euclidean", "precomputed_Euclidean")):
-   DX = DX
-   meth_X = "Euclidean"
-else:
-   meth_X = "precomputed"
+    eucl_X = str(sys.argv[8]).strip().lower()
+    eucl_Y = str(sys.argv[9]).strip().lower()
     
-if (sim_meth_Y not in ("Euclidean", "precomputed_Euclidean")) and str(eucl_Y) in ("TRUE", "True"):
-    DY = Dist_Emb(DY)
-    meth_Y = "Euclidean"
-elif (sim_meth_Y in ("Euclidean", "precomputed_Euclidean")):
-    DY = DY
-    meth_Y = "Euclidean"
-else:
-    meth_Y = "precomputed"
-
-if meth_X == "precomputed" and meth_Y == "precomputed":
-    DX = Dist_Emb(DX) 
-    meth_X = "Euclidean"
-
-similarity_method = (meth_X, meth_Y)
-
-norm_X = str(sys.argv[10])
-norm_Y = str(sys.argv[11])
-
-if norm_X == "TRUE" or str(norm_X) == "True":
-    Orows = np.linalg.norm(X, axis = 1)
-    Ox = True
-else:
-    Orows = None
-    Ox = False
+    if (sim_meth_X not in ("euclidean", "precomputed_euclidean")) and str(eucl_X) in ("true",):
+       DX = Dist_Emb(DX)
+       meth_X = "Euclidean"
+    elif (sim_meth_X in ("euclidean", "precomputed_euclidean")):
+       DX = DX
+       meth_X = "Euclidean"
+    else:
+       meth_X = "precomputed"
+        
+    if (sim_meth_Y not in ("euclidean", "precomputed_euclidean")) and str(eucl_Y) in ("true",):
+        DY = Dist_Emb(DY)
+        meth_Y = "Euclidean"
+    elif (sim_meth_Y in ("euclidean", "precomputed_euclidean")):
+        DY = DY
+        meth_Y = "Euclidean"
+    else:
+        meth_Y = "precomputed"
     
-if norm_Y == "TRUE" or str(norm_Y) == "True":
-    Ocols = np.linalg.norm(Y, axis = 1)
-    Oy = True
-else:
-    Ocols = None
-    Oy = False
+    if meth_X == "precomputed" and meth_Y == "precomputed":
+        DX = Dist_Emb(DX) 
+        meth_X = "Euclidean"
     
-clust_method = str(sys.argv[12])
-num_clust = sys.argv[13]
-if str(num_clust) != "Score":
-    get_score = False
-    file_res = str(sys.argv[14])+"/miasa_results.pck"
-    num_clust_range = None
-    num_clust = int(num_clust)
-else:
-    num_clust = 2
-    get_score = True
-    file_res = str(sys.argv[14])+"/scored_miasa_results.pck"
-    num_clust_range = (int(sys.argv[15]), int(sys.argv[16])+1)
+    similarity_method = (meth_X, meth_Y)
+    
+    norm_X = str(sys.argv[10]).strip().lower()
+    norm_Y = str(sys.argv[11]).strip().lower()
+    
+    if norm_X == "true":
+        Orows = np.linalg.norm(X, axis = 1)
+        Ox = True
+    else:
+        Orows = None
+        Ox = False
+        
+    if norm_Y == "true":
+        Ocols = np.linalg.norm(Y, axis = 1)
+        Oy = True
+    else:
+        Ocols = None
+        Oy = False
+        
+    clust_method = str(sys.argv[12])
+    num_clust = sys.argv[13]
+    if str(num_clust) != "Score":
+        get_score = False
+        file_res = str(sys.argv[14])+"/miasa_results.pck"
+        num_clust_range = None
+        num_clust = int(num_clust)
+    else:
+        num_clust = 2
+        get_score = True
+        file_res = str(sys.argv[14])+"/scored_miasa_results.pck"
+        num_clust_range = (int(sys.argv[15]), int(sys.argv[16])+1)
+        
+        
+    Feature_dic = {}
+    Feature_dic["DMat"] = Prox_Mat(DX, DY, UX = Orows, UY = Ocols, fXY = D_assoc)
+    Feature_dic["dist_origin"] = (Ox, Oy)
+    
+    Results = Miasa_Class(X, Y, num_clust, Feature_dic=Feature_dic, clust_method=clust_method, similarity_method= similarity_method, get_score = get_score, num_clust_range= num_clust_range)
+    Results["X_vars"]=X_vars
+    Results["Y_vars"]=Y_vars
+    import pickle
+    file = open(file_res, "wb")
+    pickle.dump(Results, file)
+    file.close()
+    
+    """Saving qEE-Transition data"""
+    Coords = Results["Coords"]
+    qEE_dic = {"qEE dimensions": ["dim_%d"%(i+1) for i in range(Coords.shape[1])]}
+    for i in range(len(X_vars)):
+        qEE_dic[X_vars[i]] = np.round(Coords[i, :], decimals=10)
+    
+    for j in range(len(Y_vars)):
+        qEE_dic[Y_vars[j]] = np.round(Coords[-len(Y_vars):, :][j, :], decimals=10)   
+    
+    qEE_DF = pd.DataFrame(qEE_dic)
+    
+    if not os.path.exists("results/"):
+        os.mkdir("results")
+        
+    qEE_DF.to_excel("results/qEE_Transformed_Dataset.xlsx")
+    qEE_DF.to_csv("results/qEE_Transformed_Dataset.csv")
     
     
-Feature_dic = {}
-Feature_dic["DMat"] = Prox_Mat(DX, DY, UX = Orows, UY = Ocols, fXY = D_assoc)
-Feature_dic["dist_origin"] = (Ox, Oy)
-
-Results = Miasa_Class(X, Y, num_clust, Feature_dic=Feature_dic, clust_method=clust_method, similarity_method= similarity_method, get_score = get_score, num_clust_range= num_clust_range)
-Results["X_vars"]=X_vars
-Results["Y_vars"]=Y_vars
-import pickle
-file = open(file_res, "wb")
-pickle.dump(Results, file)
-file.close()
-
-"""Saving qEE-Transition data"""
-Coords = Results["Coords"]
-qEE_dic = {"qEE dimensions": ["dim_%d"%(i+1) for i in range(Coords.shape[1])]}
-for i in range(len(X_vars)):
-    qEE_dic[X_vars[i]] = np.round(Coords[i, :], decimals=10)
-
-for j in range(len(Y_vars)):
-    qEE_dic[Y_vars[j]] = np.round(Coords[-len(Y_vars):, :][j, :], decimals=10)   
-
-qEE_DF = pd.DataFrame(qEE_dic)
-
-if not os.path.exists("results/"):
-    os.mkdir("results")
-    
-qEE_DF.to_excel("results/qEE_Transformed_Dataset.xlsx")
-qEE_DF.to_csv("results/qEE_Transformed_Dataset.csv")
-
-
-import matplotlib.pyplot as plt
-if get_score:
-    list_num = Results["list_num"]
-    elbow = Results["elbow"]
-    distortion = Results["distortion"]
-    silhouette = Results["silhouette"]
-    
-    fig = plt.figure(figsize = (21,5))
-    ax1 = fig.add_subplot(131)
-    elbow_norm = (elbow - min(elbow))/(max(elbow) - min(elbow))
-    invert_elbow = 1 - elbow_norm
-    plt.plot(list_num, invert_elbow, "o", label = "1 - F-stat")
-    plt.title("Inverted Elbow", fontsize = 20)
-    plt.ylabel("Score(normalized)", fontsize = 15)
-    plt.plot(list_num, invert_elbow, "--", linewidth = 2)
-    diff_norm = np.diff(invert_elbow)/max(np.diff(invert_elbow))
-    diff_norm_full = np.zeros(len(elbow))
-    diff_norm_full[1:] = diff_norm
-    plt.plot(list_num, diff_norm_full, label = "curve (diff)")
-    plt.legend()
-    
-    ax2 = fig.add_subplot(132)
-    distortion_norm = (distortion - min(distortion))/(max(distortion) - min(distortion))
-    plt.plot(list_num, distortion_norm, "^", label = "distortion")
-    plt.plot(list_num, distortion_norm, "--", linewidth = 2)
-    plt.title("Distortion", fontsize = 20)
-    plt.ylabel("Score (normalized)", fontsize = 15)
-    
-    ax2 = fig.add_subplot(133)
-    plt.plot(list_num, silhouette, "^", label = "silhouette")
-    plt.plot(list_num, silhouette, "--", linewidth = 2)
-    plt.title("Average Silhouette", fontsize = 20)
-    plt.ylabel("score", fontsize = 15)
-    
-    from matplotlib.backends.backend_pdf import PdfPages
-    pdf= PdfPages(str(sys.argv[14])+"/Cluster_scores.pdf")
-    pdf.savefig(fig, bbox_inches = "tight")
-    pdf.close()
-    plt.savefig(str(sys.argv[14])+"/Cluster_scores.svg", bbox_inches='tight')
+    import matplotlib.pyplot as plt
+    if get_score:
+        list_num = Results["list_num"]
+        elbow = Results["elbow"]
+        distortion = Results["distortion"]
+        silhouette = Results["silhouette"]
+        
+        fig = plt.figure(figsize = (21,5))
+        ax1 = fig.add_subplot(131)
+        elbow_norm = (elbow - min(elbow))/(max(elbow) - min(elbow))
+        invert_elbow = 1 - elbow_norm
+        plt.plot(list_num, invert_elbow, "o", label = "1 - F-stat")
+        plt.title("Inverted Elbow", fontsize = 20)
+        plt.ylabel("Score(normalized)", fontsize = 15)
+        plt.plot(list_num, invert_elbow, "--", linewidth = 2)
+        diff_norm = np.diff(invert_elbow)/max(np.diff(invert_elbow))
+        diff_norm_full = np.zeros(len(elbow))
+        diff_norm_full[1:] = diff_norm
+        plt.plot(list_num, diff_norm_full, label = "curve (diff)")
+        plt.legend()
+        
+        ax2 = fig.add_subplot(132)
+        distortion_norm = (distortion - min(distortion))/(max(distortion) - min(distortion))
+        plt.plot(list_num, distortion_norm, "^", label = "distortion")
+        plt.plot(list_num, distortion_norm, "--", linewidth = 2)
+        plt.title("Distortion", fontsize = 20)
+        plt.ylabel("Score (normalized)", fontsize = 15)
+        
+        ax2 = fig.add_subplot(133)
+        plt.plot(list_num, silhouette, "^", label = "silhouette")
+        plt.plot(list_num, silhouette, "--", linewidth = 2)
+        plt.title("Average Silhouette", fontsize = 20)
+        plt.ylabel("score", fontsize = 15)
+        
+        from matplotlib.backends.backend_pdf import PdfPages
+        pdf= PdfPages(str(sys.argv[14])+"/Cluster_scores.pdf")
+        pdf.savefig(fig, bbox_inches = "tight")
+        pdf.close()
+        plt.savefig(str(sys.argv[14])+"/Cluster_scores.svg", bbox_inches='tight')

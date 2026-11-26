@@ -6,11 +6,11 @@ Data_Y: "Data_Y.xlsx"
 true_labels_file: "true_labels_file.xlsx" # Optional: comment out if unused
 # 2. What distance to compute as similarity (default metric parameter from scipy.spatial.distance.pdist or "precomputed")
 # for first dataset --- use "precomputed" if you provide it as not Euclidean, "precomputed_Euclidean" if you provide it as Euclidean 
-sim_X: "Euclidean"
+sim_X: "euclidean"
 # if sim_X is not Euclidean, embed it
 Eucl_X: "TRUE"
 # for second dataset --- use "precomputed" if you provide it as not Euclidean, "precomputed_Euclidean" if you provide it as Euclidean 
-sim_Y: "Euclidean"
+sim_Y: "euclidean"
 # if sim_Y is not Euclidean, embed it 
 Eucl_Y: "TRUE"
 # 3. Distance to use as association, must be given
